@@ -1,0 +1,82 @@
+{
+  "entries": [
+    {
+      "ollamaModel": "gemma4:26b",
+      "label": { "en": "gemma4 26B", "de": "gemma4 26B" },
+      "description": {
+        "en": "Best all-rounder: fast, good German, sees photos",
+        "de": "Bester Allrounder: schnell, gutes Deutsch, versteht Fotos"
+      },
+      "downloadGiB": 17,
+      "memoryGiB": 22,
+      "minTotalMemoryGiB": 32,
+      "vision": true,
+      "tools": true,
+      "think": true,
+      "contextTokens": 131072,
+      "recommendedFor": { "minGiB": 32, "maxGiB": null }
+    },
+    {
+      "ollamaModel": "gemma4:12b",
+      "label": { "en": "gemma4 12B", "de": "gemma4 12B" },
+      "description": {
+        "en": "Same quality class as the 26B at half the speed, needs less memory",
+        "de": "Ähnlich gut wie das 26B, halb so schnell, braucht weniger Speicher"
+      },
+      "downloadGiB": 7.5,
+      "memoryGiB": 11,
+      "minTotalMemoryGiB": 16,
+      "vision": true,
+      "tools": true,
+      "think": true,
+      "contextTokens": 32768,
+      "recommendedFor": { "minGiB": 16, "maxGiB": 31.9 }
+    },
+    {
+      "ollamaModel": "gemma4:e4b",
+      "label": { "en": "gemma4 E4B", "de": "gemma4 E4B" },
+      "description": {
+        "en": "Small and quick, sees photos; for computers with 12–16 GB",
+        "de": "Klein und flott, versteht Fotos; für Computer mit 12–16 GB"
+      },
+      "downloadGiB": 6.2,
+      "memoryGiB": 8,
+      "minTotalMemoryGiB": 12,
+      "vision": true,
+      "tools": true,
+      "think": true,
+      "contextTokens": 32768
+    },
+    {
+      "ollamaModel": "gemma4:e2b",
+      "label": { "en": "gemma4 E2B", "de": "gemma4 E2B" },
+      "description": {
+        "en": "The smallest: runs on 8 GB, simpler answers",
+        "de": "Das kleinste: läuft mit 8 GB, einfachere Antworten"
+      },
+      "downloadGiB": 4.3,
+      "memoryGiB": 6,
+      "minTotalMemoryGiB": 8,
+      "vision": true,
+      "tools": true,
+      "think": true,
+      "contextTokens": 16384,
+      "recommendedFor": { "minGiB": 0, "maxGiB": 15.9 }
+    },
+    {
+      "ollamaModel": "qwen3-coder:30b",
+      "label": { "en": "Qwen3-Coder 30B", "de": "Qwen3-Coder 30B" },
+      "description": {
+        "en": "For programming questions; no photos",
+        "de": "Für Programmierfragen; keine Fotos"
+      },
+      "downloadGiB": 17,
+      "memoryGiB": 21,
+      "minTotalMemoryGiB": 32,
+      "vision": false,
+      "tools": true,
+      "think": false,
+      "contextTokens": 32768
+    }
+  ]
+}

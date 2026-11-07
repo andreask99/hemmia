@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="push_reply_title">Hemmia</string>
+    <string name="push_reply_body">Deine Antwort ist da</string>
+    <string name="push_image_title">Hemmia</string>
+    <string name="push_image_body">Dein Bild ist fertig</string>
+    <string name="push_daily_title">Hemmia</string>
+    <string name="push_daily_body">☀️ Dein Tag: Ziele und Termine</string>
+    <string name="push_week_title">Hemmia</string>
+    <string name="push_week_body">📋 Plane deine Woche: 5 Minuten für das Wichtige</string>
+    <string name="push_evening_title">Hemmia</string>
+    <string name="push_evening_body">🌙 Wie war dein Tag?</string>
+    <string name="push_maintenance_ok_title">Hemmia</string>
+    <string name="push_maintenance_ok_body">Wartung: Updates installiert und getestet</string>
+    <string name="push_maintenance_failed_title">Hemmia</string>
+    <string name="push_maintenance_failed_body">Wartung: Ein Update ist fehlgeschlagen, die vorherige Version wurde wiederhergestellt</string>
+    <string name="channel_replies">Antworten</string>
+</resources>

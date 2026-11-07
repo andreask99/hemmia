@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Hemmia (dev)</string>
+    <string name="title_activity_main">Hemmia (dev)</string>
+    <string name="package_name">app.hemmia.dev</string>
+    <string name="custom_url_scheme">app.hemmia.dev</string>
+    <string name="push_reply_title">Hemmia</string>
+    <string name="push_reply_body">Your reply is ready</string>
+    <string name="push_image_title">Hemmia</string>
+    <string name="push_image_body">Your picture is ready</string>
+    <string name="push_daily_title">Hemmia</string>
+    <string name="push_daily_body">☀️ Your day: goals and appointments</string>
+    <string name="push_week_title">Hemmia</string>
+    <string name="push_week_body">📋 Plan your week: 5 minutes for what matters</string>
+    <string name="push_evening_title">Hemmia</string>
+    <string name="push_evening_body">🌙 How did today go?</string>
+    <string name="push_maintenance_ok_title">Hemmia</string>
+    <string name="push_maintenance_ok_body">Maintenance: updates installed and tested</string>
+    <string name="push_maintenance_failed_title">Hemmia</string>
+    <string name="push_maintenance_failed_body">Maintenance: an update failed, the previous version was restored</string>
+    <string name="channel_replies">Replies</string>
+</resources>

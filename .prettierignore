@@ -1,0 +1,10 @@
+node_modules
+dist
+coverage
+package-lock.json
+services/imagegen/.venv
+docs
+*.md
+apps/mobile/ios
+apps/mobile/android
+dist-package

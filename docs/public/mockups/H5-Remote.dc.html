@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>H5 Away from home</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1f4d3f}a:hover{color:#173d32}
+</style>
+</helmet>
+<div style="width: 960px; height: 640px; box-sizing: border-box; background: #f4f1e8; color: #17231f; font-family: Manrope, system-ui, sans-serif; display: flex; border: 1px solid #e0dccf; border-radius: 14px; overflow: hidden">
+<nav aria-label="Setup steps" style="width: 230px; flex-shrink: 0; background: #e9e2cd; padding: 28px 22px; box-sizing: border-box; display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; align-items: center; gap: 10px; margin-bottom: 18px"><svg width="34" height="34" viewBox="0 0 72 72" aria-hidden="true"><circle cx="36" cy="36" r="36" fill="#1f4d3f"></circle><path d="M20 55V34a16 16 0 0 1 32 0v21l-5.33-4-5.34 4-5.33-4-5.33 4-5.34-4z" fill="#f4f1e8"></path><circle cx="30" cy="34" r="2.4" fill="#17231f"></circle><circle cx="42" cy="34" r="2.4" fill="#17231f"></circle><path d="M32.6 40q3.4 2.8 6.8 0" fill="none" stroke="#17231f" stroke-width="1.8" stroke-linecap="round"></path><circle cx="26" cy="39" r="2" fill="#e9b7a3"></circle><circle cx="46" cy="39" r="2" fill="#e9b7a3"></circle></svg><span style="font-family: Fraunces, Georgia, serif; font-weight: 600; font-size: 22px">Hemmia hub</span></div>
+<sc-for list="{{steps}}" as="s" hint-placeholder-count="6">
+<div style="display: flex; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 10px; font-size: 14px; font-weight: 600; background: {{s.bg}}; color: {{s.fg}}"><span style="width: 22px; height: 22px; border-radius: 11px; border: 1.5px solid {{s.fg}}; display: flex; align-items: center; justify-content: center; font-size: 12px">{{s.n}}</span>{{s.label}}</div>
+</sc-for>
+</nav>
+<main style="flex-grow: 1; padding: 40px 48px; display: flex; flex-direction: column; gap: 14px">
+<h1 style="margin: 0; font-family: Fraunces, Georgia, serif; font-weight: 600; font-size: 32px">Use Hemmia away from home</h1>
+<p style="margin: 0; font-size: 15px; line-height: 1.5; color: #55625c">How should phones reach this computer when they're not on your Wi-Fi?</p>
+<label style="display: flex; gap: 14px; align-items: flex-start; background: #fffdf8; border: 2px solid #1f4d3f; border-radius: 16px; padding: 16px 18px">
+<input type="radio" name="r" checked style="width: 20px; height: 20px; margin-top: 2px; accent-color: #1f4d3f">
+<span style="display: flex; flex-direction: column; gap: 4px"><span style="font-weight: 700; font-size: 16px">Hemmia Connect <span style="font-size: 12px; background: #e9e2cd; color: #4a4025; border-radius: 999px; padding: 2px 8px; margin-left: 6px">Recommended</span></span><span style="font-size: 14px; color: #55625c; line-height: 1.45">Works everywhere with nothing else to install. Your hub gets its own address (<b>k7f3q2.h.hemmia.link</b>). Traffic is encrypted end to end: the relay passes it on but can't read it.</span></span>
+</label>
+<label style="display: flex; gap: 14px; align-items: flex-start; background: #fffdf8; border: 1px solid #e0dccf; border-radius: 16px; padding: 16px 18px">
+<input type="radio" name="r" style="width: 20px; height: 20px; margin-top: 2px; accent-color: #1f4d3f">
+<span style="display: flex; flex-direction: column; gap: 4px"><span style="font-weight: 700; font-size: 16px">Tailscale</span><span style="font-size: 14px; color: #55625c; line-height: 1.45">A private network you manage yourself. Every phone needs the Tailscale app and an account.</span></span>
+</label>
+<label style="display: flex; gap: 14px; align-items: flex-start; background: #fffdf8; border: 1px solid #e0dccf; border-radius: 16px; padding: 16px 18px">
+<input type="radio" name="r" style="width: 20px; height: 20px; margin-top: 2px; accent-color: #1f4d3f">
+<span style="display: flex; flex-direction: column; gap: 4px"><span style="font-weight: 700; font-size: 16px">Not now</span><span style="font-size: 14px; color: #55625c; line-height: 1.45">Use Hemmia only in a browser on this computer. Phones need Connect or Tailscale; you can turn either on later.</span></span>
+</label>
+<div style="flex-grow: 1"></div>
+<div style="display: flex; gap: 12px; align-items: center">
+<a href="H6-Pair.dc.html" style="display: flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 28px; border-radius: 14px; background: #1f4d3f; color: #f6f2e7; font-weight: 600; text-decoration: none">Turn on Connect</a>
+<span style="font-size: 13px; color: #55625c">Also keeps this computer from sleeping.</span>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":960,"height":640}}'>
+class Component extends DCLogic {
+renderVals() {
+const labels = ['Welcome', 'Your account', 'Recovery code', 'Choose your AI', 'Away from home', 'Add your phone'];
+const current = 4;
+return { steps: labels.map((label, i) => ({ n: i < current ? '✓' : String(i + 1), label, bg: i === current ? '#1f4d3f' : 'transparent', fg: i === current ? '#f6f2e7' : (i < current ? '#2f6b3f' : '#4a4025') })) };
+}
+}
+</script>
+</body>
+</html>

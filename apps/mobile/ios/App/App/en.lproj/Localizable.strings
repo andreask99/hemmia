@@ -1,0 +1,15 @@
+/* Notification texts (RELAY.md: title-loc-key / loc-key). */
+"push_reply_title" = "Hemmia";
+"push_reply_body" = "Your reply is ready";
+"push_image_title" = "Hemmia";
+"push_image_body" = "Your picture is ready";
+"push_daily_title" = "Hemmia";
+"push_daily_body" = "☀️ Your day: goals and appointments";
+"push_week_title" = "Hemmia";
+"push_week_body" = "📋 Plan your week: 5 minutes for what matters";
+"push_evening_title" = "Hemmia";
+"push_evening_body" = "🌙 How did today go?";
+"push_maintenance_ok_title" = "Hemmia";
+"push_maintenance_ok_body" = "Maintenance: updates installed and tested";
+"push_maintenance_failed_title" = "Hemmia";
+"push_maintenance_failed_body" = "Maintenance: an update failed, the previous version was restored";

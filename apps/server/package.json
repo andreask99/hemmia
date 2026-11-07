@@ -1,0 +1,33 @@
+{
+  "name": "@hemmia/server",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch --watch-preserve-output src/main.ts",
+    "start": "NODE_ENV=production node src/main.ts",
+    "typecheck": "tsc -p tsconfig.json",
+    "admin": "node src/cli/admin-main.ts"
+  },
+  "devDependencies": {
+    "@hemmia/relay": "0.0.0",
+    "@types/better-sqlite3": "9.6.0"
+  },
+  "dependencies": {
+    "@fastify/multipart": "10.1.2",
+    "@fastify/static": "10.1.5",
+    "@hemmia/providers": "0.0.0",
+    "@hemmia/relay-protocol": "0.0.0",
+    "@hemmia/shared": "0.0.0",
+    "@napi-rs/canvas": "1.0.11",
+    "@node-rs/argon2": "2.2.1",
+    "better-sqlite3": "13.0.3",
+    "exceljs": "4.4.0",
+    "fastify": "5.12.7",
+    "mammoth": "1.13.0",
+    "pdfjs-dist": "6.1.200",
+    "pino": "10.3.1",
+    "sharp": "0.35.5",
+    "unpdf": "1.8.1"
+  }
+}

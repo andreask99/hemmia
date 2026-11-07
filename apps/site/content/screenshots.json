@@ -1,0 +1,38 @@
+{
+  "hub-chat": {
+    "width": 1200,
+    "height": 750
+  },
+  "hub-family": {
+    "width": 1200,
+    "height": 750
+  },
+  "hub-invite": {
+    "width": 1200,
+    "height": 750
+  },
+  "mac-setup-models": {
+    "width": 1200,
+    "height": 750
+  },
+  "mac-setup-phone": {
+    "width": 1200,
+    "height": 750
+  },
+  "mac-setup-recovery": {
+    "width": 1200,
+    "height": 750
+  },
+  "mac-setup-remote": {
+    "width": 1200,
+    "height": 750
+  },
+  "mac-setup-welcome": {
+    "width": 1200,
+    "height": 750
+  },
+  "phone-chat": {
+    "width": 555,
+    "height": 1200
+  }
+}

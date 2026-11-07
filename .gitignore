@@ -1,0 +1,25 @@
+node_modules/
+dist/
+.vite/
+coverage/
+*.log
+.DS_Store
+.env
+.env.*
+!.env.example
+# Python worker
+services/imagegen/.venv/
+__pycache__/
+# never commit user data (it lives in ~/Library/Application Support/kchat anyway)
+data/
+*.db
+*.db-*
+scripts/spike/photos/
+scripts/spike/results/raw/
+__pycache__/
+.pytest_cache/
+
+# Local development CA for debug mobile builds (generated)
+apps/mobile/android/app/src/debug/res/raw/kchat_dev_ca.pem
+dist-ssr/
+dist-package/

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>M4 Connected</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1f4d3f}a:hover{color:#173d32}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #f4f1e8; color: #17231f; font-family: Manrope, system-ui, sans-serif; display: flex; flex-direction: column; padding: 72px 24px 36px; gap: 18px">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 14px; margin-top: 24px">
+<svg width="96" height="96" viewBox="0 0 72 72" role="img" aria-label="The Hemmia ghost, connected"><circle cx="36" cy="36" r="36" fill="#1f4d3f"></circle><path d="M20 55V34a16 16 0 0 1 32 0v21l-5.33-4-5.34 4-5.33-4-5.33 4-5.34-4z" fill="#f4f1e8"></path><circle cx="30" cy="34" r="2.4" fill="#17231f"></circle><circle cx="42" cy="34" r="2.4" fill="#17231f"></circle><path d="M32.6 40q3.4 2.8 6.8 0" fill="none" stroke="#17231f" stroke-width="1.8" stroke-linecap="round"></path><circle cx="26" cy="39" r="2" fill="#e9b7a3"></circle><circle cx="46" cy="39" r="2" fill="#e9b7a3"></circle><circle cx="56" cy="54" r="10" fill="#2f6b3f" stroke="#f4f1e8" stroke-width="3"></circle><path d="M51.5 54l3 3 6-6.5" fill="none" stroke="#f6f2e7" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+<h1 style="margin: 0; font-family: Fraunces, Georgia, serif; font-weight: 600; font-size: 28px; text-align: center">You're in, anna</h1>
+<p style="margin: 0; text-align: center; font-size: 15px; line-height: 1.5; color: #55625c">This phone is connected to <b>[Family name] Hemmia</b>.</p>
+</div>
+<div style="background: #fffdf8; border: 1px solid #e0dccf; border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 12px">
+<div style="font-weight: 700; font-size: 16px">Get a notification when a reply is ready?</div>
+<div style="font-size: 14px; color: #55625c; line-height: 1.45">Notifications never contain your messages, only "Your reply is ready".</div>
+<button type="button" style="min-height: 48px; border-radius: 14px; border: 0; background: #1f4d3f; color: #f6f2e7; font: 600 15px Manrope, system-ui, sans-serif">Allow notifications</button>
+</div>
+<div style="background: #fffdf8; border: 1px solid #e0dccf; border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 12px">
+<div style="font-weight: 700; font-size: 16px">Invite your family</div>
+<div style="font-size: 14px; color: #55625c; line-height: 1.45">Each person gets their own private account.</div>
+<a href="M5-Invite.dc.html" style="display: flex; align-items: center; justify-content: center; min-height: 48px; border-radius: 14px; background: #e9e2cd; color: #4a4025; font-weight: 600; text-decoration: none">Invite someone</a>
+</div>
+<div style="flex-grow: 1"></div>
+<a href="A1-Home.dc.html" style="display: flex; align-items: center; justify-content: center; min-height: 52px; border-radius: 14px; background: #1f4d3f; color: #f6f2e7; font-weight: 600; font-size: 16px; text-decoration: none">Start chatting</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

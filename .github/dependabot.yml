@@ -1,0 +1,22 @@
+# Dependency and security updates (GitHub Dependabot). Versions in package.json are pinned
+# exactly; Dependabot proposes updates as pull requests, which pass `npm run check` before
+# they are merged.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+  - package-ecosystem: docker
+    directory: /apps/relay
+    schedule:
+      interval: weekly

@@ -1,0 +1,17 @@
+**/node_modules
+**/dist
+**/.DS_Store
+.git
+docs
+data
+coverage
+services/imagegen/.venv
+scripts/spike
+**/*.test.ts
+**/*.test.tsx
+apps/relay/test
+dist-package
+**/dist-ssr
+apps/mobile
+apps/site
+services

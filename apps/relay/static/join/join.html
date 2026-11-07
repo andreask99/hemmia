@@ -1,0 +1,41 @@
+<!doctype html>
+<html
+  lang="en"
+  data-relay="%RELAY_DOMAIN%"
+  data-app-store="%APP_STORE_URL%"
+  data-play-store="%PLAY_STORE_URL%"
+>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="referrer" content="no-referrer" />
+    <title>Hemmia</title>
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/join.css" />
+  </head>
+  <body>
+    <main>
+      <img class="logo" src="/icon.svg" alt="" />
+      <h1 id="title">Hemmia</h1>
+      <div id="content" hidden>
+        <p id="intro" class="muted"></p>
+        <div id="appcard" class="card">
+          <p id="step1"></p>
+          <a id="appstore" class="button" href="#" hidden></a>
+          <a id="play" class="button" href="#" hidden></a>
+        </div>
+        <div id="opencard" class="card">
+          <p id="step2"></p>
+          <a id="open" class="button" href="#"></a>
+        </div>
+        <p><span id="web" class="muted"></span> <a id="weblink" href="#"></a></p>
+        <p id="note" class="muted"></p>
+      </div>
+      <noscript
+        >This page needs JavaScript to read your link. Diese Seite braucht JavaScript.</noscript
+      >
+    </main>
+    <script src="/parse.js"></script>
+    <script src="/join.js"></script>
+  </body>
+</html>

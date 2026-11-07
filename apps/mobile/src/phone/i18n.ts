@@ -1,0 +1,219 @@
+/**
+ * Phone-mode strings in English and German (same structure as src/shell/i18n.ts). Add every
+ * key to both catalogues (the `de` type enforces it).
+ */
+import { useMemo } from 'react';
+import { phoneLanguage, type ShellLanguage } from '../shell/i18n.ts';
+
+export const en = {
+  'chat.back': 'Back',
+  'home.title': 'On this phone',
+  'home.settings': 'Settings',
+  'home.search': 'Search chats',
+  'home.newChat': '+ New chat',
+  'home.empty': 'No chats yet.',
+  'home.noChats': 'No chats match.',
+  'home.untitled': 'Untitled chat',
+  'home.more': 'More for {title}',
+  'home.rename': 'Rename',
+  'home.newTitle': 'New title',
+  'home.save': 'Save',
+  'home.cancel': 'Cancel',
+  'home.delete': 'Delete',
+  'home.deleteConfirm': 'Delete this chat? This can’t be undone.',
+  'home.setUp': 'Set up Hemmia at home',
+  'home.setUpIntro': 'For your family, local models and more. Your chats can come along.',
+  'settings.back': 'Chats',
+  'move.title': 'Move to Hemmia at home',
+  'move.intro':
+    'Your chats go to your account on the hub you choose. The key stays here; the hub has its own.',
+  'move.pairFirst': 'Connect Hemmia at home first',
+  'move.importFailed': 'This file couldn’t be imported. Choose a Hemmia export file.',
+  'home.unreadable': '{count} chats couldn’t be read.',
+  'settings.title': 'Settings',
+  'settings.providers': 'AI providers',
+  'settings.noKey': 'No key yet',
+  'settings.addKey': 'Add key',
+  'settings.replace': 'Replace',
+  'settings.remove': 'Remove',
+  'settings.you': 'You',
+  'settings.aboutMe': 'About me',
+  'settings.aboutMeHint': 'A few lines the AI should know about you, sent with every chat.',
+  'settings.save': 'Save',
+  'settings.language': 'Language',
+  'settings.chats': 'Your chats',
+  'settings.export': 'Export chats',
+  'settings.exportNote': 'The export file is not protected. Keep it somewhere safe.',
+  'settings.import': 'Import chats',
+  'settings.moveToHub': 'Move to Hemmia at home',
+  'settings.privacy': 'How your data is handled',
+  'settings.deleteAll': 'Delete everything on this phone',
+  'settings.deleteWarning':
+    'This deletes your chats, photos and keys on this phone. Export your chats first if you want to keep them.',
+  'settings.deleteConfirm': 'Delete everything',
+  'settings.cancel': 'Cancel',
+  'chat.model': 'Model',
+  'chat.placeholder': 'Message',
+  'chat.send': 'Send',
+  'chat.stop': 'Stop',
+  'chat.think': 'Think harder',
+  'chat.addPhoto': 'Add photo',
+  'chat.removePhoto': 'Remove photo',
+  'chat.photoLimit': 'Up to 4 photos per message.',
+  'chat.photo': 'Photo',
+  'chat.stopped': 'Stopped',
+  'chat.empty': 'Ask anything. Your chat stays on this phone.',
+  'chat.error.auth': 'The provider refused your key. Check it in Settings.',
+  'chat.error.rate_limited': 'Your key has reached its limit for now. Try again later.',
+  'chat.error.overloaded': 'The provider is busy, try again.',
+  'chat.error.unavailable': 'No answer from the provider. Check your internet and try again.',
+  'chat.error.refused': 'The model declined to answer this.',
+  'chat.error.no_key': 'Add a key for this provider in Settings first.',
+  'chat.error.limit': 'This phone has reached its storage limit. Delete some old chats first.',
+  'setup.back': 'Back',
+  'setup.providerTitle': 'Which AI do you want to use?',
+  'setup.providerIntro':
+    'You’ll need an API key from the provider. You pay them directly for what you use. Hemmia adds nothing and sees nothing.',
+  'setup.anthropic': 'Anthropic',
+  'setup.anthropicModels': 'Claude models',
+  'setup.anthropicText': 'Thoughtful answers, good with long texts and photos.',
+  'setup.openai': 'OpenAI',
+  'setup.openaiModels': 'GPT models',
+  'setup.openaiText': 'The models behind ChatGPT, with your own key.',
+  'setup.otherLater': 'You can add the other one later in Settings.',
+  'setup.direct':
+    'Your messages go straight from this phone to the provider. Your chats and your key stay on this phone.',
+  'setup.whatIsKey': 'What is an API key?',
+  'setup.keyTitle': 'Paste your API key',
+  'setup.keyIntro':
+    'Create a key in your {provider} account, then copy it here. Tip: set a monthly spending limit there too.',
+  'setup.getKey': 'Get a key from {provider} ↗',
+  'setup.keyLabel': 'API key',
+  'setup.paste': 'Paste',
+  'setup.show': 'Show',
+  'setup.hide': 'Hide',
+  'setup.keyNote': 'Stored in this phone’s secure keychain. Never sent to us.',
+  'setup.consent':
+    'I agree that what I write, and photos I add, are sent to {provider} to get answers, under {provider}’s terms.',
+  'setup.save': 'Check and save',
+  'setup.checking': 'Checking…',
+  'setup.key.refused': 'This key was refused. Check that you copied all of it.',
+  'setup.key.offline': 'No internet. Check your connection and try again.',
+  'setup.key.busy': 'The provider is busy, try again.',
+} as const;
+
+export type PhoneKey = keyof typeof en;
+export const de: Record<PhoneKey, string> = {
+  'chat.back': 'Zurück',
+  'home.title': 'Auf diesem Telefon',
+  'home.settings': 'Einstellungen',
+  'home.search': 'Chats durchsuchen',
+  'home.newChat': '+ Neuer Chat',
+  'home.empty': 'Noch keine Chats.',
+  'home.noChats': 'Keine Chats passen dazu.',
+  'home.untitled': 'Chat ohne Titel',
+  'home.more': 'Mehr zu {title}',
+  'home.rename': 'Umbenennen',
+  'home.newTitle': 'Neuer Titel',
+  'home.save': 'Speichern',
+  'home.cancel': 'Abbrechen',
+  'home.delete': 'Löschen',
+  'home.deleteConfirm': 'Diesen Chat löschen? Das kann nicht rückgängig gemacht werden.',
+  'home.setUp': 'Hemmia zu Hause einrichten',
+  'home.setUpIntro': 'Für deine Familie, lokale Modelle und mehr. Deine Chats können mitkommen.',
+  'settings.back': 'Chats',
+  'move.title': 'Zu Hemmia zu Hause umziehen',
+  'move.intro':
+    'Deine Chats kommen in dein Konto auf dem Hub, den du wählst. Der Schlüssel bleibt hier; der Hub hat eigene.',
+  'move.pairFirst': 'Zuerst Hemmia zu Hause verbinden',
+  'move.importFailed': 'Diese Datei konnte nicht importiert werden. Wähle eine Hemmia-Exportdatei.',
+  'home.unreadable': '{count} Chats konnten nicht gelesen werden.',
+  'settings.title': 'Einstellungen',
+  'settings.providers': 'KI-Anbieter',
+  'settings.noKey': 'Noch kein Schlüssel',
+  'settings.addKey': 'Schlüssel hinzufügen',
+  'settings.replace': 'Ersetzen',
+  'settings.remove': 'Entfernen',
+  'settings.you': 'Du',
+  'settings.aboutMe': 'Über mich',
+  'settings.aboutMeHint':
+    'Ein paar Zeilen, die die KI über dich wissen soll; sie gehen mit jedem Chat mit.',
+  'settings.save': 'Speichern',
+  'settings.language': 'Sprache',
+  'settings.chats': 'Deine Chats',
+  'settings.export': 'Chats exportieren',
+  'settings.exportNote': 'Die Exportdatei ist nicht geschützt. Bewahre sie sicher auf.',
+  'settings.import': 'Chats importieren',
+  'settings.moveToHub': 'Zu Hemmia zu Hause umziehen',
+  'settings.privacy': 'Wie mit deinen Daten umgegangen wird',
+  'settings.deleteAll': 'Alles auf diesem Telefon löschen',
+  'settings.deleteWarning':
+    'Das löscht deine Chats, Fotos und Schlüssel auf diesem Telefon. Exportiere deine Chats vorher, wenn du sie behalten willst.',
+  'settings.deleteConfirm': 'Alles löschen',
+  'settings.cancel': 'Abbrechen',
+  'chat.model': 'Modell',
+  'chat.placeholder': 'Nachricht',
+  'chat.send': 'Senden',
+  'chat.stop': 'Stopp',
+  'chat.think': 'Gründlicher nachdenken',
+  'chat.addPhoto': 'Foto hinzufügen',
+  'chat.removePhoto': 'Foto entfernen',
+  'chat.photoLimit': 'Bis zu 4 Fotos pro Nachricht.',
+  'chat.photo': 'Foto',
+  'chat.stopped': 'Abgebrochen',
+  'chat.empty': 'Frag, was du willst. Dein Chat bleibt auf diesem Telefon.',
+  'chat.error.auth': 'Der Anbieter hat deinen Schlüssel abgelehnt. Prüf ihn in den Einstellungen.',
+  'chat.error.rate_limited':
+    'Dein Schlüssel hat gerade sein Limit erreicht. Versuch es später noch einmal.',
+  'chat.error.overloaded': 'Der Anbieter ist ausgelastet, versuch es noch einmal.',
+  'chat.error.unavailable':
+    'Keine Antwort vom Anbieter. Prüf deine Internetverbindung und versuch es noch einmal.',
+  'chat.error.refused': 'Das Modell wollte darauf nicht antworten.',
+  'chat.error.no_key': 'Trag zuerst in den Einstellungen einen Schlüssel für diesen Anbieter ein.',
+  'chat.error.limit': 'Der Speicher auf diesem Telefon ist voll. Lösch zuerst ein paar alte Chats.',
+  'setup.back': 'Zurück',
+  'setup.providerTitle': 'Welche KI möchtest du nutzen?',
+  'setup.providerIntro':
+    'Du brauchst einen API-Schlüssel vom Anbieter. Du bezahlst ihn direkt für das, was du nutzt. Hemmia schlägt nichts drauf und sieht nichts.',
+  'setup.anthropic': 'Anthropic',
+  'setup.anthropicModels': 'Claude-Modelle',
+  'setup.anthropicText': 'Durchdachte Antworten, gut mit langen Texten und Fotos.',
+  'setup.openai': 'OpenAI',
+  'setup.openaiModels': 'GPT-Modelle',
+  'setup.openaiText': 'Die Modelle hinter ChatGPT, mit deinem eigenen Schlüssel.',
+  'setup.otherLater': 'Den anderen kannst du später in den Einstellungen hinzufügen.',
+  'setup.direct':
+    'Deine Nachrichten gehen direkt von diesem Telefon zum Anbieter. Deine Chats und dein Schlüssel bleiben auf diesem Telefon.',
+  'setup.whatIsKey': 'Was ist ein API-Schlüssel?',
+  'setup.keyTitle': 'Füge deinen API-Schlüssel ein',
+  'setup.keyIntro':
+    'Erstelle einen Schlüssel in deinem {provider}-Konto und kopiere ihn hierher. Tipp: Leg dort auch ein monatliches Ausgabenlimit fest.',
+  'setup.getKey': 'Schlüssel bei {provider} holen ↗',
+  'setup.keyLabel': 'API-Schlüssel',
+  'setup.paste': 'Einfügen',
+  'setup.show': 'Zeigen',
+  'setup.hide': 'Verbergen',
+  'setup.keyNote': 'Im sicheren Schlüsselbund dieses Telefons gespeichert. Nie an uns gesendet.',
+  'setup.consent':
+    'Ich bin einverstanden, dass das, was ich schreibe, und Fotos, die ich hinzufüge, an {provider} geschickt werden, um Antworten zu bekommen, zu den Bedingungen von {provider}.',
+  'setup.save': 'Prüfen und speichern',
+  'setup.checking': 'Wird geprüft…',
+  'setup.key.refused':
+    'Dieser Schlüssel wurde abgelehnt. Prüf, ob du ihn vollständig kopiert hast.',
+  'setup.key.offline': 'Kein Internet. Prüf deine Verbindung und versuch es noch einmal.',
+  'setup.key.busy': 'Der Anbieter ist ausgelastet, versuch es noch einmal.',
+};
+
+export type PhoneT = (key: PhoneKey, params?: Record<string, string>) => string;
+
+export function usePhoneText(language?: ShellLanguage): { t: PhoneT; language: ShellLanguage } {
+  const lang = language ?? phoneLanguage(navigator.languages);
+  return useMemo(() => {
+    const cat = lang === 'de' ? de : en;
+    const t: PhoneT = (key, params) => {
+      const text: string = cat[key];
+      return params ? text.replace(/\{(\w+)\}/g, (m, name: string) => params[name] ?? m) : text;
+    };
+    return { language: lang, t };
+  }, [lang]);
+}

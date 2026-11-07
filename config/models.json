@@ -1,0 +1,281 @@
+{
+  "chatModels": [
+    {
+      "id": "gemma4-26b",
+      "label": {
+        "en": "gemma4 26B",
+        "de": "gemma4 26B"
+      },
+      "description": {
+        "en": "Best all-rounder: fast, sees photos",
+        "de": "Bester Allrounder: schnell, sieht Fotos"
+      },
+      "details": {
+        "en": "Uses 4B of its 26B parameters per word · ~45 words/s · 19 GB",
+        "de": "Nutzt 4B seiner 26B Parameter pro Wort · ~45 Wörter/s · 19 GB"
+      },
+      "ollamaModel": "gemma4:26b",
+      "contextTokens": 131072,
+      "historyBudgetTokens": 24000,
+      "think": true,
+      "memoryGiB": 22
+    },
+    {
+      "id": "gemma4-12b",
+      "label": {
+        "en": "gemma4 12B",
+        "de": "gemma4 12B"
+      },
+      "description": {
+        "en": "Smaller and lighter, leaves room for pictures",
+        "de": "Kleiner und leichter, lässt Platz für Bilder"
+      },
+      "details": {
+        "en": "Uses all 12B parameters per word · ~25 words/s · 9 GB",
+        "de": "Nutzt alle 12B Parameter pro Wort · ~25 Wörter/s · 9 GB"
+      },
+      "ollamaModel": "gemma4:12b",
+      "contextTokens": 32768,
+      "historyBudgetTokens": 24000,
+      "think": true,
+      "memoryGiB": 11
+    },
+    {
+      "id": "qwen3-coder-30b",
+      "label": {
+        "en": "Qwen3-Coder 30B",
+        "de": "Qwen3-Coder 30B"
+      },
+      "description": {
+        "en": "Fastest, specialised in programming",
+        "de": "Am schnellsten, spezialisiert auf Programmierung"
+      },
+      "details": {
+        "en": "Uses 3B of its 30B parameters per word · ~55 words/s · 20 GB",
+        "de": "Nutzt 3B seiner 30B Parameter pro Wort · ~55 Wörter/s · 20 GB"
+      },
+      "ollamaModel": "qwen3-coder:30b",
+      "contextTokens": 32768,
+      "historyBudgetTokens": 24000,
+      "memoryGiB": 21
+    },
+    {
+      "id": "qwen38-27b",
+      "label": {
+        "en": "Qwen3.8 27B",
+        "de": "Qwen3.8 27B"
+      },
+      "description": {
+        "en": "Strongest thinker, but slow: for hard questions",
+        "de": "Denkt am gründlichsten, aber langsam: für schwierige Fragen"
+      },
+      "details": {
+        "en": "Uses all 27B parameters per word · ~9–25 words/s · 21+ GB",
+        "de": "Nutzt alle 27B Parameter pro Wort · ~9–25 Wörter/s · 21+ GB"
+      },
+      "ollamaModel": "qwen3.8:27b-mlx",
+      "contextTokens": 65536,
+      "historyBudgetTokens": 24000,
+      "think": true,
+      "unloadAfterUse": false,
+      "memoryGiB": 26
+    }
+  ],
+  "cloudModels": [
+    {
+      "id": "claude-sonnet",
+      "label": {
+        "en": "Claude Sonnet 5.5",
+        "de": "Claude Sonnet 5.5"
+      },
+      "description": {
+        "en": "Fast and capable, in the cloud (Anthropic)",
+        "de": "Schnell und stark, in der Cloud (Anthropic)"
+      },
+      "details": {
+        "en": "Your Anthropic key · ~$2 / $10 per million tokens in / out",
+        "de": "Dein Anthropic-Schlüssel · ~2 $ / 10 $ pro Million Tokens rein / raus"
+      },
+      "provider": "anthropic",
+      "providerModel": "claude-sonnet-5-5",
+      "contextTokens": 1000000,
+      "historyBudgetTokens": 40000,
+      "vision": true,
+      "thinking": true,
+      "tools": true,
+      "inputPerMTok": 2,
+      "outputPerMTok": 10,
+      "serverFallback": true
+    },
+    {
+      "id": "claude-opus",
+      "label": {
+        "en": "Claude Opus 5.5",
+        "de": "Claude Opus 5.5"
+      },
+      "description": {
+        "en": "Anthropic's strongest everyday model, in the cloud",
+        "de": "Anthropics stärkstes Alltagsmodell, in der Cloud"
+      },
+      "details": {
+        "en": "Your Anthropic key · ~$4 / $20 per million tokens in / out",
+        "de": "Dein Anthropic-Schlüssel · ~4 $ / 20 $ pro Million Tokens rein / raus"
+      },
+      "provider": "anthropic",
+      "providerModel": "claude-opus-5-5",
+      "contextTokens": 1000000,
+      "historyBudgetTokens": 40000,
+      "vision": true,
+      "thinking": true,
+      "tools": true,
+      "inputPerMTok": 4,
+      "outputPerMTok": 20,
+      "serverFallback": true
+    },
+    {
+      "id": "gpt-sol",
+      "label": {
+        "en": "GPT-6.1 Sol",
+        "de": "GPT-6.1 Sol"
+      },
+      "description": {
+        "en": "OpenAI's balanced model, in the cloud",
+        "de": "OpenAIs ausgewogenes Modell, in der Cloud"
+      },
+      "details": {
+        "en": "Your OpenAI key · ~$2 / $10 per million tokens in / out",
+        "de": "Dein OpenAI-Schlüssel · ~2 $ / 10 $ pro Million Tokens rein / raus"
+      },
+      "provider": "openai",
+      "providerModel": "gpt-6.1-sol",
+      "contextTokens": 1000000,
+      "historyBudgetTokens": 40000,
+      "vision": true,
+      "thinking": true,
+      "tools": true,
+      "inputPerMTok": 2,
+      "outputPerMTok": 10
+    },
+    {
+      "id": "gpt-astra",
+      "label": {
+        "en": "GPT-6 Astra",
+        "de": "GPT-6 Astra"
+      },
+      "description": {
+        "en": "OpenAI's strongest model for hard questions, in the cloud",
+        "de": "OpenAIs stärkstes Modell für schwierige Fragen, in der Cloud"
+      },
+      "details": {
+        "en": "Your OpenAI key · ~$10 / $50 per million tokens in / out",
+        "de": "Dein OpenAI-Schlüssel · ~10 $ / 50 $ pro Million Tokens rein / raus"
+      },
+      "provider": "openai",
+      "providerModel": "gpt-6-astra",
+      "contextTokens": 1000000,
+      "historyBudgetTokens": 40000,
+      "vision": true,
+      "thinking": true,
+      "tools": true,
+      "inputPerMTok": 10,
+      "outputPerMTok": 50
+    },
+    {
+      "id": "openrouter-auto",
+      "label": {
+        "en": "OpenRouter Auto",
+        "de": "OpenRouter Auto"
+      },
+      "description": {
+        "en": "OpenRouter picks a model for each message, in the cloud",
+        "de": "OpenRouter wählt für jede Nachricht ein Modell, in der Cloud"
+      },
+      "details": {
+        "en": "Your OpenRouter key · price depends on the model it picks",
+        "de": "Dein OpenRouter-Schlüssel · Preis hängt vom gewählten Modell ab"
+      },
+      "provider": "openrouter",
+      "providerModel": "openrouter/auto",
+      "contextTokens": 128000,
+      "historyBudgetTokens": 40000,
+      "vision": false,
+      "thinking": false,
+      "tools": true,
+      "inputPerMTok": 3,
+      "outputPerMTok": 15
+    },
+    {
+      "id": "or-gemma4-26b",
+      "label": {
+        "en": "Gemma 4 26B (OpenRouter)",
+        "de": "Gemma 4 26B (OpenRouter)"
+      },
+      "description": {
+        "en": "The open Gemma model, run in the cloud",
+        "de": "Das offene Gemma-Modell, in der Cloud ausgeführt"
+      },
+      "details": {
+        "en": "Your OpenRouter key · ~$0.09 / $0.30 per million tokens in / out",
+        "de": "Dein OpenRouter-Schlüssel · ~0,09 $ / 0,30 $ pro Million Tokens rein / raus"
+      },
+      "provider": "openrouter",
+      "providerModel": "google/gemma-4-26b-a4b-it",
+      "contextTokens": 262144,
+      "historyBudgetTokens": 40000,
+      "vision": true,
+      "thinking": true,
+      "tools": true,
+      "inputPerMTok": 0.09,
+      "outputPerMTok": 0.3
+    },
+    {
+      "id": "or-qwen3-8-27b",
+      "label": {
+        "en": "Qwen3.8 27B (OpenRouter)",
+        "de": "Qwen3.8 27B (OpenRouter)"
+      },
+      "description": {
+        "en": "The open Qwen model, run in the cloud",
+        "de": "Das offene Qwen-Modell, in der Cloud ausgeführt"
+      },
+      "details": {
+        "en": "Your OpenRouter key · ~$0.20 / $2.50 per million tokens in / out",
+        "de": "Dein OpenRouter-Schlüssel · ~0,20 $ / 2,50 $ pro Million Tokens rein / raus"
+      },
+      "provider": "openrouter",
+      "providerModel": "qwen/qwen3.8-27b",
+      "contextTokens": 262144,
+      "historyBudgetTokens": 40000,
+      "vision": true,
+      "thinking": true,
+      "tools": true,
+      "inputPerMTok": 0.2,
+      "outputPerMTok": 2.5
+    }
+  ],
+  "imageModels": [
+    {
+      "id": "image",
+      "label": {
+        "en": "Pictures",
+        "de": "Bilder"
+      },
+      "mfluxModel": "flux2-klein-4b",
+      "steps": 4,
+      "memoryGiB": 23
+    },
+    {
+      "id": "image-text",
+      "label": {
+        "en": "Pictures with text",
+        "de": "Bilder mit Text"
+      },
+      "mfluxModel": "z-image-turbo",
+      "steps": 9,
+      "memoryGiB": 25,
+      "goodAtText": true
+    }
+  ],
+  "defaultChatModel": "gemma4-26b",
+  "defaultImageModel": "image"
+}

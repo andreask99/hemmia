@@ -1,0 +1,140 @@
+@import 'tailwindcss';
+
+@import '@hemmia/ui/theme.css';
+@source '../../../packages/ui/src';
+
+/* While the app frame is shown (AppLayout), the page itself never scrolls: the frame is exactly
+   the screen's height and scrolls inside. Without this, the home-screen app on iPhone lets the
+   whole page rubber-band, top bar included. Sign-in and setup pages keep normal scrolling. */
+html.app-frame,
+html.app-frame body {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+/* Celebrations when a task or goal is done (components/celebrate.ts). */
+.kc-celebration {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  overflow: hidden;
+}
+.kc-particle {
+  position: absolute;
+  border-radius: 2px;
+  opacity: 0;
+  animation: kc-burst 1.1s cubic-bezier(0.15, 0.7, 0.35, 1) forwards;
+}
+@keyframes kc-burst {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(0) scale(1);
+  }
+  55% {
+    opacity: 1;
+    transform: translate(calc(var(--dx) - 50%), calc(var(--dy) - 50%)) rotate(var(--rot)) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(var(--dx) - 50%), calc(var(--dy) + 45px - 50%)) rotate(var(--rot))
+      scale(0.6);
+  }
+}
+.kc-cheer {
+  position: absolute;
+  top: calc(env(safe-area-inset-top) + 16px);
+  left: 50%;
+  max-width: calc(100% - 32px);
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: var(--forest);
+  color: var(--on-forest);
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+  text-align: center;
+  box-shadow: 0 6px 24px rgb(0 0 0 / 0.18);
+  animation: kc-cheer 2.6s ease forwards;
+}
+@keyframes kc-cheer {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -12px) scale(0.9);
+  }
+  12%,
+  80% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -8px) scale(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kc-cheer {
+    animation-name: kc-cheer-fade;
+  }
+  @keyframes kc-cheer-fade {
+    0%,
+    100% {
+      opacity: 0;
+      transform: translateX(-50%);
+    }
+    10%,
+    85% {
+      opacity: 1;
+      transform: translateX(-50%);
+    }
+  }
+}
+
+/* Code highlighting (rehype-highlight emits hljs-* classes). Code blocks are always dark. */
+.hljs-comment,
+.hljs-quote {
+  color: #9ca3af;
+  font-style: italic;
+}
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal,
+.hljs-type {
+  color: #c4b5fd;
+}
+.hljs-string,
+.hljs-regexp,
+.hljs-addition {
+  color: #86efac;
+}
+.hljs-number,
+.hljs-built_in,
+.hljs-symbol {
+  color: #fdba74;
+}
+.hljs-title,
+.hljs-title.function_,
+.hljs-section {
+  color: #93c5fd;
+}
+.hljs-attr,
+.hljs-attribute,
+.hljs-variable,
+.hljs-property {
+  color: #f9a8d4;
+}
+.hljs-deletion {
+  color: #fca5a5;
+}
+.hljs-meta {
+  color: #67e8f9;
+}
+
+/* Horizontal rows that scroll without a visible scrollbar (agent row). */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

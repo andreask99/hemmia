@@ -1,0 +1,23 @@
+{
+  "name": "@hemmia/relay",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "NODE_ENV=production node src/main.ts",
+    "dev": "node --watch --watch-preserve-output src/main.ts",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "9.6.0"
+  },
+  "dependencies": {
+    "@hemmia/relay-protocol": "0.0.0",
+    "better-sqlite3": "13.0.3",
+    "pino": "10.3.1",
+    "zod": "4.6.7"
+  },
+  "exports": {
+    "./testing": "./test/index.ts"
+  }
+}

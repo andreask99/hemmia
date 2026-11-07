@@ -1,0 +1,132 @@
+/*
+ * Shared look of the hub web app and phone mode (@hemmia/ui). Import it right after
+ * `@import 'tailwindcss';` and add `@source` for packages/ui/src so Tailwind sees its classes.
+ */
+/* Fonts are bundled (SIL OFL, see fonts/OFL-*.txt); kchat never loads from the internet. */
+@font-face {
+  font-family: 'Fraunces';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('./fonts/fraunces-latin.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Fraunces';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('./fonts/fraunces-latin-ext.woff2') format('woff2');
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('./fonts/manrope-latin.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('./fonts/manrope-latin-ext.woff2') format('woff2');
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+
+/*
+ * "Forest & Champagne" (docs/DECISIONS.md, 2026-10-01). Colours are CSS variables so light
+ * and dark mode switch here, not with dark: variants in every component.
+ */
+:root {
+  --paper: #f4f1e8;
+  --card: #fffdf8;
+  --ink: #17231f;
+  --muted: #55625c;
+  --line: #e0dccf;
+  --forest: #1f4d3f;
+  --forest-hover: #173d32;
+  --on-forest: #f6f2e7;
+  --champagne: #e9e2cd;
+  --on-champagne: #4a4025;
+  --danger: #a3352b;
+  --danger-soft: #f6e3df;
+  --ok: #2f6b3f;
+  --warn: #8a5a0e;
+  --code-bg: #1b2621;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #111815;
+    --card: #18221d;
+    --ink: #ece6d8;
+    --muted: #a2ada6;
+    --line: #2a3731;
+    --forest: #2f6b57;
+    --forest-hover: #3a7e67;
+    --on-forest: #f6f2e7;
+    --champagne: #2b3530;
+    --on-champagne: #e5d6b0;
+    --danger: #f0a196;
+    --danger-soft: #3a211d;
+    --ok: #8fcf9c;
+    --warn: #e2b866;
+    --code-bg: #0c120f;
+    color-scheme: dark;
+  }
+}
+
+@theme {
+  --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Fraunces', Georgia, serif;
+  --color-paper: var(--paper);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-forest: var(--forest);
+  --color-forest-hover: var(--forest-hover);
+  --color-on-forest: var(--on-forest);
+  --color-champagne: var(--champagne);
+  --color-on-champagne: var(--on-champagne);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-code: var(--code-bg);
+}
+
+html,
+body {
+  background: var(--paper);
+  color: var(--ink);
+}
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+/* Keyboard focus ring. In the base layer so utilities (e.g. focus:outline-none) can override
+   it; text fields show focus through their own border instead of a hard outline. */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--forest);
+    outline-offset: 2px;
+  }
+  :where(input:not([type='checkbox'], [type='radio']), textarea, select):focus-visible {
+    outline: none;
+  }
+}

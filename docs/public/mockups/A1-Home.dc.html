@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>A1 Chat home</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1f4d3f}a:hover{color:#173d32}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #f4f1e8; color: #17231f; font-family: Manrope, system-ui, sans-serif; display: flex; flex-direction: column; padding: 52px 20px 24px; gap: 14px">
+<div style="display: flex; align-items: center; justify-content: space-between; min-height: 44px">
+<button type="button" aria-label="Chats" style="width: 44px; height: 44px; border-radius: 22px; border: 0; background: #e9e2cd; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10" stroke="#4a4025" stroke-width="2" stroke-linecap="round"></path></svg></button>
+<span style="font-size: 13px; font-weight: 700; background: #e9e2cd; color: #4a4025; border-radius: 999px; padding: 6px 12px">[Family name] Hemmia · at home</span>
+<a href="M9-Remote.dc.html" aria-label="Settings" style="width: 44px; height: 44px; border-radius: 22px; background: #e9e2cd; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3" fill="none" stroke="#4a4025" stroke-width="2"></circle><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1" stroke="#4a4025" stroke-width="2" stroke-linecap="round"></path></svg></a>
+</div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 36px">
+<svg width="96" height="108" viewBox="14 12 44 52" role="img" aria-label="The Hemmia ghost waving"><ellipse cx="36" cy="61" rx="11" ry="2" fill="#e0dccf"></ellipse><path d="M20 55V34a16 16 0 0 1 32 0v21l-5.33-4-5.34 4-5.33-4-5.33 4-5.34-4z" fill="#fffdf8" stroke="#1f4d3f" stroke-width="1.6" stroke-linejoin="round"></path><path d="M51.5 38q5-1 5.5-6" fill="none" stroke="#1f4d3f" stroke-width="1.6" stroke-linecap="round"></path><circle cx="30" cy="34" r="2.4" fill="#17231f"></circle><circle cx="42" cy="34" r="2.4" fill="#17231f"></circle><path d="M32.6 40q3.4 2.8 6.8 0" fill="none" stroke="#17231f" stroke-width="1.8" stroke-linecap="round"></path><circle cx="26" cy="39" r="2" fill="#e9b7a3"></circle><circle cx="46" cy="39" r="2" fill="#e9b7a3"></circle></svg>
+<h1 style="margin: 0; font-family: Fraunces, Georgia, serif; font-weight: 600; font-size: 28px; text-align: center">Good morning, anna</h1>
+<p style="margin: 0; font-size: 15px; color: #55625c; text-align: center">What can I help with today?</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px">
+<sc-for list="{{ideas}}" as="i" hint-placeholder-count="3">
+<a href="A2-Chat.dc.html" style="display: flex; align-items: center; min-height: 48px; padding: 0 16px; border-radius: 14px; background: #fffdf8; border: 1px solid #e0dccf; color: #17231f; font-size: 15px; font-weight: 600; text-decoration: none">{{i}}</a>
+</sc-for>
+</div>
+<div style="background: #fffdf8; border: 1px solid #e0dccf; border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 12px; font-weight: 700; color: #55625c; letter-spacing: 0.5px">TODAY</span>
+<span style="font-size: 14px; line-height: 1.45">Rain from 3 pm, bring a jacket for pick-up. Ben's football is at 5.</span>
+</div>
+<div style="flex-grow: 1"></div>
+<div style="display: flex; flex-direction: column; gap: 8px; background: #fffdf8; border: 1px solid #e0dccf; border-radius: 22px; padding: 10px 10px 10px 16px">
+<label for="msg" style="position: absolute; left: -9999px">Message</label>
+<input id="msg" placeholder="Ask Hemmia…" style="height: 40px; border: 0; background: transparent; font: 500 16px Manrope, system-ui, sans-serif; color: #17231f; outline: none">
+<div style="display: flex; align-items: center; justify-content: space-between">
+<div style="display: flex; gap: 8px; align-items: center">
+<button type="button" aria-label="Add photo or file" style="width: 40px; height: 40px; border-radius: 20px; border: 1px solid #e0dccf; background: #f4f1e8; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="#1f4d3f" stroke-width="2" stroke-linecap="round"></path></svg></button>
+<button type="button" style="min-height: 40px; padding: 0 12px; border-radius: 20px; border: 1px solid #e0dccf; background: #f4f1e8; color: #4a4025; font: 600 13px Manrope, system-ui, sans-serif">gemma4 · on this computer</button>
+</div>
+<a href="A2-Chat.dc.html" aria-label="Send" style="width: 40px; height: 40px; border-radius: 20px; background: #1f4d3f; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6" fill="none" stroke="#f6f2e7" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return { ideas: ['Plan dinners for this week', 'What is in this photo?', 'Help with a letter to school'] };
+}
+}
+</script>
+</body>
+</html>

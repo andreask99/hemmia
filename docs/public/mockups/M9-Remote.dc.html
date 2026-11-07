@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>M9 Settings: remote access</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1f4d3f}a:hover{color:#173d32}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #f4f1e8; color: #17231f; font-family: Manrope, system-ui, sans-serif; display: flex; flex-direction: column; padding: 56px 20px 36px; gap: 14px">
+<a href="M4-Connected.dc.html" style="font-size: 15px; font-weight: 600; text-decoration: none">‹ Settings</a>
+<h1 style="margin: 0; font-family: Fraunces, Georgia, serif; font-weight: 600; font-size: 26px">Remote access</h1>
+<div style="background: #fffdf8; border: 1px solid #e0dccf; border-radius: 18px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; align-items: center"><span style="font-weight: 700; font-size: 16px">Hemmia Connect</span><span style="font-size: 12px; font-weight: 700; color: #2f6b3f">● Connected</span></div>
+<div style="font-size: 14px; color: #55625c">k7f3q2.h.hemmia.link</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; font-size: 13px">
+<span style="color: #55625c">Certificate</span><span>valid until 12 Jan</span>
+<span style="color: #55625c">Relay</span><span>Frankfurt · 18 ms</span>
+<span style="color: #55625c">This month</span><span>1.2 GB of 20 GB</span>
+</div>
+<label style="display: flex; justify-content: space-between; align-items: center; min-height: 44px; font-size: 15px; font-weight: 600">Remote access on<input type="checkbox" checked style="width: 22px; height: 22px; accent-color: #1f4d3f"></label>
+</div>
+<div style="background: #fffdf8; border: 1px solid #e0dccf; border-radius: 18px; padding: 16px 18px; display: flex; flex-direction: column; gap: 6px">
+<div style="font-weight: 700; font-size: 16px">Only paired devices</div>
+<div style="font-size: 14px; color: #55625c; line-height: 1.45">Over Connect, Hemmia only opens for devices that joined with an invite or a QR code. A stolen passphrase alone isn't enough.</div>
+</div>
+<div style="background: #fffdf8; border: 1px solid #e0dccf; border-radius: 18px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px">
+<div style="font-weight: 700; font-size: 16px">Paired devices</div>
+<sc-for list="{{devices}}" as="d" hint-placeholder-count="3">
+<div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px; min-height: 36px"><span><b>{{d.name}}</b> · <span style="color: #55625c">{{d.seen}}</span></span><button type="button" style="min-height: 36px; padding: 0 12px; border-radius: 10px; border: 0; background: #f6e3df; color: #a3352b; font: 600 13px Manrope, system-ui, sans-serif">Remove</button></div>
+</sc-for>
+</div>
+<div style="flex-grow: 1"></div>
+<p style="margin: 0; font-size: 13px; color: #55625c; line-height: 1.45">Tailscale also works alongside Connect. <a href="M9-Remote.dc.html">Set up Tailscale</a></p>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return { devices: [
+{ name: 'anna · iPhone', seen: 'now' },
+{ name: 'ben · Pixel', seen: '2 h ago' },
+{ name: 'anna · Safari on Mac', seen: 'yesterday' }
+] };
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+[
+  {
+    "platform": "ios",
+    "url": "",
+    "note": { "en": "iPhone and iPad, iOS 15 or later", "de": "iPhone und iPad, ab iOS 15" }
+  },
+  {
+    "platform": "android",
+    "url": "",
+    "note": { "en": "Android 8 or later", "de": "Ab Android 8" }
+  },
+  {
+    "platform": "macos",
+    "url": "",
+    "note": {
+      "en": "Installs Hemmia at home on a Mac with Apple silicon (16 GB memory or more recommended). You use it in the browser and the phone app; there is no separate Mac app.",
+      "de": "Installiert Hemmia zu Hause auf einem Mac mit Apple-Chip (16 GB Arbeitsspeicher oder mehr empfohlen). Du nutzt es im Browser und in der Telefon-App; eine eigene Mac-App gibt es nicht."
+    }
+  },
+  {
+    "platform": "docker",
+    "url": "",
+    "note": {
+      "en": "Linux, Windows with Docker Desktop, or a NAS",
+      "de": "Linux, Windows mit Docker Desktop oder ein NAS"
+    }
+  }
+]
