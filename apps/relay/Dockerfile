@@ -1,7 +1,7 @@
 # The relay image (RELAY.md §12). Build from the repository root:
 #   docker buildx build -f apps/relay/Dockerfile --platform linux/amd64,linux/arm64 -t hemmia-relay .
 # node:22-bookworm-slim, pinned by digest (2026-10-23, Node 22.23.3).
-FROM node:22-bookworm-slim@sha256:de170b39439eb0e5a3444ad7d60b015614a381e10fecae2e30ec9e735122f38d AS deps
+FROM node:25-bookworm-slim@sha256:81db02c4b671288a03915da9534dbd54f96d0e7c24d80ccc54f5b36b2e684370 AS deps
 
 # better-sqlite3 has no prebuilt Linux binaries for every release; compile it here so the final
 # image carries no compiler.
@@ -16,7 +16,7 @@ COPY packages/relay-protocol/package.json packages/relay-protocol/package.json
 RUN npm ci --omit=dev --workspace=@hemmia/relay --include-workspace-root=false --no-audit --no-fund \
  && npm cache clean --force
 
-FROM node:22-bookworm-slim@sha256:de170b39439eb0e5a3444ad7d60b015614a381e10fecae2e30ec9e735122f38d
+FROM node:25-bookworm-slim@sha256:81db02c4b671288a03915da9534dbd54f96d0e7c24d80ccc54f5b36b2e684370
 
 ENV NODE_ENV=production
 WORKDIR /app
