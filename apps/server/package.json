@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@fastify/multipart": "10.1.2",
-    "@fastify/static": "10.1.5",
+    "@fastify/static": "10.1.10",
     "@hemmia/providers": "0.0.0",
     "@hemmia/relay-protocol": "0.0.0",
     "@hemmia/shared": "0.0.0",
