@@ -119,12 +119,13 @@ export function createTunnelClient(o: TunnelClientOptions) {
   function onOpen(frame: Frame, m: TunnelMux, maxStreams: number): void {
     const open = decodeJson(frame, OpenPayload);
     const stream: TunnelStream = m.accept(frame.streamId);
+    // Before anything can destroy it: an 'error' without a listener would end the process.
+    stream.on('error', () => undefined);
     const ctx = o.secureContext();
     if (m.size > maxStreams || !ctx) {
       stream.destroy(new StreamResetError('refused'));
       return;
     }
-    stream.on('error', () => undefined);
     const clientIp = safeClientIp(open.clientIp);
     const tlsSocket = new tls.TLSSocket(stream, {
       isServer: true,

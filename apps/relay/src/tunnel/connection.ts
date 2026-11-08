@@ -27,6 +27,12 @@ import {
   hubVersionAllowed,
 } from '@hemmia/relay-protocol';
 
+/**
+ * Bytes the relay buffers for one hub's connection before disconnecting it. An honest hub has
+ * at most one window (256 KiB) per open stream unacknowledged, and real use stays far below.
+ */
+export const MAX_BUFFERED = 32 * 1024 * 1024;
+
 export interface HubLookup {
   (hubId: string): { publicKey: Uint8Array; blocked: boolean } | null;
 }
@@ -46,6 +52,8 @@ export interface ConnectionDeps {
 
 export class TunnelConnection {
   hubId: string | null = null;
+  /** The hub's software, from AUTH (`hemmia-hub/<version>`), for the minimum-version check. */
+  agent: string | null = null;
   readonly connectedAt = Date.now();
   readonly #socket: tls.TLSSocket;
   readonly #deps: ConnectionDeps;
@@ -70,7 +78,7 @@ export class TunnelConnection {
       initialWindow: TUNNEL_DEFAULTS.initialWindow,
       idleMs: t.idleStreamMs,
       send: (f) => {
-        if (!this.#closed) this.#socket.write(f);
+        this.#send(f);
       },
     });
     socket.setNoDelay(true);
@@ -104,8 +112,18 @@ export class TunnelConnection {
     return this.#mux.size;
   }
 
+  /**
+   * Writes a frame. A hub that doesn't read its connection (or acknowledges data it never read)
+   * would make the relay buffer without limit; past MAX_BUFFERED it is disconnected instead
+   * (security review 2026-11-07, H4). An honest hub has at most one window per stream in flight.
+   */
   #send(frame: Buffer): void {
-    if (!this.#closed) this.#socket.write(frame);
+    if (this.#closed) return;
+    if (this.#socket.writableLength + frame.length > MAX_BUFFERED) {
+      this.close();
+      return;
+    }
+    this.#socket.write(frame);
   }
 
   #onData(chunk: Buffer): void {
@@ -156,6 +174,7 @@ export class TunnelConnection {
         return;
       }
       this.hubId = auth.hubId;
+      this.agent = auth.agent;
       this.#send(
         encodeJsonFrame(FrameType.READY, 0, ReadyPayload, {
           v: 1,

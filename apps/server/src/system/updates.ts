@@ -111,7 +111,9 @@ export function createUpdateCheck(o: {
       if (text === null) return latest;
       const manifest = verifyManifest(JSON.parse(text), o.publicKey);
       // Unsigned, tampered or replayed (older than the last one): keep what we knew.
-      if (!manifest || manifest.signedAt < signedAt) return latest;
+      // A manifest for another channel (a beta served as stable) counts as tampered.
+      if (!manifest || manifest.channel !== (o.channel ?? 'stable')) return latest;
+      if (manifest.signedAt < signedAt) return latest;
       signedAt = manifest.signedAt;
       latest = updateInfo(manifest, o.currentVersion);
     } catch {

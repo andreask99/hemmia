@@ -116,3 +116,27 @@ export function createRateLimiter(options: RateLimiterOptions) {
 }
 
 export type RateLimiter = ReturnType<typeof createRateLimiter>;
+
+/**
+ * The rate-limit key for an address: IPv4 as is, IPv6 by its /64 (one household or server
+ * gets a whole /64, so per-address keys would let it rotate past any limit). Security review
+ * 2026-11-07, M8.
+ */
+export function ipBucket(ip: string): string {
+  const lower = ip.toLowerCase();
+  const mapped = /^::ffff:(\d+\.\d+\.\d+\.\d+)$/.exec(lower);
+  if (mapped?.[1]) return mapped[1];
+  if (!lower.includes(':')) return lower;
+  const [head = '', tail] = lower.split('::');
+  const left = head === '' ? [] : head.split(':');
+  const right = tail === undefined || tail === '' ? [] : tail.split(':');
+  const groups = [
+    ...left,
+    ...Array<string>(Math.max(0, 8 - left.length - right.length)).fill('0'),
+    ...right,
+  ];
+  return `${groups
+    .slice(0, 4)
+    .map((g) => g.replace(/^0+(?=.)/, ''))
+    .join(':')}::/64`;
+}

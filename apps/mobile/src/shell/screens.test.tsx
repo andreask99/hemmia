@@ -6,6 +6,7 @@ import { GetHub } from './GetHub.tsx';
 import { Scan } from './Scan.tsx';
 import { Offline } from './Offline.tsx';
 import { Outdated } from './Outdated.tsx';
+import { ConfirmHub } from './ConfirmHub.tsx';
 import { HubList } from './HubList.tsx';
 import type { StoredHub } from './hubs.ts';
 
@@ -345,5 +346,44 @@ describe('Outdated', () => {
     expect(screen.getByText('Home braucht ein Update')).toBeDefined();
     fireEvent.click(screen.getByRole('button', { name: 'Erneut versuchen' }));
     expect(onRetry).toHaveBeenCalled();
+  });
+});
+
+describe('ConfirmHub', () => {
+  afterEach(() => {
+    cleanup();
+  });
+
+  it('shows the full address and adds only on confirm', () => {
+    const onConfirm = vi.fn();
+    const onCancel = vi.fn();
+    render(
+      <ConfirmHub
+        hubHost="k7m2pq9xz4hr.h.hemmia.app"
+        onConfirm={onConfirm}
+        onCancel={onCancel}
+        language="en"
+      />,
+    );
+    expect(screen.getByTestId('confirm-host').textContent).toBe('k7m2pq9xz4hr.h.hemmia.app');
+    expect(screen.queryByText(/Tailscale/)).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(onCancel).toHaveBeenCalled();
+    expect(onConfirm).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'Add and open' }));
+    expect(onConfirm).toHaveBeenCalled();
+  });
+
+  it('says when the address is a Tailscale name', () => {
+    render(
+      <ConfirmHub
+        hubHost="home.tail1.ts.net"
+        onConfirm={() => undefined}
+        onCancel={() => undefined}
+        language="de"
+      />,
+    );
+    expect(screen.getByText(/Tailscale-Adresse/)).toBeDefined();
+    expect(screen.getByRole('button', { name: 'Hinzufügen und öffnen' })).toBeDefined();
   });
 });

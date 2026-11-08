@@ -7,6 +7,7 @@ import { dirname, join } from 'node:path';
 import { parentPort, workerData } from 'node:worker_threads';
 import type { getDocumentProxy } from 'unpdf';
 import type { DocumentKind } from './documents.ts';
+import { zipWithinLimits } from './zip.ts';
 
 interface Input {
   kind: DocumentKind;
@@ -202,6 +203,9 @@ async function xlsx(bytes: Uint8Array): Promise<Extracted> {
 
 async function main(): Promise<void> {
   const input = workerData as Input;
+  if (input.kind !== 'pdf' && !zipWithinLimits(Buffer.from(input.bytes))) {
+    throw new Error('archive outside limits');
+  }
   const { text, pages, scans } =
     input.kind === 'pdf'
       ? await pdf(input.bytes, input.maxScanPages)

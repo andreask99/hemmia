@@ -1,4 +1,5 @@
 /** A small state-based router for the shell's few screens (no URLs, no history). */
+import type { LinkTarget } from './open.ts';
 import { createContext, type ReactNode, useContext, useMemo, useState } from 'react';
 
 export type Screen =
@@ -9,6 +10,8 @@ export type Screen =
   | { name: 'hubs' }
   | { name: 'phone'; setup: boolean }
   | { name: 'offline'; hubHost: string }
+  /** A tapped link leads to a hub not saved yet: ask first (review 2026-11-07, H1). */
+  | { name: 'confirmHub'; target: LinkTarget }
   /** The version handshake failed (P5.11): this app or that hub needs an update. */
   | { name: 'outdated'; hubHost: string; side: 'app' | 'hub' };
 

@@ -139,6 +139,35 @@ run('relay tunnels', () => {
     expect(getMinHubVersion(db)).toBeNull();
   });
 
+  it('ends a connected tunnel once its hub is blocked or below a raised minimum', async () => {
+    await start();
+    const a = newHubKey();
+    const b = newHubKey();
+    registerInDb(db, a);
+    registerInDb(db, b);
+    const hubA = connectFakeHub(relay.port, ca.certPem, a, { agent: 'hemmia-hub/0.1.0' });
+    const hubB = connectFakeHub(relay.port, ca.certPem, b, { agent: 'hemmia-hub/0.3.0' });
+    hubs.push(hubA, hubB);
+    await hubA.ready;
+    await hubB.ready;
+    const closed = (h: { socket: tls.TLSSocket }) =>
+      new Promise<void>((r) => {
+        h.socket.on('close', () => {
+          r();
+        });
+      });
+    const aClosed = closed(hubA);
+    db.prepare('UPDATE hubs SET blocked_at = 1 WHERE id = ?').run(a.hubId);
+    relay.tunnels.recheck();
+    await aClosed;
+    expect(relay.tunnels.isConnected(b.hubId)).toBe(true);
+    const bClosed = closed(hubB);
+    setMinHubVersion(db, '0.4.0');
+    relay.tunnels.recheck();
+    await bClosed;
+    expect(relay.tunnels.count()).toBe(0);
+  });
+
   it('times out a hub that does not authenticate', async () => {
     await start({ authMs: 50 });
     const socket = tls.connect({

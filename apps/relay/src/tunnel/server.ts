@@ -3,6 +3,7 @@
  * connections routed into them, quotas and logging (RELAY.md §4, §9, §10). Owned by Claude.
  */
 import type net from 'node:net';
+import { hubVersionAllowed } from '@hemmia/relay-protocol';
 import { getMinHubVersion } from '../admin.ts';
 import type tls from 'node:tls';
 import type { Logger } from 'pino';
@@ -83,8 +84,24 @@ export function createTunnelServer(deps: TunnelServerDeps) {
     tunnel.openClient(socket, clientIp, sni, hello);
   }
 
+  /**
+   * Blocking a hub or raising the minimum version (cli.ts, another process) also ends tunnels
+   * that are already connected, within a minute (security review 2026-11-07, M3).
+   */
+  function recheck(): void {
+    const minimum = getMinHubVersion(deps.db);
+    for (const [id, c] of [...tunnels]) {
+      const row = lookupStmt.get(id);
+      if (!row || row.blocked_at !== null) c.fail('blocked');
+      else if (!hubVersionAllowed(c.agent ?? '', minimum)) c.fail('outdated');
+    }
+  }
+  const recheckTimer = setInterval(recheck, 60_000);
+  recheckTimer.unref();
+
   return {
     accept,
+    recheck,
     client,
     isConnected: (hubId: string) => tunnels.has(hubId),
     close: (hubId: string) => {
@@ -94,6 +111,7 @@ export function createTunnelServer(deps: TunnelServerDeps) {
     shutdown(): void {
       for (const c of [...tunnels.values()]) c.goaway('shutdown');
       for (const c of [...pending]) c.close();
+      clearInterval(recheckTimer);
       quota.close();
     },
     count: () => tunnels.size,

@@ -2,13 +2,15 @@
  * Deletion periods the privacy policy promises (hemmia.app/legal/privacy, RELAY.md §10), run
  * hourly: monthly byte counts after 3 months, hubs that haven't connected for 12 months (with
  * their certificate orders and push handles), idle push handles after 90 days, the push rate
- * log after a day. Blocked hubs stay, so a blocked key can't register again. Owned by Claude.
+ * log after a day, certificate orders after 7 days. Blocked hubs stay, so a blocked key can't register again. Owned by Claude.
  */
 import type { RelayDb } from './db.ts';
 
 const DAY = 24 * 60 * 60_000;
 export const HUB_IDLE_MS = 365 * DAY;
 export const PUSH_HANDLE_IDLE_MS = 90 * DAY;
+/** Certificate orders (with the CSR and the issued chain) are kept for a week. */
+export const CERT_ORDER_MS = 7 * DAY;
 /** Byte counts are kept for the current month and the two before it. */
 export const USAGE_MONTHS = 3;
 
@@ -37,6 +39,7 @@ export function pruneRelay(db: RelayDb, now = Date.now()): { hubs: number; usage
     }
     db.prepare('DELETE FROM push_handles WHERE last_used_at < ?').run(now - PUSH_HANDLE_IDLE_MS);
     db.prepare('DELETE FROM push_log WHERE at < ?').run(now - DAY);
+    db.prepare('DELETE FROM cert_orders WHERE created_at < ?').run(now - CERT_ORDER_MS);
     return { hubs: idle.length, usage };
   })();
 }

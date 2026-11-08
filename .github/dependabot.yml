@@ -1,22 +1,26 @@
 # Dependency and security updates (GitHub Dependabot). Versions in package.json are pinned
-# exactly; Dependabot proposes updates as pull requests, which pass `npm run check` before
-# they are merged.
+# exactly. Until this repository is the main one, it is an exported snapshot: version-update
+# pull requests are off (open-pull-requests-limit: 0) and updates are made at the source.
+# Security alerts and security-update pull requests stay on (they ignore this limit).
 version: 2
 updates:
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: weekly
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 0
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
+    open-pull-requests-limit: 0
   - package-ecosystem: docker
     directory: /
     schedule:
       interval: weekly
+    open-pull-requests-limit: 0
   - package-ecosystem: docker
     directory: /apps/relay
     schedule:
       interval: weekly
+    open-pull-requests-limit: 0

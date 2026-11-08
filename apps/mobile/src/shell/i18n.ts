@@ -43,6 +43,13 @@ export const en = {
   'open.invalidLink': 'This isn’t a Hemmia link. Scan the QR code from your hub again.',
   'open.unreachable': 'The hub at this address isn’t reachable right now. Try again in a moment.',
   'open.defaultName': 'Hemmia at home',
+  'confirm.title': 'Add this hub?',
+  'confirm.text': 'The link you opened leads to a Hemmia hub at this address:',
+  'confirm.tailnet': 'This is a Tailscale address. It works only while Tailscale is on.',
+  'confirm.trust':
+    'Only continue if the link comes from someone you trust, such as whoever set up Hemmia at home.',
+  'confirm.add.button': 'Add and open',
+  'confirm.cancel.button': 'Cancel',
   'getHub.shareText': 'Install Hemmia on this computer',
   'hubList.empty': 'No hub saved on this phone yet.',
   ghost: 'The Hemmia ghost',
@@ -104,6 +111,14 @@ export const de: Record<ShellKey, string> = {
   'open.unreachable':
     'Der Hub unter dieser Adresse ist gerade nicht erreichbar. Versuch es gleich noch einmal.',
   'open.defaultName': 'Hemmia zu Hause',
+  'confirm.title': 'Diesen Hub hinzufügen?',
+  'confirm.text': 'Der geöffnete Link führt zu einem Hemmia-Hub mit dieser Adresse:',
+  'confirm.tailnet':
+    'Das ist eine Tailscale-Adresse. Sie funktioniert nur, wenn Tailscale eingeschaltet ist.',
+  'confirm.trust':
+    'Mach nur weiter, wenn der Link von jemandem kommt, dem du vertraust, zum Beispiel von der Person, die Hemmia bei euch eingerichtet hat.',
+  'confirm.add.button': 'Hinzufügen und öffnen',
+  'confirm.cancel.button': 'Abbrechen',
   'getHub.shareText': 'Hemmia auf diesem Computer installieren',
   'hubList.empty': 'Auf diesem Telefon ist noch kein Hub gespeichert.',
   ghost: 'Das Hemmia-Gespenst',

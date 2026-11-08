@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { encodeFrame, FrameDecoder, FrameType } from './frames.ts';
+import { encodeFrame, encodeWindow, FrameDecoder, FrameType } from './frames.ts';
 import { StreamResetError, TunnelMux, type TunnelStream } from './mux.ts';
 
 /** Two muxes connected back to back; frames are delivered asynchronously like a socket. */
@@ -151,6 +151,17 @@ describe('tunnel streams', () => {
     }
     expect(((await err) as StreamResetError).code).toBe('error');
     expect(hub.destroyed).toBe(true);
+    p.stop();
+  });
+
+  it('resets a stream whose peer returns more window than it received', async () => {
+    const p = pair(1024);
+    const [relay, hub] = await p.open();
+    hub.on('error', () => undefined);
+    const err = new Promise<unknown>((resolve) => relay.on('error', resolve));
+    // Nothing was sent yet, so any WINDOW would push the send window past the initial one.
+    p.b.sendFrame(encodeWindow(hub.id, 4096));
+    expect(((await err) as StreamResetError).code).toBe('error');
     p.stop();
   });
 

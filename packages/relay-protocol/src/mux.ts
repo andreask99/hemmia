@@ -159,7 +159,14 @@ export class TunnelStream extends Duplex {
         return;
       }
       case FrameType.WINDOW: {
-        this.#sendWindow += decodeWindow(frame);
+        // The peer can only return what it received: more would let it make us buffer
+        // without limit (security review 2026-11-07, H4).
+        const increment = decodeWindow(frame);
+        if (this.#sendWindow + increment > this.#initialWindow) {
+          this.destroy(new StreamResetError('error'));
+          return;
+        }
+        this.#sendWindow += increment;
         this.#flushSafely();
         return;
       }

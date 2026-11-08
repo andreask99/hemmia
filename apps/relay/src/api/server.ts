@@ -43,6 +43,8 @@ export interface ApiDeps {
 
 const REPLAY_WINDOW_MS = 600_000;
 
+const MAX_SEEN = 200_000;
+
 export function createApiHandler(deps: ApiDeps) {
   const now = deps.now ?? Date.now;
   const seen = new Map<string, number>();
@@ -59,9 +61,13 @@ export function createApiHandler(deps: ApiDeps) {
 
   function remember(signature: string): boolean {
     const t = now();
-    const at = seen.get(signature);
+    // Keyed by the signature's bytes: base64url has more than one spelling of the same bytes.
+    const key = Buffer.from(signature, 'base64url').toString('hex');
+    const at = seen.get(key);
     if (at !== undefined && t - at <= REPLAY_WINDOW_MS) return false;
-    seen.set(signature, t);
+    // Bounded: past this many signed requests in one window, refuse rather than grow.
+    if (seen.size >= MAX_SEEN) return false;
+    seen.set(key, t);
     return true;
   }
 

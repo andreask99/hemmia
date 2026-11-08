@@ -82,6 +82,7 @@ const PLANNER_TOOLS = [
   LIST_GOALS_TOOL,
 ];
 const PLANNER_TOOL_NAMES = new Set(PLANNER_TOOLS.map((t) => t.name));
+const PLANNER_READ_TOOLS = new Set([LIST_PLANS_TOOL.name, LIST_GOALS_TOOL.name]);
 
 export const CHAT_TIMEOUT_MS = 5 * 60_000;
 /** Slowest measured reading speed on this Mac (Qwen3.8 / gemma4 at long context: ~200 tok/s). */
@@ -978,7 +979,18 @@ export function startReply(deps: ReplyDeps, input: ReplyInput): StartedReply {
           ...(call.id ? { toolCallId: call.id } : {}),
         });
         for (const call of planCalls) {
-          messages.push(result(call, runPlanTool(call)));
+          // Planner entries reach later briefings: after a web search in this reply, page text
+          // could plant them, so writes wait for the user's next message (security review
+          // 2026-11-07, M7). Documents and linked pages the user brought in stay allowed.
+          const write = !PLANNER_READ_TOOLS.has(call.name);
+          messages.push(
+            result(
+              call,
+              write && searches.length > 0
+                ? 'Not saved: the planner is not changed after a web search in the same reply. Tell the user what you would save and ask them to confirm.'
+                : runPlanTool(call),
+            ),
+          );
         }
         for (const call of rememberCalls) {
           messages.push(

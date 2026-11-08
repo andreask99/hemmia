@@ -18,6 +18,8 @@ services:
       - /srv/relay/data:/data
       - /srv/relay/secrets/apns.p8:/run/secrets/apns.p8:ro
       - /srv/relay/secrets/fcm.json:/run/secrets/fcm.json:ro
+    # A misbehaving hub must not take the host down with it: the container restarts instead.
+    mem_limit: 512m
     read_only: true
     tmpfs:
       - /tmp

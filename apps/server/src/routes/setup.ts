@@ -7,7 +7,9 @@ import { type AccountResponse, SetupAccountRequest, type SetupState } from '@hem
 import type { DB } from '../db/database.ts';
 import type { Auth } from '../security/auth.ts';
 import { type CookieSettings, HttpError, setSessionCookie } from '../security/http.ts';
-import { createRateLimiter } from '../security/rate-limit.ts';
+import { createRateLimiter, ipBucket } from '../security/rate-limit.ts';
+import { isLocalAddress } from '../security/localengine.ts';
+import { isViaRelay } from '../security/viarelay.ts';
 import type { Setup } from '../security/setup.ts';
 import type { Capabilities } from '../system/capabilities.ts';
 import { toMe, userAgentLabel } from './auth.ts';
@@ -69,14 +71,18 @@ export function registerSetupRoutes(
 
   app.post('/api/setup/account', async (req, reply): Promise<AccountResponse> => {
     if (!deps.setup.needsSetup()) throw new HttpError(404, 'not_found');
-    limited(perIp.hit(`setup-ip:${req.ip}`));
+    const net = ipBucket(req.ip);
+    limited(perIp.hit(`setup-ip:${net}`));
     const body = SetupAccountRequest.parse(req.body);
-    const ipKey = `setup:${req.ip}`;
+    const ipKey = `setup:${net}`;
+    // The hub-wide limit is for strangers on the internet: setup at home (this computer, the
+    // home network or the tailnet, not through the relay) can't be locked out by them.
+    const fromHome = !isViaRelay(req.socket) && isLocalAddress(req.ip);
     limited(wrongCodes.check(ipKey));
-    limited(wrongCodesHub.check('setup'));
+    if (!fromHome) limited(wrongCodesHub.check('setup'));
     if (!deps.setup.verify(body.setupCode)) {
       wrongCodes.hit(ipKey);
-      wrongCodesHub.hit('setup');
+      if (!fromHome) wrongCodesHub.hit('setup');
       throw new HttpError(403, 'forbidden');
     }
     const res = await deps.auth.createFirstAdmin({

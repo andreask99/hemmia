@@ -63,8 +63,41 @@ const WorkerResult = z.object({
   scans: z.array(z.instanceof(Uint8Array)).max(MAX_SCAN_PAGES),
 });
 
+/**
+ * At most this many extractions run at once, each in its own worker with up to 512 MB; more
+ * wait in a short queue, and beyond that uploads are refused (security review 2026-11-07, M1).
+ */
+export const MAX_PARALLEL_EXTRACTIONS = 2;
+export const MAX_QUEUED_EXTRACTIONS = 16;
+let running = 0;
+const waiting: (() => void)[] = [];
+
+async function slot(): Promise<void> {
+  if (running < MAX_PARALLEL_EXTRACTIONS) {
+    running++;
+    return;
+  }
+  if (waiting.length >= MAX_QUEUED_EXTRACTIONS) throw new DocumentRejectedError();
+  await new Promise<void>((resolve) => waiting.push(resolve));
+}
+
+function release(): void {
+  const next = waiting.shift();
+  if (next) next();
+  else running--;
+}
+
 /** Extracts text in a worker thread; rejects on failure, timeout or memory exhaustion. */
-export function extractText(kind: DocumentKind, bytes: Buffer): Promise<ExtractedText> {
+export async function extractText(kind: DocumentKind, bytes: Buffer): Promise<ExtractedText> {
+  await slot();
+  try {
+    return await extractInWorker(kind, bytes);
+  } finally {
+    release();
+  }
+}
+
+function extractInWorker(kind: DocumentKind, bytes: Buffer): Promise<ExtractedText> {
   return new Promise((resolve, reject) => {
     const worker = new Worker(new URL('./document-worker.ts', import.meta.url), {
       workerData: {

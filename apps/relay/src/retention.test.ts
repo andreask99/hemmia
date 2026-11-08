@@ -38,6 +38,11 @@ function setup() {
   const usage = db.prepare('INSERT INTO usage (hub_id, month, bytes) VALUES (?, ?, ?)');
   for (const m of ['2026-08', '2026-09', '2026-10', '2026-11']) usage.run('activehub000', m, 100);
   usage.run('idlehub00000', '2026-11', 5);
+  const order = db.prepare(
+    "INSERT INTO cert_orders (id, hub_id, status, csr, created_at) VALUES (?, 'activehub000', 'ready', ?, ?)",
+  );
+  order.run('old-order', Buffer.alloc(1), NOW - 8 * DAY);
+  order.run('new-order', Buffer.alloc(1), NOW - DAY);
   return db;
 }
 
@@ -54,6 +59,13 @@ describe('relay retention', () => {
     expect(
       db.prepare("SELECT COUNT(*) AS n FROM usage WHERE hub_id = 'idlehub00000'").get(),
     ).toEqual({ n: 0 });
+  });
+
+  it('deletes certificate orders after 7 days', () => {
+    const db = setup();
+    pruneRelay(db, NOW);
+    const ids = db.prepare<[], { id: string }>('SELECT id FROM cert_orders').all();
+    expect(ids.map((r) => r.id)).toEqual(['new-order']);
   });
 
   it('crosses the year boundary', () => {

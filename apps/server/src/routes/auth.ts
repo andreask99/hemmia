@@ -20,7 +20,7 @@ import {
   requireUser,
   setSessionCookie,
 } from '../security/http.ts';
-import { createRateLimiter, type RateLimiter } from '../security/rate-limit.ts';
+import { createRateLimiter, ipBucket, type RateLimiter } from '../security/rate-limit.ts';
 
 const WINDOW_MS = 15 * 60_000;
 
@@ -93,7 +93,7 @@ export function registerAuthRoutes(app: FastifyInstance, deps: AuthRouteDeps): v
   });
 
   function guardIp(req: FastifyRequest): void {
-    limited(perIp.hit(`ip:${req.ip}`));
+    limited(perIp.hit(`ip:${ipBucket(req.ip)}`));
   }
 
   async function withUserLimit<T>(key: string, fn: () => Promise<T>): Promise<T> {

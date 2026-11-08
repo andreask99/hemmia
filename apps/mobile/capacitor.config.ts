@@ -30,6 +30,10 @@ const config: CapacitorConfig = {
   },
   ios: { contentInset: 'never', limitsNavigationsToAppBoundDomains: false },
   android: { allowMixedContent: false },
+  // Never serve the shell from a stored path (Capacitor's live-update "deploy" feature): a hub
+  // page could otherwise write files and make them the shell origin, which holds the phone-mode
+  // keys (security review 2026-11-07). The native code also resets the location.
+  cordova: { preferences: { DisableDeploy: 'true' } },
   plugins: {
     PushNotifications: { presentationOptions: ['alert', 'sound'] },
     HubLauncher: { hubHosts: [`*.h.${relayDomain}`, '*.ts.net', ...devHosts] },

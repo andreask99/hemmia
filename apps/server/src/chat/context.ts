@@ -113,7 +113,7 @@ export async function buildContext(options: ContextOptions): Promise<ChatTurn[]>
               ? ` scanned="${String(doc.scanPages)} page(s) attached as images, in order"`
               : ' scanned="page images not readable by this model; suggest a model that can see photos"';
         parts.push(
-          `<document name="${(doc.name ?? 'document').replace(/"/g, "'")}"${pages}${scanned}>\n${clipped}\n</document>`,
+          `<document name="${(doc.name ?? 'document').replace(/"/g, "'")}"${pages}${scanned}>\n${clipped.replace(/<\/?document/gi, '‹document')}\n</document>`,
         );
       }
       if (parts.length > 0) content = `${parts.join('\n\n')}\n\n${msg.content}`;

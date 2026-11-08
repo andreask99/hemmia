@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createRateLimiter } from './rate-limit.ts';
+import { createRateLimiter, ipBucket } from './rate-limit.ts';
 
 const MIN = 60_000;
 
@@ -73,5 +73,16 @@ describe('rate limiter', () => {
     t += 2 * MIN;
     rl.check('x');
     expect(rl.size()).toBeLessThanOrEqual(1);
+  });
+});
+
+describe('ipBucket', () => {
+  it('keys IPv4 by address and IPv6 by its /64', () => {
+    expect(ipBucket('203.0.113.7')).toBe('203.0.113.7');
+    expect(ipBucket('::ffff:203.0.113.7')).toBe('203.0.113.7');
+    expect(ipBucket('2001:db8:1:2:aaaa::1')).toBe('2001:db8:1:2::/64');
+    expect(ipBucket('2001:db8:1:2:ffff:ffff:ffff:ffff')).toBe('2001:db8:1:2::/64');
+    expect(ipBucket('2001:DB8::1')).toBe('2001:db8:0:0::/64');
+    expect(ipBucket('::1')).toBe('0:0:0:0::/64');
   });
 });

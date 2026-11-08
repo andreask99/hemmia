@@ -9,8 +9,8 @@ import com.getcapacitor.BridgeActivity;
 
 /**
  * Runs either the bundled shell or one paired hub (docs/public/ARCHITECTURE.md §3.4). A hub is
- * started as the bridge's server URL, so its pages are the app origin and get every plugin
- * (spike P5.1). Switching between the two restarts the activity.
+ * started as the bridge's server URL (spike P5.1); its pages reach only the plugins in
+ * HubPluginFilter. Switching between the two restarts the activity.
  */
 public class MainActivity extends BridgeActivity {
 
@@ -26,6 +26,12 @@ public class MainActivity extends BridgeActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Never serve the shell from a stored "server base path" (DisableDeploy is set too): a hub
+        // page could write files and have them served as the shell origin (review 2026-11-07).
+        getSharedPreferences(com.getcapacitor.plugin.WebView.WEBVIEW_PREFS_NAME, MODE_PRIVATE)
+            .edit()
+            .remove(com.getcapacitor.plugin.WebView.CAP_SERVER_PATH)
+            .apply();
         registerPlugin(HubLauncherPlugin.class);
         registerPlugin(SecureStorePlugin.class);
         createNotificationChannel();
@@ -39,7 +45,10 @@ public class MainActivity extends BridgeActivity {
         // Never leave a link code in the intent the system keeps for this task.
         intent.removeExtra(EXTRA_HUB_PATH);
         super.onCreate(savedInstanceState);
-        if (hubHost != null && bridge != null) bridge.setWebViewClient(new HubWebViewClient(bridge, this));
+        if (hubHost != null && bridge != null) {
+            HubPluginFilter.install(bridge);
+            bridge.setWebViewClient(new HubWebViewClient(bridge, this));
+        }
     }
 
     @Override

@@ -12,6 +12,10 @@ import type { Route } from './server.ts';
 
 const WEEK = 7 * 24 * 60 * 60_000;
 const THREE_HOURS = 3 * 60 * 60_000;
+/** First certificates for new hubs per week (Let's Encrypt allows 50 per domain). */
+export const NEW_HUBS_PER_WEEK = 40;
+/** …and per network (the /24 or /48 the hub registered from). */
+export const NEW_HUBS_PER_NETWORK_WEEK = 2;
 
 export function certificateRoutes(o: {
   db: RelayDb;
@@ -37,6 +41,18 @@ export function certificateRoutes(o: {
     { status: 'pending' | 'ready' | 'failed'; chain_pem: string | null; failure: string | null }
   >('SELECT status, chain_pem, failure FROM cert_orders WHERE id = ? AND hub_id = ?');
   const prune = o.db.prepare('DELETE FROM cert_orders WHERE created_at < ?');
+  const hubRow = o.db.prepare<[string], { created_at: number; created_ip: string }>(
+    'SELECT created_at, created_ip FROM hubs WHERE id = ?',
+  );
+  /** Other hubs registered within the last week that ordered a certificate this week. */
+  const newHubsOrdering = o.db.prepare<[number, number, string], { n: number }>(
+    `SELECT COUNT(DISTINCT c.hub_id) AS n FROM cert_orders c JOIN hubs h ON h.id = c.hub_id
+     WHERE c.created_at > ? AND h.created_at > ? AND c.hub_id != ?`,
+  );
+  const newHubsOrderingFrom = o.db.prepare<[number, number, string, string], { n: number }>(
+    `SELECT COUNT(DISTINCT c.hub_id) AS n FROM cert_orders c JOIN hubs h ON h.id = c.hub_id
+     WHERE c.created_at > ? AND h.created_at > ? AND c.hub_id != ? AND h.created_ip = ?`,
+  );
 
   return [
     {
@@ -54,6 +70,20 @@ export function certificateRoutes(o: {
           throw new ApiHttpError(429, 'rate_limited');
         if ((allRecent.get(now() - THREE_HOURS)?.n ?? 0) >= 300)
           throw new ApiHttpError(429, 'rate_limited');
+        // Let's Encrypt issues 50 new certificates per week for the whole domain (renewals are
+        // exempt). New hubs share a budget below that, at most 2 per network, so registering
+        // hubs in bulk can't stop certificates for everyone (security review 2026-11-07, M4).
+        const hub = hubRow.get(ctx.hubId);
+        if (hub && hub.created_at > now() - WEEK) {
+          const since = now() - WEEK;
+          if ((newHubsOrdering.get(since, since, ctx.hubId)?.n ?? 0) >= NEW_HUBS_PER_WEEK)
+            throw new ApiHttpError(429, 'rate_limited');
+          if (
+            (newHubsOrderingFrom.get(since, since, ctx.hubId, hub.created_ip)?.n ?? 0) >=
+            NEW_HUBS_PER_NETWORK_WEEK
+          )
+            throw new ApiHttpError(429, 'rate_limited');
+        }
         const orderId = randomUUID();
         insert.run(orderId, ctx.hubId, der, now());
         o.queue.add(orderId, ctx.hubId, hubHostname(ctx.hubId, o.relayDomain), der);

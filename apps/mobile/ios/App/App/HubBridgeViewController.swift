@@ -22,6 +22,11 @@ class HubBridgeViewController: CAPBridgeViewController {
 
     override func instanceDescriptor() -> InstanceDescriptor {
         let descriptor = super.instanceDescriptor()
+        // Always the bundled shell, never a stored "server base path" (DisableDeploy is set too):
+        // a hub page could write files and have them served as the shell origin.
+        if let bundled = Bundle.main.url(forResource: "public", withExtension: nil) {
+            descriptor.appLocation = bundled
+        }
         if let host = hubHost {
             descriptor.serverURL = "https://\(host)\(hubPath)"
             descriptor.errorPath = nil
@@ -55,10 +60,19 @@ class HubBridgeViewController: CAPBridgeViewController {
     }
 
     override func capacitorDidLoad() {
+        KeyValueStore.standard["serverBasePath"] = nil as String?
         bridge?.registerPluginInstance(HubLauncherPlugin())
         bridge?.registerPluginInstance(SecureStorePlugin())
         hubPath = "/"  // a link code is not kept after start
         guard hubHost != nil, let webView = webView else { return }
+        // Hub pages reach only the plugins they need (security review 2026-11-07, H2): no
+        // Filesystem, Preferences, WebView, CapacitorHttp, SecureStore, App or Share.
+        // Fails closed: without Capacitor's handler, hub pages get no plugins at all.
+        let controller = webView.configuration.userContentController
+        controller.removeScriptMessageHandler(forName: "bridge")
+        if let target = webView.navigationDelegate as? WKScriptMessageHandler {
+            controller.add(HubPluginFilter(target: target), name: "bridge")
+        }
         let proxy = NavigationFailureProxy(target: webView.navigationDelegate) { [weak self] in
             self?.showShell(reason: "offline")
         }
@@ -86,6 +100,25 @@ class HubBridgeViewController: CAPBridgeViewController {
         DispatchQueue.main.async {
             guard let window = self.view.window else { return }
             window.rootViewController = next
+        }
+    }
+}
+
+/// Passes a hub page's calls to Capacitor only for the plugins hub pages use
+/// (apps/web/src/native/bridge.ts); everything else, including Cordova calls, is dropped.
+final class HubPluginFilter: NSObject, WKScriptMessageHandler {
+    static let allowed: Set<String> = ["HubLauncher", "PushNotifications", "CapacitorBarcodeScanner", "Console"]
+    private let target: WKScriptMessageHandler
+
+    init(target: WKScriptMessageHandler) {
+        self.target = target
+    }
+
+    func userContentController(_ controller: WKUserContentController, didReceive message: WKScriptMessage) {
+        guard message.frameInfo.isMainFrame, let dict = message.body as? [String: Any] else { return }
+        let type = dict["type"] as? String ?? ""
+        if type == "js.error" || (type == "message" && Self.allowed.contains(dict["pluginId"] as? String ?? "")) {
+            target.userContentController(controller, didReceive: message)
         }
     }
 }

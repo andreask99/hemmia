@@ -15,6 +15,7 @@ import { GetHub } from './GetHub.tsx';
 import { HubList } from './HubList.tsx';
 import { useHubs } from './hubs.ts';
 import { useShellText } from './i18n.ts';
+import { ConfirmHub } from './ConfirmHub.tsx';
 import { Offline } from './Offline.tsx';
 import {
   checkHub,
@@ -117,16 +118,27 @@ function Shell() {
     [go, t],
   );
 
+  /** A link tapped outside the app: a hub not saved yet is confirmed first. */
+  const openIncoming = useCallback(
+    async (target: LinkTarget) => {
+      const saved = (await hubStore.list()).some((h) => h.hubHost === target.hubHost);
+      if (saved) void open(target);
+      else go({ name: 'confirmHub', target });
+    },
+    [go, open],
+  );
+
   const openLink = useCallback(
-    (raw: string, parse: typeof linkTarget = linkTarget) => {
+    (raw: string, parse: typeof linkTarget = linkTarget, incoming = false) => {
       const target = parse(raw, hostRules);
-      if (target) void open(target);
+      if (target && incoming) void openIncoming(target);
+      else if (target) void open(target);
       else {
         setError(t('open.invalidLink'));
         go({ name: 'scan' });
       }
     },
-    [go, open, t],
+    [go, open, openIncoming, t],
   );
 
   // Start: why the shell is showing, a launch link, or a tapped notification.
@@ -139,18 +151,19 @@ function Shell() {
       const ready = await isPhoneReady();
       setPhoneReady(ready);
       const action = startAction(info, hubs, launchUrl, hostRules, ready);
-      if (action.kind === 'open') void open(action.target);
+      // A push tap or the only saved hub opens directly; a launch link to a new hub asks.
+      if (action.kind === 'open') void openIncoming(action.target);
       else if (action.kind === 'offline') go({ name: 'offline', hubHost: action.hubHost });
       else if (action.screen === 'phone') go({ name: 'phone', setup: false });
       else go({ name: action.screen });
     })();
-  }, [hubs, go, open]);
+  }, [hubs, go, openIncoming]);
 
   // Links and notification taps while the shell is open.
   useEffect(() => {
     const subs = [
       CapApp.addListener('appUrlOpen', ({ url }) => {
-        openLink(url, incomingLinkTarget);
+        openLink(url, incomingLinkTarget, true);
       }),
       PushNotifications.addListener('pushNotificationActionPerformed', (a) => {
         const data = a.notification.data as { h?: unknown; r?: unknown } | undefined;
@@ -265,6 +278,16 @@ function Shell() {
               if (ready) go({ name: 'phone', setup: false });
               else go({ name: (hubs?.length ?? 0) > 0 ? 'hubs' : 'welcome' });
             });
+          }}
+        />
+      );
+    case 'confirmHub':
+      return (
+        <ConfirmHub
+          hubHost={screen.target.hubHost}
+          onConfirm={() => void open(screen.target)}
+          onCancel={() => {
+            go({ name: (hubs?.length ?? 0) > 0 ? 'hubs' : 'welcome' });
           }}
         />
       );

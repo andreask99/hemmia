@@ -21,7 +21,7 @@ import {
   setSessionCookie,
 } from '../security/http.ts';
 import type { LinkCodes } from '../security/linkcodes.ts';
-import { createRateLimiter } from '../security/rate-limit.ts';
+import { createRateLimiter, ipBucket } from '../security/rate-limit.ts';
 import { userAgentLabel } from './auth.ts';
 
 const FRESH_SESSION_MS = 15 * 60_000;
@@ -120,11 +120,16 @@ export function registerLinkRoutes(
   );
 
   app.post('/api/links/redeem', async (req, reply): Promise<RedeemLinkResponse> => {
-    limited(perIp.hit(`redeem:${req.ip}`));
-    limited(perHub.hit('redeem'));
+    limited(perIp.hit(`redeem:${ipBucket(req.ip)}`));
+    // Hub-wide, only failed attempts count: guessing is what this limits, and counting every
+    // attempt would let anyone lock the family out of pairing (security review 2026-11-07, M8).
+    limited(perHub.check('redeem'));
     const body = RedeemLinkRequest.safeParse(req.body);
     // Every failure looks the same (SECURITY.md §9).
-    const invalid = () => new HttpError(400, 'link_invalid');
+    const invalid = () => {
+      perHub.hit('redeem');
+      return new HttpError(400, 'link_invalid');
+    };
     if (!body.success) throw invalid();
     const { kind, code } = body.data;
     const label = userAgentLabel(req.headers['user-agent']);

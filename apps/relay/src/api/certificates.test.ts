@@ -151,6 +151,41 @@ run('certificate orders', () => {
     s.server.close();
   });
 
+  it('limits first certificates of new hubs per network and in total', async () => {
+    const instant: Issuer = { issue: () => Promise.reject(new Error('x')) };
+    const s = await setup(instant);
+    const csr = buildCsr(generateKeyPairSync('ec', { namedCurve: 'P-256' }).privateKey, [
+      'a.test',
+    ]).toString('base64url');
+    const addNewHub = (id: string, ip: string) => {
+      s.db
+        .prepare('INSERT INTO hubs (id, public_key, created_at, created_ip) VALUES (?, ?, ?, ?)')
+        .run(id, Buffer.from(id.padEnd(32, '-')), clock, ip);
+      s.db
+        .prepare(
+          "INSERT INTO cert_orders (id, hub_id, status, csr, created_at) VALUES (?, ?, 'failed', ?, ?)",
+        )
+        .run(`order-${id}`, id, Buffer.alloc(1), clock);
+    };
+    // This hub registered just now, from the same network as two others that ordered.
+    s.db.prepare('UPDATE hubs SET created_at = ? WHERE id = ?').run(clock, s.h.hubId);
+    addNewHub('aaaaaaaaaaaa', '127.0.0.0/24');
+    addNewHub('bbbbbbbbbbbb', '127.0.0.0/24');
+    const body = JSON.stringify({ csr });
+    expect(await s.call('POST', '/v1/hubs/self/certificate', body)).toMatchObject({ status: 429 });
+    // From other networks it may order, until 40 new hubs have this week.
+    s.db.prepare("UPDATE hubs SET created_ip = '198.51.100.0/24' WHERE id = 'bbbbbbbbbbbb'").run();
+    expect(await s.call('POST', '/v1/hubs/self/certificate', body)).toMatchObject({ status: 202 });
+    await s.queue?.idle();
+    for (let i = 0; i < 40; i++)
+      addNewHub(`n${String(i).padStart(11, '0')}`, `10.0.${String(i)}.0/24`);
+    expect(await s.call('POST', '/v1/hubs/self/certificate', body)).toMatchObject({ status: 429 });
+    // Hubs older than a week (renewals) are not limited by this.
+    s.db.prepare('UPDATE hubs SET created_at = 0 WHERE id = ?').run(s.h.hubId);
+    expect(await s.call('POST', '/v1/hubs/self/certificate', body)).toMatchObject({ status: 202 });
+    s.server.close();
+  });
+
   it('answers 503 without an issuer', async () => {
     const s = await setup(null);
     expect((await s.call('POST', '/v1/hubs/self/certificate', '{"csr":"x"}')).status).toBe(503);
