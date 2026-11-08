@@ -220,6 +220,13 @@ describe('ollama models', () => {
       const model = (body as { model: string }).model;
       if (model === 'kolibri:78b') res.writeHead(500).end(unknown);
       else if (model === 'broken:1b') res.writeHead(500).end(JSON.stringify({ error: 'boom' }));
+      else if (model === 'big:26b')
+        res.writeHead(500).end(
+          JSON.stringify({
+            error:
+              'model requires 6.9 GiB but only 4.8 GiB are available (after 512.0 MiB overhead)',
+          }),
+        );
       else res.writeHead(200).end(JSON.stringify({ done: true, done_reason: 'load' }));
     });
     const client = createOllamaClient(url);
@@ -234,6 +241,10 @@ describe('ollama models', () => {
     });
     await expect(collect(client.chat(req({ model: 'kolibri:78b' })))).rejects.toMatchObject({
       code: 'model_unsupported',
+    });
+    // Found in a clean 8 GB Mac test: Ollama refuses a model that doesn't fit in memory.
+    await expect(collect(client.chat(req({ model: 'big:26b' })))).rejects.toMatchObject({
+      code: 'model_too_large',
     });
   });
 

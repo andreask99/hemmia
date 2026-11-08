@@ -398,6 +398,31 @@ install one (setup's model step, Settings → Models; `POST /api/admin/ollama/in
 - An Ollama that already answers is used as it is; nothing is installed over it.
 - Status (`GET /api/admin/ollama`) is admin only and contains no paths or content.
 
+## Pictures set up by Hemmia (Mac)
+
+`apps/server/src/system/pictures.ts`. On a Mac with Apple silicon and at least 24 GB, an admin
+can turn pictures on (`POST /api/admin/pictures/install`, audited). Everything is pinned:
+
+- `uv` 0.13.7 from Astral's GitHub releases, SHA-256 checked before it is unpacked.
+- The engine's Python environment: `uv sync --frozen --no-dev --no-editable` against
+  `services/imagegen/uv.lock` (every package with its hash; uv checks the Python it downloads),
+  into `<data folder>/runtime/imagegen/` with only `HOME`, `PATH` and `UV_*` in the environment.
+- The model: `mflux-community/flux2-klein-4b-mflux-q4` at a fixed revision from Hugging Face,
+  every file checked against a SHA-256 in the code, moved into place only when all match.
+- The engine then runs as before (stdin/stdout, no network port, `HF_HUB_OFFLINE=1`), started
+  with the environment's Python. Pictures counted as possible only when Hemmia set them up or the
+  project folder is writable (developer setup); the installed program folder isn't.
+
+## Web search set up by Hemmia (Mac)
+
+`apps/server/src/system/search.ts`. On a Mac where no SearXNG answers, an admin can turn web
+search on (`POST /api/admin/search-setup/install`, audited): the pinned `uv`, SearXNG's source at
+commit `e652ca7d2` (the Docker image's) with a pinned SHA-256, its packages from
+`services/searxng/uv.lock` (hashes; `certifi` newer than SearXNG's pin), settings from the hub's
+template with a fresh 256-bit secret (file mode 600, loopback only, no limiter, no image proxy,
+no metrics). Runs as the hub's child with only `HOME`, `PATH`, `PYTHONPATH` and the settings path;
+restarted with backoff. A SearXNG that already answers is used as it is.
+
 ## Planner (goals, plans, horoscope)
 
 - The star sign, every plan (date, time, text) and every goal (area, text, status, planned

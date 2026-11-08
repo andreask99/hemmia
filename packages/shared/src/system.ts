@@ -108,6 +108,33 @@ export const OllamaSetupStatus = z.object({
 });
 export type OllamaSetupStatus = z.infer<typeof OllamaSetupStatus>;
 
+/**
+ * GET /api/admin/pictures: whether Hemmia can set up pictures here, and how far it is.
+ * off: possible, not set up (downloadBytes: the model) · installing: tool, engine or model ·
+ * ready · failed · unsupported: not a Mac with Apple silicon, Docker, or too little memory.
+ */
+export const PicturesSetupStatus = z.object({
+  state: z.enum(['off', 'installing', 'ready', 'failed', 'unsupported']),
+  phase: z.enum(['tool', 'engine', 'model']).optional(),
+  received: z.number().int().optional(),
+  total: z.number().int().nullable().optional(),
+  downloadBytes: z.number().int().optional(),
+  reason: z.enum(['platform', 'memory']).optional(),
+  error: z.enum(['download', 'checksum', 'engine']).optional(),
+});
+export type PicturesSetupStatus = z.infer<typeof PicturesSetupStatus>;
+
+/**
+ * GET /api/admin/search-setup: web search set up by Hemmia on a Mac. ready: a SearXNG answers
+ * (Hemmia's or another) · starting · off: possible · installing · failed · unsupported.
+ */
+export const SearchSetupStatus = z.object({
+  state: z.enum(['off', 'installing', 'starting', 'ready', 'failed', 'unsupported']),
+  phase: z.enum(['tool', 'engine']).optional(),
+  error: z.enum(['download', 'checksum', 'engine']).optional(),
+});
+export type SearchSetupStatus = z.infer<typeof SearchSetupStatus>;
+
 /** GET /api/capabilities: what this computer can do (signed-in users). */
 export const SystemCapabilities = z.object({
   platform: z.string(),

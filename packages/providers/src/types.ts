@@ -74,6 +74,8 @@ export type LlmErrorCode =
   | 'unsupported'
   /** The engine can't run this model at all (e.g. an architecture this Ollama doesn't know). */
   | 'model_unsupported'
+  /** The model needs more memory than this computer has for models (Ollama refuses to load it). */
+  | 'model_too_large'
   /** The request's signal was aborted. */
   | 'aborted'
   /** Cloud: the API key is missing, wrong, revoked or has no access to the model. */

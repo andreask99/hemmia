@@ -13,7 +13,10 @@ import { z } from 'zod';
 import { ImageError, type ImageEngine, type ImageRequest } from './types.ts';
 
 export interface WorkerEngineOptions {
-  command: readonly [string, ...string[]];
+  /** How to start the worker; a function is asked at every start (pictures set up later). */
+  command:
+    | readonly [string, ...string[]]
+    | (() => { command: readonly [string, ...string[]]; env?: Record<string, string> });
   cwd?: string;
   env?: Record<string, string>;
   idleSeconds?: number;
@@ -70,7 +73,9 @@ export function createWorkerEngine(options: WorkerEngineOptions): ImageEngine {
   async function start(): Promise<Worker> {
     if (worker?.alive) return worker;
     const dir = await ensureOutDir();
-    const [cmd, ...args] = options.command;
+    const how =
+      typeof options.command === 'function' ? options.command() : { command: options.command };
+    const [cmd, ...args] = how.command;
     let proc: ChildProcessWithoutNullStreams;
     try {
       proc = spawn(cmd, args, {
@@ -78,6 +83,7 @@ export function createWorkerEngine(options: WorkerEngineOptions): ImageEngine {
         env: {
           ...process.env,
           ...options.env,
+          ...how.env,
           HEMMIA_IMAGEGEN_OUTDIR: dir,
           HEMMIA_IMAGEGEN_IDLE_SECONDS: String(options.idleSeconds ?? 300),
           HF_HUB_OFFLINE: '1',

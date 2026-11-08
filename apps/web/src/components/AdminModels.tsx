@@ -14,6 +14,8 @@ import {
 } from '../settings/hooks.ts';
 import { Button } from '@hemmia/ui';
 import { LocalServers } from './LocalServers.tsx';
+import { SearchSetup } from './SearchSetup.tsx';
+import { PicturesSetup } from './PicturesSetup.tsx';
 import { ModelCatalog } from './ModelCatalog.tsx';
 
 const select =
@@ -129,9 +131,7 @@ function Editor({ data }: { data: AdminModelsResponse }) {
           </select>
         </label>
       )}
-      {caps?.webSearch === false && (
-        <p className="text-sm text-muted">{t('admin.webSearchUnavailable')}</p>
-      )}
+      {caps?.webSearch === false && <SearchSetup />}
       <label className="block text-sm font-medium text-muted">
         {t('admin.webSearch')}
         <select
@@ -200,6 +200,8 @@ function Editor({ data }: { data: AdminModelsResponse }) {
       <div className="border-t border-line pt-4">
         <ModelCatalog />
       </div>
+
+      <PicturesSetup />
 
       {data.installedNotOffered.length > 0 && (
         <div className="border-t border-line pt-4">

@@ -1,0 +1,30 @@
+# SearXNG for kchat: local only, JSON API, no logging of queries, no external extras.
+# The secret key is filled in by ops/searxng/install.sh (never committed).
+use_default_settings: true
+
+general:
+  instance_name: 'Hemmia search'
+  enable_metrics: false
+
+search:
+  safe_search: 1 # moderate by default; kchat asks for strict (2) for teen accounts
+  autocomplete: ''
+  formats:
+    - html
+    - json
+
+server:
+  bind_address: '127.0.0.1'
+  port: 8888
+  secret_key: '__SECRET__'
+  limiter: false # only kchat on this Mac talks to it
+  public_instance: false
+  image_proxy: false
+  method: 'GET'
+
+ui:
+  static_use_hash: true
+
+outgoing:
+  request_timeout: 4.0
+  max_request_timeout: 8.0

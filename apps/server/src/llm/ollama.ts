@@ -34,6 +34,8 @@ const ErrorBody = z.object({ error: z.string() });
 
 /** Ollama's error when its runner can't load a model (e.g. "unknown model architecture"). */
 const UNSUPPORTED = /unknown model architecture|unsupported (model )?architecture/i;
+/** "model requires 6.9 GiB but only 4.8 GiB are available", "requires more system memory". */
+const TOO_LARGE = /requires (more system memory|[\d.]+ ?[kmgt]i?b but only)/i;
 
 const PsResponse = z.object({
   models: z.array(z.object({ name: z.string(), size: z.number() })),
@@ -119,6 +121,7 @@ export function createOllamaClient(baseUrl: string): LlmClient {
   async function failure(res: Response): Promise<LlmError> {
     const body = ErrorBody.safeParse(await res.json().catch(() => null));
     if (body.success && UNSUPPORTED.test(body.data.error)) return new LlmError('model_unsupported');
+    if (body.success && TOO_LARGE.test(body.data.error)) return new LlmError('model_too_large');
     return new LlmError('bad_response');
   }
 

@@ -33,6 +33,8 @@ export interface RegistryOptions {
   cloudKeys?: (userId: string) => ReadonlySet<CloudProvider>;
   /** False when this computer can't make pictures (P1.4): image models are hidden. */
   imagesAvailable?: () => boolean;
+  /** False for a picture model whose files aren't on this computer (pictures set up by Hemmia). */
+  imageModelAvailable?: (mfluxModel: string) => boolean;
   /** Admin-added local servers (P1.7); models of a removed server are not offered. */
   customEngines?: () => readonly { id: string; label: string }[];
   /** What each local server offers right now, for the admin's "add a model" list. */
@@ -150,11 +152,13 @@ export function createModelRegistry(options: RegistryOptions): ModelRegistry {
   };
   /** For users: off by the admin or not possible here. The admin's choice stays as it is. */
   const imagesOff = () => overrides().imagesOff || options.imagesAvailable?.() === false;
+  const imageOn = (m: { mfluxModel: string } & Parameters<typeof isOn>[0]) =>
+    isOn(m) && options.imageModelAvailable?.(m.mfluxModel) !== false;
   const familyDefaultImage = (): string | null => {
     const o = overrides();
     if (o.imagesOff) return null;
     const id = o.defaultImageModel ?? models.defaultImageModel;
-    return id && models.imageModels.some((m) => m.id === id && isOn(m)) ? id : null;
+    return id && models.imageModels.some((m) => m.id === id && imageOn(m)) ? id : null;
   };
 
   async function capabilities(m: ChatModelConfig): Promise<ModelCapabilities | null> {
@@ -234,7 +238,7 @@ export function createModelRegistry(options: RegistryOptions): ModelRegistry {
       const imageModels =
         viewer.restricted || imagesOff()
           ? []
-          : models.imageModels.filter((m) => isOn(m)).map((m) => ({ id: m.id, label: m.label }));
+          : models.imageModels.filter((m) => imageOn(m)).map((m) => ({ id: m.id, label: m.label }));
       const wanted = familyDefaultChat();
       // The family default is always a local model; a cloud model only when there is no
       // local one this user may use.
@@ -265,7 +269,7 @@ export function createModelRegistry(options: RegistryOptions): ModelRegistry {
 
     imageModel(id, viewer) {
       if (viewer.restricted || imagesOff()) return null;
-      return models.imageModels.find((m) => m.id === id && isOn(m)) ?? null;
+      return models.imageModels.find((m) => m.id === id && imageOn(m)) ?? null;
     },
 
     defaultChatModelId: familyDefaultChat,

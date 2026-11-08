@@ -21,8 +21,14 @@ export interface CapabilityProbes {
   searxngHealthy: () => Promise<boolean>;
   /** True when an executable `uv` is on PATH. */
   hasUv: () => Promise<boolean>;
-  /** True when the image worker's project (services/imagegen) is present. */
+  /**
+   * True when the image worker's project (services/imagegen) is present and writable, so
+   * `uv run` can create its environment there (a developer setup or the family hub; not the
+   * installed package, whose program folder belongs to the system).
+   */
   hasImageProject: () => Promise<boolean>;
+  /** True when Hemmia set up pictures itself (system/pictures.ts). */
+  managedImages?: () => boolean;
 }
 
 const GIB = 1024 ** 3;
@@ -43,7 +49,7 @@ export async function detectCapabilities(p: CapabilityProbes): Promise<SystemCap
     memoryGiB: round1(p.totalMemBytes() / GIB),
     diskFreeGiB: disk === null ? null : round1(disk / GIB),
     ollama: { reachable: version !== null, version },
-    images: appleSilicon && uv && project,
+    images: appleSilicon && ((uv && project) || (p.managedImages?.() ?? false)),
     webSearch: searx,
   };
 }
@@ -91,11 +97,13 @@ export function defaultProbes(o: {
   searxngUrl: string;
   dataDir: string;
   imageProjectDir: string;
+  managedImages?: () => boolean;
   fetch?: typeof fetch;
   pathEnv?: string;
 }): CapabilityProbes {
   const fetchFn = o.fetch ?? fetch;
   return {
+    ...(o.managedImages ? { managedImages: o.managedImages } : {}),
     platform: process.platform,
     arch: process.arch,
     totalMemBytes: () => os.totalmem(),
@@ -121,6 +129,7 @@ export function defaultProbes(o: {
     hasImageProject: async () => {
       try {
         await access(join(o.imageProjectDir, 'pyproject.toml'), constants.R_OK);
+        await access(o.imageProjectDir, constants.W_OK);
         return true;
       } catch {
         return false;

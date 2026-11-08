@@ -5,6 +5,8 @@ import {
   MIN_SHELL_LEVEL,
   type HealthResponse,
   type OllamaSetupStatus,
+  type PicturesSetupStatus,
+  type SearchSetupStatus,
   type SystemCapabilities,
   type SystemStatus,
 } from '@hemmia/shared';
@@ -88,6 +90,8 @@ import {
   registerSecurity,
 } from './security/http.ts';
 import { createOllamaManager, type OllamaDeps } from './system/ollama.ts';
+import type { PicturesManager } from './system/pictures.ts';
+import { createSearchManager, type SearchDeps } from './system/search.ts';
 import { registerWebApp } from './static.ts';
 
 export interface AppOverrides {
@@ -126,6 +130,10 @@ export interface AppOverrides {
   webDistDir?: string;
   /** What this computer can do; default: detected (tests: everything available). */
   capabilities?: Capabilities;
+  /** Pictures set up by Hemmia (main.ts); absent in tests unless given. */
+  pictures?: PicturesManager;
+  /** Side effects of the web search installer (tests). */
+  searchDeps?: Partial<SearchDeps>;
   /** Side effects of the Ollama installer (tests). */
   ollamaDeps?: Partial<OllamaDeps>;
   /** Requests to admin-added local servers; default: security/localengine.ts (tests). */
@@ -282,6 +290,7 @@ export async function buildApp(config: Config, overrides: AppOverrides = {}): Pr
             searxngUrl: config.searxngUrl,
             dataDir: config.dataDir,
             imageProjectDir: fileURLToPath(new URL('../../../services/imagegen', import.meta.url)),
+            ...(overrides.pictures ? { managedImages: overrides.pictures.managed } : {}),
           }),
         ));
   app.addHook('onReady', async () => {
@@ -635,6 +644,84 @@ export async function buildApp(config: Config, overrides: AppOverrides = {}): Pr
   app.get('/api/admin/ollama', { preHandler: requireAdmin }, async (): Promise<OllamaSetupStatus> =>
     ollama.status(),
   );
+  // Pictures set up by Hemmia (system/pictures.ts); not registered without a manager (tests).
+  const pictures = overrides.pictures;
+  if (pictures) {
+    let wasReady = pictures.managed();
+    app.get(
+      '/api/admin/pictures',
+      { preHandler: requireAdmin },
+      async (): Promise<PicturesSetupStatus> => {
+        // Pictures that already work another way (a developer setup, the family hub) are ready.
+        if (!pictures.managed() && capabilities.current().images) return { state: 'ready' };
+        const status = await pictures.status();
+        // Just finished: the apps should offer pictures now, not after the next check.
+        if (status.state === 'ready' && !wasReady) {
+          wasReady = true;
+          await capabilities.refresh();
+        }
+        return status;
+      },
+    );
+    app.post('/api/admin/pictures/install', { preHandler: requireAdmin }, async (req, reply) => {
+      if (capabilities.current().images || !pictures.beginInstall()) {
+        throw new HttpError(409, 'refused');
+      }
+      db.prepare('INSERT INTO audit_log (user_id, event, created_at) VALUES (?, ?, ?)').run(
+        currentUser(req).userId,
+        'pictures_install',
+        Date.now(),
+      );
+      return reply.code(202).send(await pictures.status());
+    });
+  }
+
+  // Web search set up by Hemmia on a Mac (system/search.ts).
+  const search = createSearchManager({
+    dataDir: config.dataDir,
+    projectDir: fileURLToPath(new URL('../../../services/searxng', import.meta.url)),
+    searxngUrl: config.searxngUrl,
+    platform: config.env === 'test' && !overrides.searchDeps ? 'linux' : process.platform,
+    arch: process.arch,
+    container: config.container,
+    log: {
+      info: (obj, msg) => {
+        app.log.info(obj, msg);
+      },
+      warn: (obj, msg) => {
+        app.log.warn(obj, msg);
+      },
+    },
+    ...(overrides.searchDeps ? { deps: overrides.searchDeps } : {}),
+  });
+  app.addHook('onReady', async () => {
+    await search.start();
+  });
+  app.addHook('onClose', async () => {
+    search.close();
+  });
+  app.get(
+    '/api/admin/search-setup',
+    { preHandler: requireAdmin },
+    async (): Promise<SearchSetupStatus> => {
+      const status = await search.status();
+      // Search just came up: the apps should offer it now, not after the next check.
+      if (status.state === 'ready' && !capabilities.current().webSearch) {
+        await capabilities.refresh();
+      }
+      return status;
+    },
+  );
+  app.post('/api/admin/search-setup/install', { preHandler: requireAdmin }, async (req, reply) => {
+    if (!(await search.beginInstall())) throw new HttpError(409, 'refused');
+    db.prepare('INSERT INTO audit_log (user_id, event, created_at) VALUES (?, ?, ?)').run(
+      currentUser(req).userId,
+      'search_install',
+      Date.now(),
+    );
+    return reply.code(202).send(await search.status());
+  });
+
   app.post('/api/admin/ollama/install', { preHandler: requireAdmin }, async (req, reply) => {
     if (!(await ollama.beginInstall())) throw new HttpError(409, 'refused');
     db.prepare('INSERT INTO audit_log (user_id, event, created_at) VALUES (?, ?, ?)').run(

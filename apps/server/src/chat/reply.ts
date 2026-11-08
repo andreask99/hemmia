@@ -1063,8 +1063,9 @@ export function startReply(deps: ReplyDeps, input: ReplyInput): StartedReply {
           ? 'cloud_key'
           : cloud
             ? cloudErrorCode(err)
-            : err instanceof LlmError && err.code === 'model_unsupported'
-              ? 'model_unsupported'
+            : err instanceof LlmError &&
+                (err.code === 'model_unsupported' || err.code === 'model_too_large')
+              ? err.code
               : null;
       send({ type: 'error', code: code ?? 'model_error' });
       if (code) return;

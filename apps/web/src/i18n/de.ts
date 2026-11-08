@@ -474,6 +474,8 @@ export const de: Messages = {
     'Der Cloud-Anbieter hat deinen API-Schlüssel nicht angenommen. Prüfe ihn unter Einstellungen → Modelle → Cloud-KI.',
   'chat.modelUnsupported':
     'Dieses Modell läuft auf diesem Mac noch nicht: Das installierte Ollama unterstützt es nicht. Ein Admin kann es unter Einstellungen → Modelle entfernen.',
+  'chat.modelTooLarge':
+    'Dieses Modell braucht mehr Arbeitsspeicher, als dieser Computer für KI-Modelle frei hat. Wähl ein kleineres Modell; ein Admin kann unter Einstellungen → Modelle eines herunterladen (das empfohlene passt).',
   'chat.cloudUnavailable':
     'Das Cloud-Modell kann gerade nicht antworten (ausgelastet, oder das Limit deines Schlüssels ist erreicht). Versuch es gleich noch einmal.',
   'chat.refused':
@@ -529,6 +531,34 @@ export const de: Messages = {
   'engines.errorAddress': 'Nur Server auf diesem Computer oder im Heimnetz',
   'engines.errorUnreachable': 'Keine Antwort von dieser Adresse',
   'engines.errorTooMany': 'Höchstens 5 Server',
+  'search.title': 'Websuche',
+  'search.offText':
+    'Lass Hemmia im Web nachschauen: das Wetter, Öffnungszeiten, Nachrichten. Hemmia installiert dafür eine eigene private Suche (SearXNG) auf diesem Mac, etwa 100 MB.',
+  'search.turnOn': 'Websuche einschalten',
+  'search.installing': 'Die Websuche wird installiert … Das dauert ein bis zwei Minuten.',
+  'search.starting': 'Die Websuche startet …',
+  'search.failedDownload':
+    'Der Download ist fehlgeschlagen. Prüfe die Internetverbindung und versuch es noch einmal.',
+  'search.failedCheck':
+    'Eine heruntergeladene Datei hat Hemmias Sicherheitsprüfung nicht bestanden, deshalb wurde nichts installiert. Versuch es später noch einmal.',
+  'search.failedEngine':
+    'Die Websuche konnte nicht installiert werden. Versuch es noch einmal; klappt es weiter nicht, prüfe den freien Speicherplatz.',
+  'pictures.title': 'Bilder',
+  'pictures.offText':
+    'Lass Hemmia auf diesem Mac Bilder malen. Hemmia lädt die Bild-Engine und das Modell FLUX.2 Klein herunter (etwa {size} GB) und prüft jede Datei.',
+  'pictures.turnOn': 'Bilder einschalten',
+  'pictures.tool': 'Wird vorbereitet …',
+  'pictures.engine': 'Die Bild-Engine wird installiert … Das dauert ein paar Minuten.',
+  'pictures.model': 'Das Bildmodell wird geladen … {done} von {total} GB',
+  'pictures.ready': 'Bilder sind eingeschaltet. Bitte in einem beliebigen Chat um ein Bild.',
+  'pictures.memory': 'Für Bilder braucht der Mac 24 GB Arbeitsspeicher oder mehr.',
+  'pictures.failedDownload':
+    'Der Download ist fehlgeschlagen. Prüfe die Internetverbindung und versuch es noch einmal.',
+  'pictures.failedCheck':
+    'Eine heruntergeladene Datei hat Hemmias Sicherheitsprüfung nicht bestanden, deshalb wurde nichts installiert. Versuch es später noch einmal.',
+  'pictures.failedEngine':
+    'Die Bild-Engine konnte nicht installiert werden. Versuch es noch einmal; klappt es weiter nicht, prüfe, ob auf dem Mac genug Speicherplatz frei ist.',
+  'pictures.retry': 'Noch einmal versuchen',
   'ollama.title': 'Lokale Modelle brauchen Ollama',
   'ollama.text':
     'Ollama lässt KI-Modelle auf diesem Computer laufen. Hemmia kann es für dich installieren: etwa 190 MB, geprüft, bevor es läuft.',

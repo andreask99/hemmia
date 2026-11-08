@@ -48,6 +48,7 @@ export const RUNTIME_PATHS = [
   'packages/relay-protocol',
   'config',
   'services/imagegen',
+  'services/searxng',
 ];
 
 /** Files that never go into the package: tests, fixtures, caches. */
@@ -294,13 +295,25 @@ function main(argv: string[]): void {
   const signed = join(out, `hemmia-hub-${version}.pkg`);
   run('productsign', ['--sign', installer, unsigned, signed]);
   rmSync(unsigned);
+  // Notarization: a notarytool keychain profile, or an App Store Connect API key file (works
+  // when the keychain can't be read, e.g. a locked screen).
   const profile = process.env['HEMMIA_NOTARY_PROFILE'];
-  if (profile) {
-    run('xcrun', ['notarytool', 'submit', signed, '--keychain-profile', profile, '--wait']);
+  const key = process.env['HEMMIA_NOTARY_KEY'];
+  const keyId = process.env['HEMMIA_NOTARY_KEY_ID'];
+  const issuer = process.env['HEMMIA_NOTARY_ISSUER'];
+  const auth = profile
+    ? ['--keychain-profile', profile]
+    : key && keyId && issuer
+      ? ['--key', key, '--key-id', keyId, '--issuer', issuer]
+      : null;
+  if (auth) {
+    run('xcrun', ['notarytool', 'submit', signed, ...auth, '--wait']);
     run('xcrun', ['stapler', 'staple', signed]);
     process.stdout.write(`signed and notarized: ${signed}\n`);
   } else {
-    process.stdout.write(`signed, not notarized (set HEMMIA_NOTARY_PROFILE): ${signed}\n`);
+    process.stdout.write(
+      `signed, not notarized (set HEMMIA_NOTARY_PROFILE or HEMMIA_NOTARY_KEY/_KEY_ID/_ISSUER): ${signed}\n`,
+    );
   }
 }
 

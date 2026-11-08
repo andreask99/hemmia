@@ -5,6 +5,8 @@ import type { Config } from './config/schema.ts';
 import { createWorkerEngine } from './imagegen/process.ts';
 import { createOllamaClient } from './llm/ollama.ts';
 import { createModelRegistry } from './models/registry.ts';
+import { createPicturesManager, PICTURE_MODEL } from './system/pictures.ts';
+import { totalmem } from 'node:os';
 
 let config: Config;
 try {
@@ -15,21 +17,45 @@ try {
 }
 
 const llm = createOllamaClient(config.ollamaUrl);
+const imageProjectDir = fileURLToPath(new URL('../../../services/imagegen', import.meta.url));
+// Pictures set up by Hemmia (system/pictures.ts) run from the data folder; a developer setup
+// (or the family hub) runs the project with uv.
+const pictures = createPicturesManager({
+  dataDir: config.dataDir,
+  projectDir: imageProjectDir,
+  platform: process.platform,
+  arch: process.arch,
+  container: config.container,
+  memoryGiB: () => totalmem() / 1024 ** 3,
+  log: {
+    info: (obj, msg) => {
+      process.stdout.write(`${JSON.stringify({ level: 30, ...obj, msg })}\n`);
+    },
+    warn: (obj, msg) => {
+      process.stdout.write(`${JSON.stringify({ level: 40, ...obj, msg })}\n`);
+    },
+  },
+});
+await pictures.start();
 const imageEngine = createWorkerEngine({
-  command: [
-    'uv',
-    'run',
-    '--project',
-    fileURLToPath(new URL('../../../services/imagegen', import.meta.url)),
-    '--frozen',
-    'python',
-    '-m',
-    'kchat_imagegen',
-  ],
+  command: () =>
+    pictures.worker() ?? {
+      command: [
+        'uv',
+        'run',
+        '--project',
+        imageProjectDir,
+        '--frozen',
+        'python',
+        '-m',
+        'kchat_imagegen',
+      ],
+    },
 });
 const { app, setup, remote } = await buildApp(config, {
   llm,
   imageEngine,
+  pictures,
   registryFactory: (overrides, cloudKeys, capabilities, custom) =>
     createModelRegistry({
       models: config.models,
@@ -37,6 +63,8 @@ const { app, setup, remote } = await buildApp(config, {
       overrides: () => overrides.get(),
       cloudKeys,
       imagesAvailable: () => capabilities.current().images,
+      // Hemmia sets up one picture model; a developer setup may have both.
+      imageModelAvailable: (m) => !pictures.managed() || m === PICTURE_MODEL,
       customEngines: custom.engines,
       customModels: custom.models,
     }),

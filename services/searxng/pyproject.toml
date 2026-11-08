@@ -1,0 +1,31 @@
+# SearXNG's Python packages for web search set up by Hemmia on a Mac (system/search.ts). The
+# SearXNG source itself is downloaded at the pinned commit; these are its requirements.txt at
+# that commit, locked with hashes in uv.lock. certifi is newer than SearXNG's pin (security
+# update). Docker uses the official SearXNG image instead.
+[project]
+name = "hemmia-searxng"
+version = "0.1.0"
+description = "SearXNG dependencies for Hemmia's web search on a Mac"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "certifi==2026.10.23",
+    "babel==2.18.0",
+    "flask-babel==4.0.0",
+    "flask==3.1.3",
+    "jinja2==3.1.6",
+    "lxml==6.1.3",
+    "pygments==2.21.0",
+    "python-dateutil==2.9.0.post0",
+    "pyyaml==6.0.3",
+    "curl_cffi==0.16.3",
+    "valkey==6.1.1",
+    "markdown-it-py==4.2.0",
+    "msgspec==0.22.0",
+    "typer==0.27.2",
+    "isodate==0.7.2",
+    "whitenoise==6.12.0",
+    "typing-extensions==4.16.0",
+]
+
+[tool.uv]
+package = false

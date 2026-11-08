@@ -466,6 +466,8 @@ export const en = {
     'The cloud provider didn’t accept your API key. Check it under Settings → Models → Cloud AI.',
   'chat.modelUnsupported':
     'This model can’t run on this Mac yet: the installed Ollama doesn’t support it. An admin can remove it under Settings → Models.',
+  'chat.modelTooLarge':
+    'This model needs more memory than this computer has free for AI models. Choose a smaller model; an admin can download one under Settings → Models (the recommended one fits).',
   'chat.cloudUnavailable':
     'The cloud model can’t answer right now (busy, or your key’s limit is reached). Try again in a moment.',
   'chat.refused':
@@ -520,6 +522,32 @@ export const en = {
   'engines.errorAddress': 'Only servers on this computer or your home network',
   'engines.errorUnreachable': 'No answer from that address',
   'engines.errorTooMany': 'At most 5 servers',
+  'search.title': 'Web search',
+  'search.offText':
+    'Let Hemmia look things up on the web: the weather, opening hours, the news. Hemmia installs its own private search (SearXNG) on this Mac, about 100 MB.',
+  'search.turnOn': 'Turn on web search',
+  'search.installing': 'Installing web search… This takes a minute or two.',
+  'search.starting': 'Web search is starting…',
+  'search.failedDownload': 'The download failed. Check the internet connection and try again.',
+  'search.failedCheck':
+    'A downloaded file didn’t pass Hemmia’s safety check, so nothing was installed. Try again later.',
+  'search.failedEngine':
+    'Web search couldn’t be installed. Try again; if it keeps failing, check the free disk space.',
+  'pictures.title': 'Pictures',
+  'pictures.offText':
+    'Let Hemmia paint pictures on this Mac. Hemmia downloads the picture engine and the FLUX.2 Klein model (about {size} GB) and checks every file.',
+  'pictures.turnOn': 'Turn on pictures',
+  'pictures.tool': 'Preparing…',
+  'pictures.engine': 'Installing the picture engine… This takes a few minutes.',
+  'pictures.model': 'Downloading the picture model… {done} of {total} GB',
+  'pictures.ready': 'Pictures are on. Ask for a picture in any chat.',
+  'pictures.memory': 'Pictures need a Mac with 24 GB of memory or more.',
+  'pictures.failedDownload': 'The download failed. Check the internet connection and try again.',
+  'pictures.failedCheck':
+    'A downloaded file didn’t pass Hemmia’s safety check, so nothing was installed. Try again later.',
+  'pictures.failedEngine':
+    'The picture engine couldn’t be installed. Try again; if it keeps failing, check that the Mac has enough free disk space.',
+  'pictures.retry': 'Try again',
   'ollama.title': 'Local models need Ollama',
   'ollama.text':
     'Ollama runs AI models on this computer. Hemmia can install it for you: about 190 MB, checked before it runs.',

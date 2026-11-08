@@ -76,21 +76,23 @@ export function loopbackHost(ollamaUrl: string): string | null {
   return `127.0.0.1:${u.port || '11434'}`;
 }
 
-async function defaultDownload(
+/** Downloads `url` to `dest` (at most `maxBytes`), reporting bytes; returns the SHA-256 (hex). */
+export async function downloadFile(
   url: string,
   dest: string,
   onBytes: (received: number, total: number | null) => void,
+  maxBytes: number = MAX_ARCHIVE_BYTES,
 ): Promise<string> {
-  const res = await fetch(url, { redirect: 'follow', signal: AbortSignal.timeout(30 * 60_000) });
+  const res = await fetch(url, { redirect: 'follow', signal: AbortSignal.timeout(60 * 60_000) });
   if (!res.ok || !res.body) throw new Error(`download failed: ${String(res.status)}`);
   const header = Number(res.headers.get('content-length'));
   const total = Number.isFinite(header) && header > 0 ? header : null;
-  if (total !== null && total > MAX_ARCHIVE_BYTES) throw new Error('download too large');
+  if (total !== null && total > maxBytes) throw new Error('download too large');
   const hash = createHash('sha256');
   let received = 0;
   const counted = Readable.fromWeb(res.body).map((chunk: Buffer) => {
     received += chunk.length;
-    if (received > MAX_ARCHIVE_BYTES) throw new Error('download too large');
+    if (received > maxBytes) throw new Error('download too large');
     hash.update(chunk);
     onBytes(received, total);
     return chunk;
@@ -104,7 +106,7 @@ async function run(file: string, args: string[]): Promise<void> {
 }
 
 const defaultDeps = (ollamaUrl: string): OllamaDeps => ({
-  download: defaultDownload,
+  download: (url, dest, onBytes) => downloadFile(url, dest, onBytes),
   // The archive is checked against the pinned SHA-256 before it is unpacked; its links all
   // point inside it (checked when the version was pinned).
   extract: (archive, dir) => run('/usr/bin/tar', ['-xzf', archive, '-C', dir]),

@@ -2,6 +2,8 @@ import { Button } from '@hemmia/ui';
 import { useI18n } from '../i18n/index.tsx';
 import { ModelCatalog } from '../components/ModelCatalog.tsx';
 import { CloudSection } from '../components/CloudSection.tsx';
+import { PicturesSetup } from '../components/PicturesSetup.tsx';
+import { SearchSetup } from '../components/SearchSetup.tsx';
 
 export function StepAI(props: { onNext: () => void }) {
   const { t } = useI18n();
@@ -16,6 +18,9 @@ export function StepAI(props: { onNext: () => void }) {
         <h3 className="mb-2 text-base font-semibold text-ink">{t('setup.aiLocal')}</h3>
         <ModelCatalog />
       </div>
+
+      <PicturesSetup />
+      <SearchSetup />
 
       <div>
         <h3 className="mb-2 text-base font-semibold text-ink">{t('setup.aiCloud')}</h3>

@@ -88,6 +88,7 @@ export const ErrorCode = z.enum([
   'no_model',
   /** This computer's model engine can't run the model (e.g. Ollama doesn't support it yet). */
   'model_unsupported',
+  'model_too_large',
   /** A local model server outside this computer and the home network (P1.7). */
   'address_not_allowed',
   /** A local model server that doesn't answer. */

@@ -30,6 +30,8 @@ import {
   AdminEnginesResponse,
   CatalogResponse,
   OllamaSetupStatus,
+  PicturesSetupStatus,
+  SearchSetupStatus,
   StartPullResponse,
 } from '@hemmia/shared';
 import { ME_QUERY_KEY } from '../auth/hooks.ts';
@@ -286,6 +288,47 @@ export function useInstallOllama() {
     mutationFn: () => api('/admin/ollama/install', { method: 'POST', schema: OllamaSetupStatus }),
     onSuccess: (status) => {
       queryClient.setQueryData(['admin', 'ollama'], status);
+    },
+  });
+}
+
+/** Whether Hemmia can set up pictures here; polled while it installs. */
+export function usePicturesSetup() {
+  return useQuery({
+    queryKey: ['admin', 'pictures'],
+    queryFn: () => api('/admin/pictures', { schema: PicturesSetupStatus }),
+    refetchInterval: (q) => (q.state.data?.state === 'installing' ? 1500 : false),
+  });
+}
+
+export function useInstallPictures() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () =>
+      api('/admin/pictures/install', { method: 'POST', schema: PicturesSetupStatus }),
+    onSuccess: (status) => {
+      queryClient.setQueryData(['admin', 'pictures'], status);
+    },
+  });
+}
+
+/** Web search set up by Hemmia on a Mac; polled while it installs or starts. */
+export function useSearchSetup() {
+  return useQuery({
+    queryKey: ['admin', 'search-setup'],
+    queryFn: () => api('/admin/search-setup', { schema: SearchSetupStatus }),
+    refetchInterval: (q) =>
+      q.state.data?.state === 'installing' || q.state.data?.state === 'starting' ? 1500 : false,
+  });
+}
+
+export function useInstallSearch() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () =>
+      api('/admin/search-setup/install', { method: 'POST', schema: SearchSetupStatus }),
+    onSuccess: (status) => {
+      queryClient.setQueryData(['admin', 'search-setup'], status);
     },
   });
 }

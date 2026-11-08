@@ -64,6 +64,8 @@ function errorText(code: ErrorCode | 'network' | 'model_error', t: TFunction): s
       return t('chat.cloudUnavailable');
     case 'model_unsupported':
       return t('chat.modelUnsupported');
+    case 'model_too_large':
+      return t('chat.modelTooLarge');
     case 'refused':
       return t('chat.refused');
     case 'over_budget':
