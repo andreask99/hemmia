@@ -4,6 +4,7 @@ import {
   HUB_BRIDGE_LEVEL,
   MIN_SHELL_LEVEL,
   type HealthResponse,
+  type OllamaSetupStatus,
   type SystemCapabilities,
   type SystemStatus,
 } from '@hemmia/shared';
@@ -78,7 +79,15 @@ import { createAdmin } from './security/admin.ts';
 import { type AttachmentStore, createAttachmentStore } from './security/attachments.ts';
 import { type Auth, createAuth } from './security/auth.ts';
 import type { KdfParams } from './security/crypto.ts';
-import { requireAdmin, requireUser, cookieSettings, registerSecurity } from './security/http.ts';
+import {
+  currentUser,
+  HttpError,
+  requireAdmin,
+  requireUser,
+  cookieSettings,
+  registerSecurity,
+} from './security/http.ts';
+import { createOllamaManager, type OllamaDeps } from './system/ollama.ts';
 import { registerWebApp } from './static.ts';
 
 export interface AppOverrides {
@@ -117,6 +126,8 @@ export interface AppOverrides {
   webDistDir?: string;
   /** What this computer can do; default: detected (tests: everything available). */
   capabilities?: Capabilities;
+  /** Side effects of the Ollama installer (tests). */
+  ollamaDeps?: Partial<OllamaDeps>;
   /** Requests to admin-added local servers; default: security/localengine.ts (tests). */
   localEngineFetch?: FetchLike;
   /** Tests: fast certificate polling and reconnects for remote access. */
@@ -596,6 +607,42 @@ export async function buildApp(config: Config, overrides: AppOverrides = {}): Pr
   }
   app.get('/api/admin/system', { preHandler: requireAdmin }, async (): Promise<SystemStatus> => {
     return { ...(await system.get()), keepAwake: keepAwake.active(), update: updates.latest() };
+  });
+
+  // Ollama installed and run by Hemmia on a Mac without one (system/ollama.ts).
+  const ollama = createOllamaManager({
+    db,
+    dataDir: config.dataDir,
+    ollamaUrl: config.ollamaUrl,
+    platform: config.env === 'test' && !overrides.ollamaDeps ? 'linux' : process.platform,
+    container: config.container,
+    log: {
+      info: (obj, msg) => {
+        app.log.info(obj, msg);
+      },
+      warn: (obj, msg) => {
+        app.log.warn(obj, msg);
+      },
+    },
+    ...(overrides.ollamaDeps ? { deps: overrides.ollamaDeps } : {}),
+  });
+  app.addHook('onReady', async () => {
+    await ollama.start();
+  });
+  app.addHook('onClose', async () => {
+    ollama.close();
+  });
+  app.get('/api/admin/ollama', { preHandler: requireAdmin }, async (): Promise<OllamaSetupStatus> =>
+    ollama.status(),
+  );
+  app.post('/api/admin/ollama/install', { preHandler: requireAdmin }, async (req, reply) => {
+    if (!(await ollama.beginInstall())) throw new HttpError(409, 'refused');
+    db.prepare('INSERT INTO audit_log (user_id, event, created_at) VALUES (?, ?, ?)').run(
+      currentUser(req).userId,
+      'ollama_install',
+      Date.now(),
+    );
+    return reply.code(202).send(await ollama.status());
   });
 
   const setup = createSetup({

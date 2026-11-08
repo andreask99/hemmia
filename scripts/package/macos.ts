@@ -9,7 +9,7 @@
  * and stapled; otherwise it stays unsigned for local tests. HEMMIA_RELAY_DOMAIN goes into the
  * LaunchAgent when set.
  */
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import {
   cpSync,
@@ -21,6 +21,10 @@ import {
   chmodSync,
   readdirSync,
   statSync,
+  lstatSync,
+  openSync,
+  readSync,
+  closeSync,
 } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -51,6 +55,52 @@ export function isShipped(path: string): boolean {
   return !/(\.test\.tsx?$|\/tests?\/|\/__pycache__\/|\/\.venv\/|\/\.pytest_cache\/|\/node_modules\/)/.test(
     path,
   );
+}
+
+/** Mach-O magic numbers (thin 32/64-bit, both byte orders, and universal). */
+const MACHO = new Set(['feedface', 'feedfacf', 'cefaedfe', 'cffaedfe', 'cafebabe', 'bebafeca']);
+
+/** True for a Mach-O executable or library (by its first bytes). */
+export function isMachO(head: Buffer): boolean {
+  if (head.length < 8 || !MACHO.has(head.subarray(0, 4).toString('hex'))) return false;
+  // 0xcafebabe is also a Java class file; a universal binary has a handful of architectures.
+  if (head.subarray(0, 4).toString('hex') === 'cafebabe') return head.readUInt32BE(4) < 20;
+  return true;
+}
+
+/**
+ * Notarization needs every program in the package signed with a Developer ID, hardened runtime
+ * and a timestamp. Binaries that already are (Node's own) keep their signature; the rest
+ * (native modules from npm, mostly unsigned or ad hoc) are signed with ours.
+ */
+function signBinaries(payload: string, identity: string): number {
+  let signed = 0;
+  const walk = (dir: string): void => {
+    for (const name of readdirSync(dir)) {
+      const p = join(dir, name);
+      const st = lstatSync(p);
+      if (st.isSymbolicLink()) continue;
+      if (st.isDirectory()) {
+        walk(p);
+        continue;
+      }
+      if (!st.isFile() || st.size < 4096) continue;
+      const fd = openSync(p, 'r');
+      const head = Buffer.alloc(8);
+      readSync(fd, head, 0, 8, 0);
+      closeSync(fd);
+      if (!isMachO(head)) continue;
+      // codesign -d writes its details to stderr.
+      const details = spawnSync('codesign', ['-dvv', p], { encoding: 'utf8' }).stderr;
+      if (/Authority=Developer ID Application/.test(details) && /flags=.*runtime/.test(details)) {
+        continue;
+      }
+      run('codesign', ['--force', '--options', 'runtime', '--timestamp', '--sign', identity, p]);
+      signed++;
+    }
+  };
+  walk(payload);
+  return signed;
 }
 
 export function fillTemplate(text: string, values: Record<string, string>): string {
@@ -204,6 +254,12 @@ function main(argv: string[]): void {
     }),
   );
 
+  const identities = run('security', ['find-identity', '-v', '-p', 'basic']);
+  const application = /"(Developer ID Application: [^"]+)"/.exec(identities)?.[1];
+  if (application) {
+    process.stdout.write(`signed ${String(signBinaries(payload, application))} binaries\n`);
+  }
+
   process.stdout.write(`payload ${String(Math.round(dirSize(payload) / 1e6))} MB\n`);
   const component = join(out, 'hub.pkg');
   run('pkgbuild', [
@@ -230,7 +286,6 @@ function main(argv: string[]): void {
     unsigned,
   ]);
 
-  const identities = run('security', ['find-identity', '-v', '-p', 'basic']);
   const installer = /"(Developer ID Installer: [^"]+)"/.exec(identities)?.[1];
   if (!installer) {
     process.stdout.write(`unsigned package (no Developer ID Installer identity): ${unsigned}\n`);

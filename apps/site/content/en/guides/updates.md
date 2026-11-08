@@ -22,11 +22,10 @@ In the folder `packaging/docker`, get the new version and restart the hub:
 
 ```sh
 git pull
-docker compose --profile ollama build hub
-docker compose --profile ollama up -d
+./start.sh
 ```
 
-Your data stays in the `hemmia-data` volume. <!-- CHECK: switch to `docker compose pull` once images are published (P8.5) -->
+Your data stays in the `hemmia-data` volume. Use the same options as when you started it, for example `./start.sh --no-ollama`.
 
 ## Uninstalling on a Mac
 

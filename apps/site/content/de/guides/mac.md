@@ -47,7 +47,7 @@ Installiere die Hemmia-App auf deinem Telefon, tippe auf **Code scannen** und sc
 <!-- /steps -->
 
 <!-- note -->
-Lokale Modelle brauchen [Ollama](https://ollama.com). Installiere es, bevor du ein Modell wählst; läuft es nicht, zeigt die Modellliste das an. Cloud-Modelle funktionieren auch ohne.
+Lokale Modelle laufen mit [Ollama](https://ollama.com). Hat dieser Mac es noch nicht, bietet der Modell-Schritt **Ollama installieren** an: Hemmia lädt es herunter, prüft es und startet es für dich. Nutzt du schon die Ollama-App, nimmt Hemmia diese. Cloud-Modelle funktionieren auch ohne Ollama.
 <!-- /note -->
 
 ## Wo deine Daten liegen

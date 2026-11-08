@@ -14,7 +14,7 @@ Hemmia ist eine private KI für dich und deine Familie, die auf deinem eigenen C
 
 ## In einem Absatz
 
-Hemmia ist eine private KI für dich und deine Familie, zu Hause. Sie läuft auf deinem eigenen Computer oder einfach auf deinem Telefon, mit lokalen Modellen oder deinem eigenen Schlüssel von OpenAI oder Anthropic. Jede Person in der Familie bekommt ein eigenes Konto, die Chats sind mit ihrer eigenen Passphrase verschlüsselt; Telefone kommen per QR-Code dazu. Deine Chats liegen auf deinen Geräten: Die Leute hinter Hemmia können sie nicht sehen. Kein Konto bei uns, keine Werbung, kein Tracking. Der Code wird unter der AGPL-Lizenz veröffentlicht.
+Hemmia ist eine private KI für dich und deine Familie, zu Hause. Sie läuft auf deinem eigenen Computer oder einfach auf deinem Telefon, mit lokalen Modellen oder deinem eigenen Schlüssel von OpenAI oder Anthropic. Jede Person in der Familie bekommt ein eigenes Konto, die Chats sind mit ihrer eigenen Passphrase verschlüsselt; Telefone kommen per QR-Code dazu. Deine Chats liegen auf deinen Geräten: Die Leute hinter Hemmia können sie nicht sehen. Kein Konto bei uns, keine Werbung, kein Tracking. Der Code ist Open Source unter der AGPL-Lizenz.
 
 ## Fakten
 
@@ -24,7 +24,7 @@ Hemmia ist eine private KI für dich und deine Familie, zu Hause. Sie läuft auf
 - **Plattformen:** iPhone (auf dem iPad läuft die iPhone-App); Hub auf einem Mac mit Apple-Chip oder mit Docker unter Linux, Windows oder auf einem NAS. Android ist geplant.
 - **Sprachen:** Deutsch und Englisch.
 - **Preis:** kostenlos. Nutzt du Cloud-Modelle, bezahlst du den Anbieter direkt; Hemmia schlägt nichts drauf. <!-- CHECK: Entscheidung des Owners zum Geld (MARKETING.md §9) -->
-- **Lizenz:** AGPL-3.0 (Code wird veröffentlicht). <!-- CHECK: Link zum Repository nach der Veröffentlichung (P8.5) -->
+- **Lizenz:** AGPL-3.0, Quellcode auf [GitHub](https://github.com/andreask99/hemmia).
 - **Kein Tracking:** kein Konto bei uns, keine Statistik in der App oder auf dieser Website.
 
 ## Logo und Geist

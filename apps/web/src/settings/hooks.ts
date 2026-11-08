@@ -29,6 +29,7 @@ import {
   SystemStatus,
   AdminEnginesResponse,
   CatalogResponse,
+  OllamaSetupStatus,
   StartPullResponse,
 } from '@hemmia/shared';
 import { ME_QUERY_KEY } from '../auth/hooks.ts';
@@ -266,6 +267,26 @@ export function useCatalog() {
   return useQuery({
     queryKey: ['admin', 'catalog'],
     queryFn: () => api('/admin/catalog', { schema: CatalogResponse }),
+  });
+}
+
+/** Whether Hemmia can install Ollama here; polled while it installs or starts. */
+export function useOllamaSetup() {
+  return useQuery({
+    queryKey: ['admin', 'ollama'],
+    queryFn: () => api('/admin/ollama', { schema: OllamaSetupStatus }),
+    refetchInterval: (q) =>
+      q.state.data?.state === 'installing' || q.state.data?.state === 'starting' ? 1000 : false,
+  });
+}
+
+export function useInstallOllama() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => api('/admin/ollama/install', { method: 'POST', schema: OllamaSetupStatus }),
+    onSuccess: (status) => {
+      queryClient.setQueryData(['admin', 'ollama'], status);
+    },
   });
 }
 

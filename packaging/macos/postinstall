@@ -1,0 +1,58 @@
+#!/bin/bash
+# Runs as root after the payload is installed (docs/public/ARCHITECTURE.md §3.5):
+# points `current` at this version, writes the LaunchAgent for the console user, starts the
+# hub, and opens the setup page when the hub is in setup mode. Never prints the setup code.
+set -eu
+BASE="/Library/Application Support/Hemmia"
+VERSION_DIR="$BASE/__VERSION__"
+APP="$BASE/current"
+
+ln -sfhn "$VERSION_DIR" "$APP"
+chown -R root:wheel "$VERSION_DIR"
+chmod -R go-w "$VERSION_DIR"
+
+USER_NAME=$(stat -f %Su /dev/console)
+if [ -z "$USER_NAME" ] || [ "$USER_NAME" = "root" ] || [ "$USER_NAME" = "loginwindow" ]; then
+  echo "Hemmia: no one is logged in; the hub starts at the next login of a user who runs the installer again."
+  exit 0
+fi
+USER_ID=$(id -u "$USER_NAME")
+USER_HOME=$(dscl . -read "/Users/$USER_NAME" NFSHomeDirectory | awk '{print $2}')
+AGENTS="$USER_HOME/Library/LaunchAgents"
+LOGDIR="$USER_HOME/Library/Logs/Hemmia"
+DATA="$USER_HOME/Library/Application Support/Hemmia"
+# A hub set up before the rename keeps its folder.
+[ ! -d "$DATA" ] && [ -d "$USER_HOME/Library/Application Support/kchat" ] &&
+  DATA="$USER_HOME/Library/Application Support/kchat"
+PLIST="$AGENTS/app.hemmia.hub.plist"
+
+sudo -u "$USER_NAME" mkdir -p "$AGENTS" "$LOGDIR"
+RELAY=""
+if [ -n "__RELAY_DOMAIN__" ]; then
+  RELAY="<key>HEMMIA_RELAY_DOMAIN</key><string>__RELAY_DOMAIN__</string>"
+fi
+# Files in the user's folders are written as the user, never as root: root would follow a
+# symlink the user (or something running as them) put there and overwrite a system file.
+sed -e "s|__APP__|$APP|g" -e "s|__LOGDIR__|$LOGDIR|g" -e "s|__RELAY__|$RELAY|" \
+  "$VERSION_DIR/packaging/app.hemmia.hub.plist.template" |
+  sudo -u "$USER_NAME" tee "$PLIST.tmp" > /dev/null
+sudo -u "$USER_NAME" chmod 644 "$PLIST.tmp"
+sudo -u "$USER_NAME" mv -f "$PLIST.tmp" "$PLIST"
+
+launchctl bootout "gui/$USER_ID/app.hemmia.hub" 2>/dev/null || true
+launchctl bootstrap "gui/$USER_ID" "$PLIST"
+
+# The hub writes or refreshes its setup code before it answers health, and removes it once
+# set up. So a code file next to a healthy hub means setup mode: open the setup page (also
+# when the installer runs again because the first link expired or its tab was closed).
+for _ in $(seq 1 60); do
+  if curl -sf -o /dev/null --max-time 2 "http://127.0.0.1:8787/api/health"; then
+    if [ -f "$DATA/setup-code.txt" ]; then
+      CODE=$(sudo -u "$USER_NAME" cat "$DATA/setup-code.txt" 2> /dev/null | tr -dc 'A-Za-z0-9' | head -c 64)
+      launchctl asuser "$USER_ID" sudo -u "$USER_NAME" open "http://localhost:8787/setup#$CODE"
+    fi
+    break
+  fi
+  sleep 1
+done
+exit 0

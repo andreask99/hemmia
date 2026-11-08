@@ -112,3 +112,53 @@ describe('ModelCatalog', () => {
     expect((await screen.findByRole('alert')).textContent).toBe('Not enough disk space');
   });
 });
+
+describe('Ollama setup above the model list', () => {
+  it('offers to install Ollama when there is none, then shows the progress', async () => {
+    let state: object = { state: 'missing', version: null };
+    const calls = stubFetch((url, init) => {
+      if (url === '/api/admin/catalog') return json(CATALOG);
+      if (url === '/api/admin/ollama/install' && init?.method === 'POST') {
+        state = {
+          state: 'installing',
+          version: '0.40.15',
+          received: 50 * 1024 * 1024,
+          total: 186 * 1024 * 1024,
+        };
+        return json(state, 202);
+      }
+      if (url === '/api/admin/ollama') return json(state);
+      return undefined;
+    });
+    renderIt();
+    fireEvent.click(await screen.findByRole('button', { name: 'Install Ollama' }));
+    expect(await screen.findByText('Installing Ollama… 50 of 186 MB')).toBeDefined();
+    expect(calls.some((c) => c.url === '/api/admin/ollama/install')).toBe(true);
+  });
+
+  it('shows nothing when an Ollama already runs', async () => {
+    stubFetch((url) =>
+      url === '/api/admin/catalog'
+        ? json(CATALOG)
+        : url === '/api/admin/ollama'
+          ? json({ state: 'external', version: null })
+          : undefined,
+    );
+    renderIt();
+    await screen.findByText('Add a model');
+    expect(screen.queryByText('Local models need Ollama')).toBeNull();
+  });
+
+  it('explains a failed safety check and offers to try again', async () => {
+    stubFetch((url) =>
+      url === '/api/admin/catalog'
+        ? json(CATALOG)
+        : url === '/api/admin/ollama'
+          ? json({ state: 'failed', version: '0.40.15', error: 'signature' })
+          : undefined,
+    );
+    renderIt();
+    expect((await screen.findByRole('alert')).textContent).toContain('safety check');
+    expect(screen.getByRole('button', { name: 'Try again' })).toBeDefined();
+  });
+});

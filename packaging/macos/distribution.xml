@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<installer-gui-script minSpecVersion="2">
+  <title>Hemmia</title>
+  <options customize="never" require-scripts="false" hostArchitectures="arm64" />
+  <domains enable_localSystem="true" />
+  <os-version min="14.0" />
+  <volume-check>
+    <allowed-os-versions>
+      <os-version min="14.0" />
+    </allowed-os-versions>
+  </volume-check>
+  <pkg-ref id="app.hemmia.hub" />
+  <choices-outline>
+    <line choice="default">
+      <line choice="app.hemmia.hub" />
+    </line>
+  </choices-outline>
+  <choice id="default" />
+  <choice id="app.hemmia.hub" visible="false">
+    <pkg-ref id="app.hemmia.hub" />
+  </choice>
+  <pkg-ref id="app.hemmia.hub" version="__VERSION__" onConclusion="none">hub.pkg</pkg-ref>
+</installer-gui-script>

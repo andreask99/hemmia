@@ -12,47 +12,37 @@ Docker runs the hub on Linux, on Windows with Docker Desktop, or on a NAS that s
 
 ## What you need
 
-- A computer that stays on, with Docker and Docker Compose.
-- For local models: 16 GB of memory or more, and space for the models (several GB each). Cloud models work without them.
-- The Hemmia files from GitHub. <!-- CHECK: repository link and released image (P8.5) -->
+- A computer that stays on, with Docker and Docker Compose (on Windows: Docker Desktop with WSL).
+- For local models: 8 GB of memory or more (16 GB for the better models), and space for the models (several GB each). Cloud models work without them.
+- `git`, to download Hemmia from [GitHub](https://github.com/andreask99/hemmia).
 
 <!-- steps -->
-## Start the hub
-In the folder `packaging/docker`, run:
-
+## Download Hemmia
 ```sh
-docker compose --profile ollama up -d
+git clone https://github.com/andreask99/hemmia.git
+cd hemmia/packaging/docker
 ```
 
-This starts the hub and Ollama for local models. Without `--profile ollama`, the hub runs alone and uses cloud models.
-
-## Open the setup
-Show the setup link with:
-
+## Start it
 ```sh
-docker compose logs hub | grep "Hemmia setup"
+./start.sh
 ```
 
-Open the `http://localhost:8787/setup#…` link in a browser on the same computer. The link is valid for 24 hours; `docker compose restart hub` prints a new one.
+This starts the hub, Ollama for local models and web search. The first time it builds the hub and downloads Ollama and the search engine, which takes a few minutes. When the hub is ready, it opens the setup in your browser, or shows its address.
 
 ## Finish the setup
-Give your family a name, create your account, write down the recovery code, choose your AI and turn on remote access. Then connect your phone: see [Connect your phone](/guides/phone-to-hub/).
+Give your family a name, create your account, write down the recovery code, choose your AI (the hub recommends a model that fits this computer) and turn on remote access. Then connect your phone: see [Connect your phone](/guides/phone-to-hub/).
 <!-- /steps -->
+
+Without local models: `./start.sh --no-ollama`. Without web search: `./start.sh --no-search`. If port 8787 is already taken on this computer, put `HEMMIA_PORT=8790` (or another free port) into the file `.env` in this folder.
 
 ## A computer without a browser
 
-On a NAS or server you can't open `localhost` in a browser. Put `HEMMIA_CONNECT=1` into a file `.env` next to `compose.yaml` and start the hub. It turns on Hemmia Connect right away, and the log also shows a `https://…/setup#…` link that works from any device. Treat that link like a password until the setup is done.
-
-## Web search
-
-```sh
-echo "SEARXNG_SECRET=$(openssl rand -hex 32)" >> .env
-docker compose --profile ollama --profile searxng up -d
-```
+On a NAS or server you can't open `localhost` in a browser. Put `HEMMIA_CONNECT=1` into the file `.env` in `packaging/docker` and run `./start.sh`. It turns on Hemmia Connect right away, and the log also shows a `https://…/setup#…` link that works from any device. Treat that link like a password until the setup is done.
 
 ## Ollama that's already installed
 
-If Ollama already runs on the computer, leave out `--profile ollama` and put `OLLAMA_URL=http://host.docker.internal:11434` into `.env`. On Linux, Ollama listens only on the computer itself by default, so the container can't reach it: set `OLLAMA_HOST=0.0.0.0` for the Ollama service and make sure your firewall keeps port 11434 closed to the network, or simply use `--profile ollama` instead.
+If Ollama already runs on the computer, start with `./start.sh --no-ollama` and put `OLLAMA_URL=http://host.docker.internal:11434` into `.env`. On Linux, Ollama listens only on the computer itself by default, so the container can't reach it: set `OLLAMA_HOST=0.0.0.0` for the Ollama service and make sure your firewall keeps port 11434 closed to the network, or simply use Hemmia's own Ollama (plain `./start.sh`).
 
 ## Updating and backups
 

@@ -45,7 +45,7 @@ You must be at least 13 years old to use the app. If you are under 18, or under 
 
 **The app:** we give you a personal, non-exclusive, non-transferable licence, which we can revoke under section 9, to use the app on devices you own or control, for private, non-commercial purposes, in line with these terms and the Apple EULA.
 
-**The hub software:** Hemmia's source code is licensed under the GNU Affero General Public License, version 3 (AGPL-3.0), once it is published. Where you receive the hub under that licence, the licence governs your rights to use, study, change and share the software, and nothing in these terms restricts them. These terms govern our services (Connect, notifications, the update service) and the app.
+**The hub software:** Hemmia's source code is licensed under the GNU Affero General Public License, version 3 (AGPL-3.0), and published at https://github.com/andreask99/hemmia. Where you receive the hub under that licence, the licence governs your rights to use, study, change and share the software, and nothing in these terms restricts them. These terms govern our services (Connect, notifications, the update service) and the app.
 
 The Hemmia name, the ghost logo and the design of this website and the app belong to us. Using them to suggest that something is made or endorsed by us, when it isn't, is not allowed.
 

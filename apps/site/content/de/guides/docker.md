@@ -12,47 +12,37 @@ Mit Docker läuft der Hub unter Linux, unter Windows mit Docker Desktop oder auf
 
 ## Was du brauchst
 
-- Einen Computer, der eingeschaltet bleibt, mit Docker und Docker Compose.
-- Für lokale Modelle: 16 GB Arbeitsspeicher oder mehr und Platz für die Modelle (jeweils mehrere GB). Cloud-Modelle funktionieren auch ohne.
-- Die Hemmia-Dateien von GitHub. <!-- CHECK: Link zum Repository und veröffentlichtes Image (P8.5) -->
+- Einen Computer, der eingeschaltet bleibt, mit Docker und Docker Compose (unter Windows: Docker Desktop mit WSL).
+- Für lokale Modelle: 8 GB Arbeitsspeicher oder mehr (16 GB für die besseren Modelle) und Platz für die Modelle (jeweils mehrere GB). Cloud-Modelle funktionieren auch ohne.
+- `git`, um Hemmia von [GitHub](https://github.com/andreask99/hemmia) zu laden.
 
 <!-- steps -->
-## Den Hub starten
-Gib im Ordner `packaging/docker` ein:
-
+## Hemmia herunterladen
 ```sh
-docker compose --profile ollama up -d
+git clone https://github.com/andreask99/hemmia.git
+cd hemmia/packaging/docker
 ```
 
-Das startet den Hub und Ollama für lokale Modelle. Ohne `--profile ollama` läuft der Hub allein und nutzt Cloud-Modelle.
-
-## Die Einrichtung öffnen
-Den Einrichtungslink zeigst du so an:
-
+## Starten
 ```sh
-docker compose logs hub | grep "Hemmia setup"
+./start.sh
 ```
 
-Öffne den Link `http://localhost:8787/setup#…` in einem Browser auf demselben Computer. Er ist 24 Stunden gültig; `docker compose restart hub` zeigt einen neuen.
+Das startet den Hub, Ollama für lokale Modelle und die Websuche. Beim ersten Mal baut es den Hub und lädt Ollama und die Suchmaschine herunter; das dauert ein paar Minuten. Sobald der Hub bereit ist, öffnet es die Einrichtung in deinem Browser oder zeigt ihre Adresse.
 
 ## Die Einrichtung abschließen
-Gib deiner Familie einen Namen, leg dein Konto an, schreib den Wiederherstellungscode auf, wähle deine KI und schalte den Fernzugriff ein. Verbinde dann dein Telefon: siehe [Telefon verbinden](/de/guides/phone-to-hub/).
+Gib deiner Familie einen Namen, leg dein Konto an, schreib den Wiederherstellungscode auf, wähle deine KI (der Hub empfiehlt ein Modell, das zu diesem Computer passt) und schalte den Fernzugriff ein. Verbinde dann dein Telefon: siehe [Telefon verbinden](/de/guides/phone-to-hub/).
 <!-- /steps -->
+
+Ohne lokale Modelle: `./start.sh --no-ollama`. Ohne Websuche: `./start.sh --no-search`. Ist Port 8787 auf diesem Computer schon belegt, schreib `HEMMIA_PORT=8790` (oder einen anderen freien Port) in die Datei `.env` in diesem Ordner.
 
 ## Ein Computer ohne Browser
 
-Auf einem NAS oder Server kannst du `localhost` nicht im Browser öffnen. Schreib `HEMMIA_CONNECT=1` in eine Datei `.env` neben `compose.yaml` und starte den Hub. Er schaltet dann sofort Hemmia Connect ein, und das Log zeigt zusätzlich einen Link `https://…/setup#…`, der von jedem Gerät aus funktioniert. Behandle diesen Link wie ein Passwort, bis die Einrichtung fertig ist.
-
-## Websuche
-
-```sh
-echo "SEARXNG_SECRET=$(openssl rand -hex 32)" >> .env
-docker compose --profile ollama --profile searxng up -d
-```
+Auf einem NAS oder Server kannst du `localhost` nicht im Browser öffnen. Schreib `HEMMIA_CONNECT=1` in die Datei `.env` in `packaging/docker` und führ `./start.sh` aus. Er schaltet dann sofort Hemmia Connect ein, und das Log zeigt zusätzlich einen Link `https://…/setup#…`, der von jedem Gerät aus funktioniert. Behandle diesen Link wie ein Passwort, bis die Einrichtung fertig ist.
 
 ## Ollama ist schon installiert
 
-Läuft Ollama schon auf dem Computer, lass `--profile ollama` weg und schreib `OLLAMA_URL=http://host.docker.internal:11434` in `.env`. Unter Linux hört Ollama standardmäßig nur auf dem Computer selbst, der Container erreicht es dann nicht: Setz für den Ollama-Dienst `OLLAMA_HOST=0.0.0.0` und sorg dafür, dass deine Firewall Port 11434 zum Netzwerk hin geschlossen hält, oder nimm einfach `--profile ollama`.
+Läuft Ollama schon auf dem Computer, starte mit `./start.sh --no-ollama` und schreib `OLLAMA_URL=http://host.docker.internal:11434` in `.env`. Unter Linux hört Ollama standardmäßig nur auf dem Computer selbst, der Container erreicht es dann nicht: Setz für den Ollama-Dienst `OLLAMA_HOST=0.0.0.0` und sorg dafür, dass deine Firewall Port 11434 zum Netzwerk hin geschlossen hält, oder nimm einfach Hemmias eigenes Ollama (einfach `./start.sh`).
 
 ## Aktualisieren und sichern
 

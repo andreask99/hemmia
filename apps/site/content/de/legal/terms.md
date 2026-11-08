@@ -45,7 +45,7 @@ Für die App musst du mindestens 13 Jahre alt sein. Bist du unter 18 oder an dei
 
 **Die App:** Wir geben dir eine persönliche, nicht ausschliessliche, nicht übertragbare Lizenz, die wir nach Abschnitt 9 widerrufen können, die App auf Geräten, die dir gehören oder die du kontrollierst, für private, nicht kommerzielle Zwecke zu nutzen, im Rahmen dieser Bedingungen und der Apple-EULA.
 
-**Die Hub-Software:** Der Quellcode von Hemmia steht unter der GNU Affero General Public License, Version 3 (AGPL-3.0), sobald er veröffentlicht ist. Wo du den Hub unter dieser Lizenz erhältst, regelt die Lizenz deine Rechte, die Software zu nutzen, zu untersuchen, zu ändern und weiterzugeben, und nichts in diesen Bedingungen schränkt sie ein. Diese Bedingungen regeln unsere Dienste (Connect, Mitteilungen, Update-Dienst) und die App.
+**Die Hub-Software:** Der Quellcode von Hemmia steht unter der GNU Affero General Public License, Version 3 (AGPL-3.0), und ist unter https://github.com/andreask99/hemmia veröffentlicht. Wo du den Hub unter dieser Lizenz erhältst, regelt die Lizenz deine Rechte, die Software zu nutzen, zu untersuchen, zu ändern und weiterzugeben, und nichts in diesen Bedingungen schränkt sie ein. Diese Bedingungen regeln unsere Dienste (Connect, Mitteilungen, Update-Dienst) und die App.
 
 Der Name Hemmia, das Gespenster-Logo und die Gestaltung dieser Website und der App gehören uns. Sie zu nutzen, um den Eindruck zu erwecken, etwas stamme von uns oder sei von uns empfohlen, obwohl das nicht stimmt, ist nicht erlaubt.
 

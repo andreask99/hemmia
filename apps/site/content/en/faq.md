@@ -45,4 +45,4 @@ Use your recovery code, which you saved when you created your account. Without p
 
 ## Is Hemmia open source?
 
-It will be: the code will be published under the AGPL licence, so that anyone can check what it does and how it protects your data.
+Yes. The code is [on GitHub](https://github.com/andreask99/hemmia) under the AGPL licence, so that anyone can check what it does and how it protects your data.

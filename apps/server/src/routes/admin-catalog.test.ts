@@ -77,7 +77,8 @@ describe('model catalogue', () => {
     [32, 'gemma4:26b'],
     [24, 'gemma4:12b'],
     [16, 'gemma4:12b'],
-    [8, 'gemma4:e2b'],
+    [12, 'gemma4:e2b'],
+    [8, 'qwen3:4b-instruct'],
   ])('recommends one model for %i GB', async (memoryGiB, model) => {
     const { call } = await setup(memoryGiB);
     const cat = CatalogResponse.parse((await call('GET', '/api/admin/catalog')).json());

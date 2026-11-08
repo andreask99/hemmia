@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Written by the package's postinstall into ~/Library/LaunchAgents/app.hemmia.hub.plist -->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>app.hemmia.hub</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>__APP__/node/bin/node</string>
+    <string>__APP__/app/apps/server/src/main.ts</string>
+  </array>
+  <key>WorkingDirectory</key><string>__APP__/app</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>NODE_ENV</key><string>production</string>
+    <key>HEMMIA_MODELS_FILE</key><string>__APP__/app/config/models.public.json</string>
+    <key>HEMMIA_UPDATE_CHECK</key><string>1</string>
+    __RELAY__
+    <key>PATH</key><string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+  </dict>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+  <key>ThrottleInterval</key><integer>10</integer>
+  <key>StandardOutPath</key><string>__LOGDIR__/hub.log</string>
+  <key>StandardErrorPath</key><string>__LOGDIR__/hub.err.log</string>
+  <key>ProcessType</key><string>Interactive</string>
+</dict>
+</plist>

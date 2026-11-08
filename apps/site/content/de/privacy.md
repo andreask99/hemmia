@@ -7,7 +7,7 @@ order: 20
 
 # Datenschutz und Sicherheit, einfach erklärt
 
-Auf dieser Seite steht in einfachen Worten, was mit deinen Daten passiert. Die technischen Einzelheiten stehen im Sicherheitskonzept, das mit dem Quellcode veröffentlicht wird. Verbindlich ist unsere [Datenschutzerklärung](/de/legal/privacy/).
+Auf dieser Seite steht in einfachen Worten, was mit deinen Daten passiert. Die technischen Einzelheiten stehen im [Sicherheitskonzept](https://github.com/andreask99/hemmia/blob/main/docs/SECURITY.md), das mit dem Quellcode veröffentlicht ist. Verbindlich ist unsere [Datenschutzerklärung](/de/legal/privacy/).
 
 ## Was auf deinen Geräten bleibt
 
@@ -45,6 +45,6 @@ Keine Cookies, keine Statistik, keine Zählpixel, keine Schriften oder Skripte v
 
 ## Open Source
 
-Der Code von Hemmia wird unter der AGPL-Lizenz veröffentlicht, damit alle nachprüfen können, was er tut. Wenn du ein Sicherheitsproblem findest, melde es bitte vertraulich an andreas.apps@icloud.com. Wir beheben es so schnell wie möglich.
+Der Code von Hemmia ist [auf GitHub veröffentlicht](https://github.com/andreask99/hemmia), unter der AGPL-Lizenz, damit alle nachprüfen können, was er tut. Wenn du ein Sicherheitsproblem findest, melde es bitte vertraulich, über [GitHubs vertrauliche Meldung](https://github.com/andreask99/hemmia/security/advisories/new) oder an andreas.apps@icloud.com. Wir beheben es so schnell wie möglich.
 
 Verbindlich sind unsere [Datenschutzerklärung](/de/legal/privacy/) und unsere [Nutzungsbedingungen](/de/legal/terms/).

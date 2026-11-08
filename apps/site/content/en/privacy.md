@@ -7,7 +7,7 @@ order: 20
 
 # Privacy and security, explained
 
-This page says in plain words what happens to your data. The technical details are in the security design that will be published with the source code. The binding details are in our [Privacy Policy](/legal/privacy/).
+This page says in plain words what happens to your data. The technical details are in the [security design](https://github.com/andreask99/hemmia/blob/main/docs/SECURITY.md), published with the source code. The binding details are in our [Privacy Policy](/legal/privacy/).
 
 ## What stays on your devices
 
@@ -45,6 +45,6 @@ No cookies, no analytics, no tracking pixels, no fonts or scripts from other sit
 
 ## Open source
 
-Hemmia's code will be published under the AGPL licence, so that anyone can check what it does. If you find a security problem, please report it privately to andreas.apps@icloud.com, and we'll fix it as quickly as we can.
+Hemmia's code is [published on GitHub](https://github.com/andreask99/hemmia) under the AGPL licence, so that anyone can check what it does. If you find a security problem, please report it privately, through [GitHub's private reporting](https://github.com/andreask99/hemmia/security/advisories/new) or to andreas.apps@icloud.com, and we'll fix it as quickly as we can.
 
 The binding details are in our [Privacy Policy](/legal/privacy/) and [Terms of Use](/legal/terms/).

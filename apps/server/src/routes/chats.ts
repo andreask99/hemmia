@@ -51,7 +51,16 @@ export function registerChatRoutes(app: FastifyInstance, deps: ChatRouteDeps): v
     if (body.agentId !== undefined && !agent) throw new HttpError(400, 'bad_request');
     const agentModel =
       agent?.modelId && (await registry.chatModel(agent.modelId, user)) ? agent.modelId : null;
-    const modelId = body.modelId ?? agentModel ?? own ?? registry.defaultChatModelId();
+    let modelId = body.modelId ?? agentModel ?? own ?? registry.defaultChatModelId();
+    // The family default may be gone (deleted outside Hemmia): then the default the model list
+    // shows, which only offers models that can answer.
+    if (
+      body.modelId === undefined &&
+      modelId !== null &&
+      !(await registry.chatModel(modelId, user))
+    ) {
+      modelId = (await registry.list(user)).defaultChatModel;
+    }
     if (modelId === null) throw new HttpError(409, 'no_model');
     const model = await registry.chatModel(modelId, user);
     if (!model) throw new HttpError(400, 'bad_request');

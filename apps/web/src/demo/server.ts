@@ -840,6 +840,8 @@ export function createDemoServer(lang: Language, options: DemoServerOptions): De
       }
 
       // --- admin
+      case 'GET /admin/ollama':
+        return json({ state: 'external', version: null });
       case 'GET /admin/invites':
         return json({ invites: [] });
       case 'GET /admin/users':

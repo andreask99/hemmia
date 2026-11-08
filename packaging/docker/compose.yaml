@@ -1,0 +1,67 @@
+# Hemmia hub with Docker (PLAN.md P6.2). Quick start: see README.md next to this file.
+#   docker compose up -d                        the hub alone (cloud models, or Ollama elsewhere)
+#   docker compose --profile ollama up -d       with local models in a second container
+#   docker compose --profile searxng up -d      with web search
+name: hemmia
+
+services:
+  hub:
+    # Built from this repository until images are published (CHECK: ghcr.io image, P8.5).
+    image: hemmia-hub:local
+    build:
+      context: ../..
+    pull_policy: build
+    restart: unless-stopped
+    ports:
+      # Only this computer; phones reach the hub through Connect or Tailscale. HEMMIA_PORT in .env
+      # if 8787 is taken.
+      - '127.0.0.1:${HEMMIA_PORT:-8787}:8787'
+    volumes:
+      - hemmia-data:/data
+    environment:
+      # Set to 1 on a machine without a browser: the log then also shows the setup address
+      # through the relay, so you can finish the setup from another device.
+      HEMMIA_CONNECT: ${HEMMIA_CONNECT:-0}
+      # With the ollama profile: http://ollama:11434. Ollama on the host:
+      # http://host.docker.internal:11434.
+      OLLAMA_URL: ${OLLAMA_URL:-http://ollama:11434}
+      HEMMIA_SEARXNG_URL: ${HEMMIA_SEARXNG_URL:-http://searxng:8080}
+      # The daily update check (version, platform and channel only). HEMMIA_UPDATE_CHECK=0 in
+      # .env turns it off.
+      HEMMIA_UPDATE_CHECK: ${HEMMIA_UPDATE_CHECK:-1}
+      # Tailscale: this computer's tailnet name, e.g. hub.tail1234.ts.net (after `tailscale serve`).
+      HEMMIA_PUBLIC_HOSTNAMES: ${HEMMIA_PUBLIC_HOSTNAMES:-}
+    # Makes host.docker.internal (Ollama on the host) work on Linux too, as on Docker Desktop.
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+
+  ollama:
+    profiles: [ollama]
+    image: ollama/ollama:0.40.15@sha256:0e59999e0e8f9fd4e704bd788a89b7e4cad399367fb1365f8c102ac662288761
+    restart: unless-stopped
+    volumes:
+      - ollama-models:/root/.ollama
+    # No ports: only the hub talks to it, over the compose network.
+
+  searxng:
+    profiles: [searxng]
+    image: searxng/searxng:2026.10.2-e652ca7d2@sha256:024af6ec6f2e46256035aa7b424f204d3a1c246dfceaf904363c30a4885e11e9
+    restart: unless-stopped
+    environment:
+      # Required by SearXNG: put SEARXNG_SECRET=<openssl rand -hex 32> into .env next to this file.
+      SEARXNG_SECRET: ${SEARXNG_SECRET:-}
+    volumes:
+      - ./searxng/settings.yml:/etc/searxng/settings.yml:ro
+    cap_drop: [ALL]
+    cap_add: [CHOWN, SETGID, SETUID]
+    # No ports: only the hub talks to it.
+
+volumes:
+  hemmia-data:
+  ollama-models:

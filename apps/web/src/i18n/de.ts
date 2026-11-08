@@ -529,6 +529,18 @@ export const de: Messages = {
   'engines.errorAddress': 'Nur Server auf diesem Computer oder im Heimnetz',
   'engines.errorUnreachable': 'Keine Antwort von dieser Adresse',
   'engines.errorTooMany': 'Höchstens 5 Server',
+  'ollama.title': 'Lokale Modelle brauchen Ollama',
+  'ollama.text':
+    'Ollama lässt KI-Modelle auf diesem Computer laufen. Hemmia kann es für dich installieren: etwa 190 MB, geprüft, bevor es läuft.',
+  'ollama.install': 'Ollama installieren',
+  'ollama.installing': 'Ollama wird installiert … {done} von {total} MB',
+  'ollama.installingNoTotal': 'Ollama wird installiert … {done} MB',
+  'ollama.starting': 'Ollama startet …',
+  'ollama.failedDownload':
+    'Ollama konnte nicht heruntergeladen werden. Prüfe die Internetverbindung und versuch es noch einmal.',
+  'ollama.failedCheck':
+    'Das heruntergeladene Ollama hat Hemmias Sicherheitsprüfung nicht bestanden und wurde nicht installiert. Versuch es später noch einmal.',
+  'ollama.retry': 'Noch einmal versuchen',
   'catalog.title': 'Modell hinzufügen',
   'catalog.recommended': 'Empfohlen',
   'catalog.size': '{size} GB Download',

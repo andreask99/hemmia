@@ -85,6 +85,29 @@ export const SystemStatus = z.object({
 });
 export type SystemStatus = z.infer<typeof SystemStatus>;
 
+/**
+ * GET /api/admin/ollama: whether Hemmia can install Ollama here, and how far it is.
+ * external: another Ollama answers (used as it is) · managed: Hemmia's Ollama runs ·
+ * starting: Hemmia's Ollama is installed but not answering yet · missing: none, can install ·
+ * installing: downloading/unpacking · failed: the last install failed · unsupported: not here.
+ */
+export const OllamaSetupStatus = z.object({
+  state: z.enum([
+    'external',
+    'managed',
+    'starting',
+    'missing',
+    'installing',
+    'failed',
+    'unsupported',
+  ]),
+  version: z.string().nullable(),
+  received: z.number().int().optional(),
+  total: z.number().int().nullable().optional(),
+  error: z.enum(['download', 'checksum', 'signature']).optional(),
+});
+export type OllamaSetupStatus = z.infer<typeof OllamaSetupStatus>;
+
 /** GET /api/capabilities: what this computer can do (signed-in users). */
 export const SystemCapabilities = z.object({
   platform: z.string(),

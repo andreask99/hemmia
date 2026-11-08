@@ -520,6 +520,18 @@ export const en = {
   'engines.errorAddress': 'Only servers on this computer or your home network',
   'engines.errorUnreachable': 'No answer from that address',
   'engines.errorTooMany': 'At most 5 servers',
+  'ollama.title': 'Local models need Ollama',
+  'ollama.text':
+    'Ollama runs AI models on this computer. Hemmia can install it for you: about 190 MB, checked before it runs.',
+  'ollama.install': 'Install Ollama',
+  'ollama.installing': 'Installing Ollama… {done} of {total} MB',
+  'ollama.installingNoTotal': 'Installing Ollama… {done} MB',
+  'ollama.starting': 'Ollama is starting…',
+  'ollama.failedDownload':
+    'Ollama could not be downloaded. Check the internet connection and try again.',
+  'ollama.failedCheck':
+    'The downloaded Ollama didn’t pass Hemmia’s safety check, so it wasn’t installed. Try again later.',
+  'ollama.retry': 'Try again',
   'catalog.title': 'Add a model',
   'catalog.recommended': 'Recommended',
   'catalog.size': '{size} GB download',

@@ -4,6 +4,7 @@ import { ApiError } from '../api/client.ts';
 import { type TFunction, useI18n } from '../i18n/index.tsx';
 import { useCatalog, useStartPull } from '../settings/hooks.ts';
 import { ModelPull } from './ModelPull.tsx';
+import { OllamaSetup } from './OllamaSetup.tsx';
 import { Button } from '@hemmia/ui';
 
 function startError(err: unknown, t: TFunction): string {
@@ -37,6 +38,7 @@ export function ModelCatalog() {
   ];
   return (
     <div>
+      <OllamaSetup />
       <h3 className="mb-2 text-sm font-semibold text-muted">{t('catalog.title')}</h3>
       <ul className="divide-y divide-line">
         {entries.map((e) => (

@@ -26,6 +26,7 @@ export const FOOTER_NAV: readonly NavItem[] = [
   { target: 'help', label: { en: 'Help', de: 'Hilfe' } },
   { target: 'news', label: { en: 'News', de: 'Neuigkeiten' } },
   { target: 'press', label: { en: 'Press', de: 'Presse' } },
+  { target: 'https://github.com/andreask99/hemmia', label: { en: 'Source code', de: 'Quellcode' } },
   { target: 'legal/privacy', label: { en: 'Privacy policy', de: 'Datenschutzerklärung' } },
   { target: 'legal/terms', label: { en: 'Terms of use', de: 'Nutzungsbedingungen' } },
   { target: 'legal/imprint', label: { en: 'Legal notice', de: 'Impressum' } },

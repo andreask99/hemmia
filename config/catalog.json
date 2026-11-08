@@ -2,7 +2,10 @@
   "entries": [
     {
       "ollamaModel": "gemma4:26b",
-      "label": { "en": "gemma4 26B", "de": "gemma4 26B" },
+      "label": {
+        "en": "gemma4 26B",
+        "de": "gemma4 26B"
+      },
       "description": {
         "en": "Best all-rounder: fast, good German, sees photos",
         "de": "Bester Allrounder: schnell, gutes Deutsch, versteht Fotos"
@@ -14,11 +17,17 @@
       "tools": true,
       "think": true,
       "contextTokens": 131072,
-      "recommendedFor": { "minGiB": 32, "maxGiB": null }
+      "recommendedFor": {
+        "minGiB": 32,
+        "maxGiB": null
+      }
     },
     {
       "ollamaModel": "gemma4:12b",
-      "label": { "en": "gemma4 12B", "de": "gemma4 12B" },
+      "label": {
+        "en": "gemma4 12B",
+        "de": "gemma4 12B"
+      },
       "description": {
         "en": "Same quality class as the 26B at half the speed, needs less memory",
         "de": "Ähnlich gut wie das 26B, halb so schnell, braucht weniger Speicher"
@@ -30,11 +39,17 @@
       "tools": true,
       "think": true,
       "contextTokens": 32768,
-      "recommendedFor": { "minGiB": 16, "maxGiB": 31.9 }
+      "recommendedFor": {
+        "minGiB": 16,
+        "maxGiB": 31.9
+      }
     },
     {
       "ollamaModel": "gemma4:e4b",
-      "label": { "en": "gemma4 E4B", "de": "gemma4 E4B" },
+      "label": {
+        "en": "gemma4 E4B",
+        "de": "gemma4 E4B"
+      },
       "description": {
         "en": "Small and quick, sees photos; for computers with 12–16 GB",
         "de": "Klein und flott, versteht Fotos; für Computer mit 12–16 GB"
@@ -49,23 +64,54 @@
     },
     {
       "ollamaModel": "gemma4:e2b",
-      "label": { "en": "gemma4 E2B", "de": "gemma4 E2B" },
+      "label": {
+        "en": "gemma4 E2B",
+        "de": "gemma4 E2B"
+      },
       "description": {
-        "en": "The smallest: runs on 8 GB, simpler answers",
-        "de": "Das kleinste: läuft mit 8 GB, einfachere Antworten"
+        "en": "Small, also understands photos; needs 12 GB or more",
+        "de": "Klein, versteht auch Fotos; braucht 12 GB oder mehr"
       },
       "downloadGiB": 4.3,
       "memoryGiB": 6,
-      "minTotalMemoryGiB": 8,
+      "minTotalMemoryGiB": 12,
       "vision": true,
       "tools": true,
       "think": true,
       "contextTokens": 16384,
-      "recommendedFor": { "minGiB": 0, "maxGiB": 15.9 }
+      "recommendedFor": {
+        "minGiB": 12,
+        "maxGiB": 15.9
+      }
+    },
+    {
+      "ollamaModel": "qwen3:4b-instruct",
+      "label": {
+        "en": "Qwen3 4B",
+        "de": "Qwen3 4B"
+      },
+      "description": {
+        "en": "The smallest: runs on 8 GB, quick and simple answers, no photos",
+        "de": "Das kleinste: läuft mit 8 GB, schnelle und einfache Antworten, keine Fotos"
+      },
+      "downloadGiB": 2.3,
+      "memoryGiB": 3,
+      "minTotalMemoryGiB": 8,
+      "vision": false,
+      "tools": true,
+      "think": false,
+      "contextTokens": 16384,
+      "recommendedFor": {
+        "minGiB": 0,
+        "maxGiB": 11.9
+      }
     },
     {
       "ollamaModel": "qwen3-coder:30b",
-      "label": { "en": "Qwen3-Coder 30B", "de": "Qwen3-Coder 30B" },
+      "label": {
+        "en": "Qwen3-Coder 30B",
+        "de": "Qwen3-Coder 30B"
+      },
       "description": {
         "en": "For programming questions; no photos",
         "de": "Für Programmierfragen; keine Fotos"

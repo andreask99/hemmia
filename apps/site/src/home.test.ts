@@ -48,7 +48,6 @@ describe('home page', () => {
       /collect (nothing|anything|no data)/i,
       /sammeln (nichts|keine daten)/i,
       /anonym/i,
-      /open[ -]source/i, // only once the repository is public (P8.5)
       /chatgpt|gemini|copilot|siri|alexa/i,
       /works offline|funktioniert offline/i,
       // Only true for data at rest, not against whoever controls the running hub (SECURITY.md).

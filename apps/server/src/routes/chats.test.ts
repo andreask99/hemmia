@@ -87,6 +87,34 @@ describe('chat routes', () => {
     expect((await call('POST', '/api/chats', anna, { modelId: 'nope' })).statusCode).toBe(400);
   });
 
+  it('falls back to a usable model when the family default is gone', async () => {
+    // The default model was deleted outside Hemmia: the list offers another one.
+    await app.close();
+    built = await buildApp(loadConfig({ NODE_ENV: 'test' }), {
+      db: openDatabase(':memory:'),
+      kdfParams: { m: 1024, t: 1, p: 1 },
+      registry: {
+        ...registry,
+        defaultChatModelId: () => 'gone',
+        list: () =>
+          Promise.resolve({
+            chatModels: [],
+            imageModels: [],
+            defaultChatModel: 'smart',
+            defaultImageModel: null,
+            paused: false,
+            loaded: [],
+            cloudAllowed: false,
+          }),
+      },
+    });
+    app = built.app;
+    const anna = await signUp('anna');
+    const res = await call('POST', '/api/chats', anna, {});
+    expect(res.statusCode).toBe(201);
+    expect(ChatSummary.parse(res.json()).modelId).toBe('smart');
+  });
+
   it("uses the user's default model for new chats when set", async () => {
     const anna = await signUp('anna');
     await call('PATCH', '/api/me', anna, { defaultModelId: 'smart' });

@@ -45,4 +45,4 @@ Nimm deinen Wiederherstellungscode, den du beim Anlegen deines Kontos gespeicher
 
 ## Ist Hemmia Open Source?
 
-Bald: Der Code wird unter der AGPL-Lizenz veröffentlicht, damit alle nachprüfen können, was er tut und wie er deine Daten schützt.
+Ja. Der Code liegt [auf GitHub](https://github.com/andreask99/hemmia), unter der AGPL-Lizenz, damit alle nachprüfen können, was er tut und wie er deine Daten schützt.

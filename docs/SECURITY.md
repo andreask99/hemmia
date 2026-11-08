@@ -381,6 +381,23 @@ Owner decision 2026-10-14 (DECISIONS.md). Code: `llm/cloudhttp.ts`, `llm/anthrop
 - To decide on the Ollama hold, the job reads one public GitHub issue (unauthenticated
   `api.github.com` request, no data sent; if it fails, the update stays held).
 
+## Ollama installed by Hemmia (Mac)
+
+`apps/server/src/system/ollama.ts`. On a Mac where no Ollama answers, an admin can let the hub
+install one (setup's model step, Settings → Models; `POST /api/admin/ollama/install`, audited).
+
+- Pinned: the version and the SHA-256 of Ollama's `ollama-darwin.tgz` are constants in the code,
+  updated with Hemmia releases. Downloaded over HTTPS from Ollama's GitHub releases, at most
+  400 MB; the checksum is compared before anything is unpacked.
+- After unpacking, `codesign --verify --strict` must accept the binary as signed by Ollama's
+  Developer ID (team `3MU9H2V9Y9`); otherwise nothing is installed or run.
+- Installed into `<data folder>/runtime/ollama-<version>/` (the hub's user only) and run as a
+  child of the hub: `ollama serve` with `OLLAMA_HOST=127.0.0.1:<port>` and only `HOME`, `PATH`
+  and that variable in its environment (no hub secrets). Only for a loopback Ollama address and
+  never in Docker. Restarted with growing pauses if it stops.
+- An Ollama that already answers is used as it is; nothing is installed over it.
+- Status (`GET /api/admin/ollama`) is admin only and contains no paths or content.
+
 ## Planner (goals, plans, horoscope)
 
 - The star sign, every plan (date, time, text) and every goal (area, text, status, planned
