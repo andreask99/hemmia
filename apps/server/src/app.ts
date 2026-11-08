@@ -262,7 +262,9 @@ export async function buildApp(config: Config, overrides: AppOverrides = {}): Pr
   const capabilities =
     overrides.capabilities ??
     (config.env === 'test'
-      ? staticCapabilities(optimisticCapabilities(process.platform, process.arch))
+      ? // Tests run as on the Mac hub on any machine (CI is Linux); tests for other platforms
+        // pass their own capabilities.
+        staticCapabilities(optimisticCapabilities('darwin', 'arm64'))
       : createCapabilities(
           defaultProbes({
             ollamaUrl: config.ollamaUrl,
