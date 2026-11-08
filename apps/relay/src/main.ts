@@ -31,7 +31,15 @@ function acmeAccount(dataDir: string) {
   const urlFile = join(dir, 'account-url.txt');
   if (!existsSync(keyFile)) {
     const { privateKey } = generateKeyPairSync('ec', { namedCurve: 'P-256' });
-    writeFileSync(keyFile, privateKey.export({ type: 'pkcs8', format: 'pem' }), { mode: 0o600 });
+    try {
+      // 'wx': never replace a key another start wrote in the meantime.
+      writeFileSync(keyFile, privateKey.export({ type: 'pkcs8', format: 'pem' }), {
+        mode: 0o600,
+        flag: 'wx',
+      });
+    } catch (err) {
+      if ((err as NodeJS.ErrnoException).code !== 'EEXIST') throw err;
+    }
   }
   return {
     key: createPrivateKey(readFileSync(keyFile, 'utf8')),

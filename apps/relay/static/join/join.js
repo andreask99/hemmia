@@ -3,8 +3,12 @@
 (function () {
   var root = document.documentElement;
   var relayDomain = root.getAttribute('data-relay') || '';
-  var appStore = root.getAttribute('data-app-store') || '';
-  var playStore = root.getAttribute('data-play-store') || '';
+  // Store links come from the relay's own settings; only https links are used.
+  function httpsUrl(u) {
+    return /^https:\/\/[^\s"'<>]+$/.test(u) ? u : '';
+  }
+  var appStore = httpsUrl(root.getAttribute('data-app-store') || '');
+  var playStore = httpsUrl(root.getAttribute('data-play-store') || '');
   var de = /^de\b/i.test(navigator.language || '');
   var T = de
     ? {

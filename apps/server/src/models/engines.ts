@@ -18,10 +18,11 @@ export type CustomEngine = z.infer<typeof CustomEngine>;
 const EnginesSetting = z.object({ custom: z.array(CustomEngine).default([]) });
 
 const KEY = 'engines';
-const ID_ALPHABET = 'abcdefghijklmnopqrstuvwxyz0123456789';
+// 32 characters, so each random byte maps evenly (no modulo bias).
+const ID_ALPHABET = 'abcdefghijklmnopqrstuvwxyz234567';
 
 export function newEngineId(): string {
-  return [...randomBytes(8)].map((b) => ID_ALPHABET[b % ID_ALPHABET.length]).join('');
+  return [...randomBytes(8)].map((b) => ID_ALPHABET[b & 31]).join('');
 }
 
 export function createEngineStore(db: DB, now: () => number = Date.now) {
