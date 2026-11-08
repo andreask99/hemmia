@@ -5,7 +5,10 @@
 import { type Lang, pagePath } from './content.ts';
 
 export interface NavItem {
-  /** Page slug ('' is home) for internal links, or an absolute URL. */
+  /**
+   * Page slug ('' is home) for internal links, an absolute URL, or a path built outside the
+   * content pages (starting with '/', like the demo; it gets `?lang=`).
+   */
   target: string;
   label: Record<Lang, string>;
 }
@@ -14,6 +17,7 @@ export const HEADER_NAV: readonly NavItem[] = [
   { target: 'how-it-works', label: { en: 'How it works', de: 'So funktioniert es' } },
   { target: 'privacy', label: { en: 'Privacy', de: 'Datenschutz' } },
   { target: 'guides', label: { en: 'Guides', de: 'Anleitungen' } },
+  { target: '/demo/', label: { en: 'Demo', de: 'Demo' } },
   { target: 'download', label: { en: 'Download', de: 'Download' } },
 ];
 
@@ -44,6 +48,8 @@ export function resolveNav(
   return items.flatMap((item) => {
     if (/^https?:\/\//.test(item.target))
       return [{ href: item.target, label: item.label[lang], current: false }];
+    if (item.target.startsWith('/'))
+      return [{ href: `${item.target}?lang=${lang}`, label: item.label[lang], current: false }];
     if (!existing.has(item.target)) return [];
     const current = currentSlug === item.target || currentSlug.startsWith(`${item.target}/`);
     return [{ href: pagePath(lang, item.target), label: item.label[lang], current }];

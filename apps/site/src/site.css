@@ -126,6 +126,24 @@ main {
 .d-dashed {
   stroke-dasharray: 6 5;
 }
+/* The main way is bold; optional connections are thin and muted. */
+.d-main {
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+.d-optional {
+  stroke: var(--muted);
+  stroke-width: 1.5;
+}
+.d-cap {
+  fill: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.d-cap-main {
+  fill: var(--forest-text);
+}
 .site-header {
   gap: 1rem;
   flex-wrap: wrap;
@@ -757,4 +775,88 @@ section:not(.h-alt) .h-card {
 .not-found {
   text-align: center;
   padding: 3rem 0;
+}
+
+/* Link cards (the cards directive), e.g. the guides overview: a whole card is the link. */
+.link-cards {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 2rem;
+  display: grid;
+  gap: 0.75rem;
+}
+@media (min-width: 40rem) {
+  .link-cards {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.prose a.link-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 1rem 1.25rem 1rem 1rem;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 1.25rem;
+  color: var(--ink);
+  text-decoration: none;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+  transition:
+    border-color 160ms ease-out,
+    box-shadow 160ms ease-out,
+    transform 160ms ease-out;
+}
+.prose a.link-card:hover {
+  border-color: var(--forest);
+  box-shadow: 0 6px 18px rgb(0 0 0 / 0.08);
+  transform: translateY(-2px);
+}
+.prose a.link-card:focus-visible {
+  outline: 2px solid var(--forest);
+  outline-offset: 2px;
+}
+.link-card-art {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 1rem;
+  background: var(--champagne);
+}
+.link-card-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.link-card-title {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+.link-card-text {
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+.link-card-arrow {
+  flex: none;
+  font-size: 1.25rem;
+  color: var(--forest-text);
+  transition: transform 160ms ease-out;
+}
+.prose a.link-card:hover .link-card-arrow {
+  transform: translateX(3px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .prose a.link-card,
+  .prose a.link-card:hover,
+  .prose a.link-card:hover .link-card-arrow {
+    transform: none;
+  }
 }

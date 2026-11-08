@@ -16,6 +16,8 @@ import {
   useAdminUsers,
   useChangePassword,
   useCreateInvite,
+  useAdminInvites,
+  useRevokeInvite,
   useEndSession,
   useLogoutAll,
   usePause,
@@ -26,6 +28,7 @@ import {
 import { SystemPanel } from '../components/SystemPanel.tsx';
 import { CloudSection } from '../components/CloudSection.tsx';
 import { native } from '../native/bridge.ts';
+import { ApiError } from '../api/client.ts';
 
 const card = 'rounded-2xl border border-line bg-card p-5 shadow-[0_1px_2px_rgba(23,35,31,0.04)]';
 const input =
@@ -185,11 +188,16 @@ function Admin({ myId }: { myId: string }) {
   const { t, language } = useI18n();
   const users = useAdminUsers();
   const createInvite = useCreateInvite();
+  const invites = useAdminInvites();
+  const revokeInvite = useRevokeInvite();
   const updateUser = useUpdateUser();
   const [devicesOf, setDevicesOf] = useState<string | null>(null);
   const [asAdmin, setAsAdmin] = useState(false);
   const [restricted, setRestricted] = useState(false);
   const [copied, setCopied] = useState(false);
+  // An admin invite needs the passphrase unless this session started with it just now.
+  const [needsPassword, setNeedsPassword] = useState(false);
+  const [password, setPassword] = useState('');
   const invite = createInvite.data;
 
   return (
@@ -221,13 +229,46 @@ function Admin({ myId }: { myId: string }) {
         <button
           type="button"
           className={primaryButton}
+          disabled={createInvite.isPending || (asAdmin && needsPassword && password === '')}
           onClick={() => {
             setCopied(false);
-            createInvite.mutate({ role: asAdmin ? 'admin' : 'member', restricted });
+            createInvite.mutate(
+              {
+                role: asAdmin ? 'admin' : 'member',
+                restricted,
+                ...(asAdmin && needsPassword ? { password } : {}),
+              },
+              {
+                onSuccess: () => {
+                  setPassword('');
+                  setNeedsPassword(false);
+                },
+                onError: (err) => {
+                  if (err instanceof ApiError && err.code === 'invalid_credentials') {
+                    setNeedsPassword(true);
+                  }
+                },
+              },
+            );
           }}
         >
           {t('admin.createInvite')}
         </button>
+        {asAdmin && needsPassword && (
+          <label className="flex flex-col gap-1 text-sm">
+            {t('admin.invitePassword')}
+            <input
+              name="invitePassword"
+              type="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+              }}
+              className={input}
+            />
+          </label>
+        )}
         {invite && (
           <div className="space-y-2">
             {(invite.shareLink ?? invite.directLink) ? (
@@ -293,6 +334,35 @@ function Admin({ myId }: { myId: string }) {
           </div>
         )}
       </div>
+
+      {invites.data && invites.data.invites.length > 0 && (
+        <>
+          <h3 className="mb-2 text-sm font-semibold">{t('admin.openInvites')}</h3>
+          <ul className="mb-4 divide-y divide-line">
+            {invites.data.invites.map((i) => (
+              <li key={i.id} className="flex items-center gap-2 py-2">
+                <span className="min-w-0 flex-1 text-sm">
+                  {t('admin.inviteRow', {
+                    role: t(i.role === 'admin' ? 'admin.role.admin' : 'admin.role.member'),
+                    date: new Date(i.expiresAt).toLocaleDateString(language),
+                  })}
+                  {i.restricted && ` · ${t('admin.restricted')}`}
+                </span>
+                <button
+                  type="button"
+                  className={smallButton}
+                  disabled={revokeInvite.isPending}
+                  onClick={() => {
+                    revokeInvite.mutate(i.id);
+                  }}
+                >
+                  {t('admin.inviteRevoke')}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
 
       <h3 className="mb-2 text-sm font-semibold">{t('admin.users')}</h3>
       <ul className="divide-y divide-line">

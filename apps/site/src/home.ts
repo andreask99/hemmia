@@ -16,6 +16,7 @@ export interface HomeText {
     start: string;
     /** The second button (to the FAQ). */
     how: string;
+    demo: string;
     store: string;
     pills: string[];
     shotAlt: string;
@@ -63,6 +64,7 @@ export const HOME: Record<Lang, HomeText> = {
       lede: 'Hemmia is a private AI for the whole family. It runs on a computer in your house, or simply on your phone, with the AI models you choose. Everyone gets their own account and their own chats.',
       start: 'Get started',
       how: 'Questions and answers',
+      demo: 'Try the demo',
       store: 'iPhone app coming soon',
       pills: [
         'No account with us',
@@ -297,6 +299,7 @@ export const HOME: Record<Lang, HomeText> = {
       lede: 'Hemmia ist eine private KI für die ganze Familie. Sie läuft auf einem Computer bei dir zu Hause oder einfach auf deinem Telefon, mit den KI-Modellen, die du wählst. Alle bekommen ihr eigenes Konto und ihre eigenen Chats.',
       start: 'Loslegen',
       how: 'Fragen und Antworten',
+      demo: 'Demo ansehen',
       store: 'iPhone-App bald verfügbar',
       pills: [
         'Kein Konto bei uns',

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { Message } from '@hemmia/shared';
 import { useI18n } from '../i18n/index.tsx';
 import { DocIcon, SparkIcon } from '@hemmia/ui';
-import { ImageViewer } from '@hemmia/ui';
+import { attachmentUrl, ImageViewer } from '@hemmia/ui';
 import { Markdown } from '@hemmia/ui';
 import { NotedNotes } from './NotedNotes.tsx';
 import { WebPhotos } from './WebPhotos.tsx';
@@ -21,7 +21,7 @@ function DocumentChip({ a }: { a: Attachment }) {
         : t('attach.pages', { pages: a.pages });
   return (
     <a
-      href={`/api/attachments/${a.id}`}
+      href={attachmentUrl(a.id)}
       download={a.name ?? 'document'}
       className="flex max-w-full items-center gap-2 rounded-xl bg-champagne px-3 py-2 text-sm text-on-champagne"
     >
@@ -69,7 +69,7 @@ export function MessageBubble({
               }}
             >
               <img
-                src={`/api/attachments/${a.id}`}
+                src={attachmentUrl(a.id)}
                 alt=""
                 loading="lazy"
                 className="max-h-56 rounded-2xl"
@@ -109,7 +109,7 @@ export function MessageBubble({
             }}
           >
             <img
-              src={`/api/attachments/${a.id}`}
+              src={attachmentUrl(a.id)}
               alt=""
               className="max-h-[28rem] max-w-full rounded-2xl shadow-sm"
             />

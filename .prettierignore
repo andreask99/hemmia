@@ -8,3 +8,4 @@ docs
 apps/mobile/ios
 apps/mobile/android
 dist-package
+apps/mobile/public/demo

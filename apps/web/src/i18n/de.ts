@@ -115,6 +115,10 @@ export const de: Messages = {
   'admin.inviteCreated':
     'Schick diesen Link privat. Er funktioniert einmal und läuft am {date} ab.',
   'admin.users': 'Konten',
+  'admin.openInvites': 'Offene Einladungen',
+  'admin.invitePassword': 'Für ein Admin-Konto gib deine Passphrase ein',
+  'admin.inviteRow': '{role} · läuft am {date} ab',
+  'admin.inviteRevoke': 'Zurückziehen',
   'admin.role.admin': 'Admin',
   'admin.role.member': 'Mitglied',
   'admin.restricted': 'Eingeschränkt',

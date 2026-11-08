@@ -22,7 +22,7 @@ export function PageHeader({
   // The home-screen app on iPhone blurs content about 0.4× the status bar height below it, so
   // the title would sit in that blur with only the safe-area inset (0 elsewhere, so no change).
   return (
-    <header className="flex min-h-14 items-center gap-1 border-b border-line bg-paper px-2 pt-[calc(env(safe-area-inset-top)*1.4)] lg:px-4">
+    <header className="flex min-h-14 items-center gap-1 border-b border-line bg-paper px-2 pt-[calc(var(--top-inset)*1.4)] lg:px-4">
       {onBack ? (
         <IconButton aria-label={t('nav.back')} onClick={onBack}>
           <ArrowLeftIcon />

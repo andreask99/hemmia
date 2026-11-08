@@ -214,6 +214,10 @@ function Shell() {
           onPhoneMode={() => {
             go({ name: 'phone', setup: !phoneReady });
           }}
+          onDemo={() => {
+            // A page of this bundle (same origin, no hub): its "Leave demo" comes back here.
+            window.location.assign('./demo/index.html');
+          }}
         />
       );
     case 'getHub':

@@ -79,12 +79,16 @@ export function registerLinkRoutes(
       const user = currentUser(req);
       const body = CreateLinkRequest.parse(req.body);
       if (body.kind === 'signin') {
-        const started = deps.auth.sessionCreatedAt(user.sessionId) ?? 0;
+        // Only a session started with the passphrase counts as fresh, not one from a sign-in
+        // link: a link must not let its holder make more links (security review 2026-11-07).
+        const started = deps.auth.sessionPasswordAt(user.sessionId) ?? 0;
         if (now() - started > FRESH_SESSION_MS) {
+          // Asking without a passphrase (to learn whether one is needed) costs no try.
+          if (!body.password) throw new HttpError(401, 'invalid_credentials');
           const key = `link-password:${user.userId}`;
-          limited(passwordTries.check(key));
-          if (!body.password || !(await deps.auth.verifyPassword(user.userId, body.password))) {
-            passwordTries.hit(key);
+          // Recorded before the slow check, so parallel requests can't pass the limit together.
+          limited(passwordTries.hit(key));
+          if (!(await deps.auth.verifyPassword(user.userId, body.password))) {
             throw new HttpError(401, 'invalid_credentials');
           }
           passwordTries.reset(key);

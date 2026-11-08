@@ -51,9 +51,11 @@ export function brokenLinks(files: SiteFile[], assets: Set<string>): string[] {
   return [...new Set(out)];
 }
 
-/** Pages that exist in one language only. */
+/** Pages that exist in one language only. The demo (/demo/) follows the visitor's language. */
 export function missingTranslations(files: SiteFile[]): string[] {
-  const pages = files.map((f) => f.path).filter((p) => p.endsWith('index.html'));
+  const pages = files
+    .map((f) => f.path)
+    .filter((p) => p.endsWith('index.html') && !p.startsWith('/demo/'));
   const en = new Set(pages.filter((p) => !p.startsWith('/de/')));
   const de = new Set(pages.filter((p) => p.startsWith('/de/')).map((p) => p.slice(3)));
   return [

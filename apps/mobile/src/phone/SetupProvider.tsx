@@ -32,7 +32,7 @@ export function SetupProvider(props: {
       <button
         type="button"
         onClick={props.onBack}
-        className="self-start text-sm font-medium text-ink"
+        className="-ml-2 min-h-11 self-start px-2 text-sm font-medium text-ink"
       >
         ‹ {t('setup.back')}
       </button>

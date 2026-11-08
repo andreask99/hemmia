@@ -61,6 +61,33 @@ describe('directives', () => {
     expect(() => parseBlocks('<!-- diagram name="nope" -->')).toThrow('unknown diagram');
   });
 
+  it('reads link cards and refuses malformed ones', () => {
+    expect(
+      parseBlocks(
+        '<!-- cards -->\n- key | [Getting a key](/guides/api-keys/) | A key with a limit.\n<!-- /cards -->',
+      ),
+    ).toEqual([
+      {
+        kind: 'cards',
+        cards: [
+          {
+            pose: 'key',
+            title: 'Getting a key',
+            href: '/guides/api-keys/',
+            text: 'A key with a limit.',
+          },
+        ],
+      },
+    ]);
+    expect(() => parseBlocks('<!-- cards -->\n- dragon | [A](/a/) | b\n<!-- /cards -->')).toThrow(
+      'unknown pose',
+    );
+    // Only site paths: no external or javascript: links in cards.
+    expect(() =>
+      parseBlocks('<!-- cards -->\n- key | [A](javascript:alert(1)) | b\n<!-- /cards -->'),
+    ).toThrow('bad card line');
+  });
+
   it('reports unclosed blocks and bad screenshot names', () => {
     expect(() => parseBlocks('<!-- note -->x')).toThrow('not closed');
     expect(() => parseBlocks('<!-- screenshot name="../x" -->')).toThrow();
@@ -106,6 +133,7 @@ describe('navigation', () => {
     expect(items).toEqual([
       { href: '/de/privacy/', label: 'Datenschutz', current: false },
       { href: '/de/guides/', label: 'Anleitungen', current: true },
+      { href: '/demo/?lang=de', label: 'Demo', current: false },
     ]);
   });
 });

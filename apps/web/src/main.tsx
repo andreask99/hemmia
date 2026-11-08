@@ -11,6 +11,9 @@ import { native } from './native/bridge.ts';
 import { AppOutdated } from './native/AppOutdated.tsx';
 import './index.css';
 
+// iOS WebKit applies :active (the press feedback in theme.css) only with a touch listener.
+document.addEventListener('touchstart', () => {}, { passive: true });
+
 const root = document.getElementById('root');
 if (!root) throw new Error('Missing #root element');
 

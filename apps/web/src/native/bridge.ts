@@ -213,5 +213,8 @@ export function detectNative(
   };
 }
 
+// The demo (src/demo) runs inside the app shell but is not a hub: no push, no hub switching.
 export const native: NativeBridge | null =
-  typeof window === 'undefined' ? null : detectNative(window as { Capacitor?: CapacitorGlobal });
+  typeof window === 'undefined' || import.meta.env.MODE === 'demo'
+    ? null
+    : detectNative(window as { Capacitor?: CapacitorGlobal });

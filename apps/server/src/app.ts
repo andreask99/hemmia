@@ -620,6 +620,7 @@ export async function buildApp(config: Config, overrides: AppOverrides = {}): Pr
     onSession: (req, reply, userId, sessionId) => {
       gate.bindSession(req, reply, userId, sessionId, userAgentLabel(req.headers['user-agent']));
     },
+    deviceOf: (req, username) => req.device !== null && gate.ownedBy(req.device, username),
     onLogoutAll: (req, userId) => {
       gate.removeOthers(userId, req.device);
     },
@@ -628,6 +629,7 @@ export async function buildApp(config: Config, overrides: AppOverrides = {}): Pr
 
   registerAccountRoutes(app, {
     auth,
+    ...(overrides.now ? { now: overrides.now } : {}),
     admin: createAdmin(db, overrides.now),
     ...(registry ? { registry } : {}),
     inviteBaseUrl: publicBaseUrl(config.allowedHosts),

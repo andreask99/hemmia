@@ -62,6 +62,9 @@ describe('the allow list', () => {
       // Encoded paths are API paths once decoded (the router decodes them too).
       ['GET', '/%61pi/me'],
       ['GET', '/%E0%A4%A'],
+      // Absolute-form targets are routed by their path (security review 2026-11-07).
+      ['GET', 'http://localhost/api/me'],
+      ['GET', 'https://hub.example/index.html'],
     ]) {
       expect(allowedWithoutDevice(m ?? '', p ?? '')).toBe(false);
     }
@@ -143,6 +146,11 @@ describe('device gate', () => {
       req.end(body);
     });
   }
+
+  it('refuses absolute-form request targets', async () => {
+    const res = await request('GET', 'http://localhost/api/me', true, cookie);
+    expect(res.status).toBe(400);
+  });
 
   it('answers 403 device_required for every route outside the allow list through the relay', async () => {
     const routes = allRoutes(built.app.printRoutes({ commonPrefix: false }));

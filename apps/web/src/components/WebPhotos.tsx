@@ -1,4 +1,5 @@
 import type { AttachmentRef } from '@hemmia/shared';
+import { attachmentUrl } from '@hemmia/ui';
 import { useT } from '../i18n/index.tsx';
 
 /** Host name of an http(s) URL without "www.", or null for anything else. */
@@ -46,7 +47,7 @@ export function WebPhotos({
             }}
           >
             <img
-              src={`/api/attachments/${photo.id}`}
+              src={attachmentUrl(photo.id)}
               alt=""
               loading="lazy"
               className={`${single ? 'max-h-[28rem]' : 'aspect-square'} w-full rounded-xl object-cover`}

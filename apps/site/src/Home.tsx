@@ -69,6 +69,10 @@ export function Home({
                   {t.hero.how}
                 </a>
               )}
+              {/* The hub's app with a made-up family, answered in the page (apps/web/src/demo). */}
+              <a className="h-btn h-btn-quiet" href={`/demo/?lang=${lang}`}>
+                {t.hero.demo}
+              </a>
             </div>
             <p className="h-soon">{t.hero.store}</p>
             <ul className="h-pills">

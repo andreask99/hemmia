@@ -23,3 +23,6 @@ __pycache__/
 apps/mobile/android/app/src/debug/res/raw/kchat_dev_ca.pem
 dist-ssr/
 dist-package/
+
+# The demo build (apps/web: npm run build:demo), bundled into the app
+apps/mobile/public/demo/

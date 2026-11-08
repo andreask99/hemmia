@@ -63,12 +63,18 @@ export const MAX_DOCUMENT_BYTES = 20 * 1024 * 1024;
 
 export const isPhotoFile = (file: File) => file.type.startsWith('image/');
 
+/** The demo (src/demo) keeps uploads in memory instead of sending them. */
+export const uploadOverride: {
+  fn: ((blob: Blob, fileName: string) => Promise<UploadResponse>) | null;
+} = { fn: null };
+
 export function uploadPhoto(
   blob: Blob,
   onProgress: (fraction: number) => void,
   signal?: AbortSignal,
   fileName = 'photo.jpg',
 ): Promise<UploadResponse> {
+  if (uploadOverride.fn) return uploadOverride.fn(blob, fileName);
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
 

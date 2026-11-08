@@ -26,6 +26,7 @@ describe('Welcome', () => {
         onPasteLink={onPasteLink}
         onGetHub={onGetHub}
         onPhoneMode={() => undefined}
+        onDemo={() => undefined}
         language="en"
       />,
     );
@@ -46,6 +47,7 @@ describe('Welcome', () => {
         onPasteLink={onPasteLink}
         onGetHub={onGetHub}
         onPhoneMode={() => undefined}
+        onDemo={() => undefined}
         language="en"
       />,
     );
@@ -53,6 +55,22 @@ describe('Welcome', () => {
     const getHubButton = screen.getByText("I don't have Hemmia at home yet");
     fireEvent.click(getHubButton);
     expect(onGetHub).toHaveBeenCalledTimes(1);
+  });
+
+  it('opens the demo from "Have a look first"', () => {
+    const onDemo = vi.fn();
+    render(
+      <Welcome
+        onScan={() => undefined}
+        onPasteLink={() => undefined}
+        onGetHub={() => undefined}
+        onPhoneMode={() => undefined}
+        onDemo={onDemo}
+        language="de"
+      />,
+    );
+    fireEvent.click(screen.getByText('Erst mal reinschauen'));
+    expect(onDemo).toHaveBeenCalledTimes(1);
   });
 
   it('disables Continue button when link is empty', () => {
@@ -66,6 +84,7 @@ describe('Welcome', () => {
         onPasteLink={onPasteLink}
         onGetHub={onGetHub}
         onPhoneMode={() => undefined}
+        onDemo={() => undefined}
         language="en"
       />,
     );
@@ -85,6 +104,7 @@ describe('Welcome', () => {
         onPasteLink={onPasteLink}
         onGetHub={onGetHub}
         onPhoneMode={() => undefined}
+        onDemo={() => undefined}
         language="en"
       />,
     );
@@ -272,6 +292,7 @@ describe('phone mode entry points', () => {
         onScan={vi.fn()}
         onPasteLink={vi.fn()}
         onGetHub={vi.fn()}
+        onDemo={vi.fn()}
         onPhoneMode={onPhoneMode}
         language="en"
       />,
@@ -360,6 +381,7 @@ describe('Welcome legal links', () => {
         onScan={vi.fn()}
         onPasteLink={vi.fn()}
         onGetHub={vi.fn()}
+        onDemo={vi.fn()}
         onPhoneMode={vi.fn()}
         language="de"
       />,

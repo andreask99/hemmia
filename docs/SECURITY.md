@@ -90,17 +90,35 @@ sessions.token_hash         = SHA-256(token)
 
 - No self sign-up. The admin creates single-use invite codes (CLI or admin screen),
   valid 7 days, stored hashed. The invite fixes the role and whether the account is
-  **restricted** (teen account: owner decision 2026-09-30; policy to be defined).
+  **restricted** (teen account: owner decision 2026-09-30; policy to be defined). Admins see
+  open invites (role, creator, expiry; never the code) and can withdraw them; disabling an
+  account deletes the unused invites it created.
 - Usernames: 3–32 of `A–Z a–z 0–9 . _ -`, unique case-insensitively.
 - Passwords (passphrases): at least 12 characters (counted as people see them), at most
   256; rejected if on a small built-in list of common English/German passwords, if they
   have fewer than 4 distinct characters, or if they contain the username. The sign-up
   screen suggests a 4-word passphrase.
 - Rate limits (in memory): every login/accept/recover attempt counts against the client
-  IP (20 per 15 min). Failures count against the username (5 per 15 min), then the
-  username is blocked for 15 min, doubling on each further round (30, 60 min …), reset by
-  a success or a quiet day. Change-password failures count per user. Responses: 429 with
-  `Retry-After`.
+  IP (20 per 15 min; IPv6 by /64). Login and recovery attempts count against the username
+  from that network (5 per 15 min) and against the username alone (30 per 15 min); each
+  limit then blocks for 15 min, doubling on each further round (30, 60 min …), reset by a
+  success or a quiet day. From a device already paired to that account, attempts count only
+  per device, so guesses from elsewhere (or behind Docker's single gateway address) can't lock
+  a family member out on their own phone or computer; a new device can still be blocked by
+  the per-username cap. Attempts are recorded before the Argon2 check, so a parallel burst
+  can't pass the limit; a request without a passphrase (asking whether one is needed) costs
+  no try. Change-password failures count per user. Responses: 429 with `Retry-After`.
+- An admin invite (a lasting new admin account) needs a session started with the passphrase
+  less than 15 minutes ago, or the passphrase again.
+- "Recently signed in" (making a sign-in link without the passphrase within 15 min) counts
+  only sessions started with the passphrase (login, setup, invite, recovery), never one from
+  a sign-in link (`sessions.via_link`).
+- Requests must use origin-form targets (`/path`); absolute-form ones get 400, so the device
+  gate and the router always judge the same path.
+- A device code redeemed, or a sign-in made, on a device paired to someone else ends that
+  person's sessions on it; a device code also counts against the new owner's device limit.
+- In the phone app, native plugins treat only the shell as the shell: the bundled demo
+  (`/demo/`, same origin) gets no keys, hub launching or staged exports.
 - Unknown user, disabled user and wrong password give the same 401 `invalid_credentials`
   after the same Argon2 work (a dummy derivation for unknown users). Recovery does the
   same for wrong/malformed codes.

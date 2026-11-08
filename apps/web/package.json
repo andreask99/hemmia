@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:demo": "vite build -c vite.demo.config.ts --mode demo",
+    "dev:demo": "vite -c vite.demo.config.ts --mode demo",
     "preview": "vite preview",
     "typecheck": "tsc -p tsconfig.json",
     "icons": "node scripts/make-icons.mjs"

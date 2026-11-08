@@ -4,6 +4,9 @@ import './index.css';
 import { App } from './shell/App.tsx';
 import { runDiagnostics } from './diag.ts';
 
+// iOS WebKit applies :active (the press feedback in theme.css) only with a touch listener.
+document.addEventListener('touchstart', () => {}, { passive: true });
+
 if (__DIAG__) {
   void runDiagnostics(__DIAG__);
 } else {

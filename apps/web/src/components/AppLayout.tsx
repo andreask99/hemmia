@@ -141,7 +141,7 @@ function Sidebar({ onNavigate, onClose }: { onNavigate: () => void; onClose?: ()
   const { t } = useI18n();
   return (
     <div className="flex h-full flex-col bg-card">
-      <div className="flex items-center gap-2 px-3 pt-[max(1rem,calc(env(safe-area-inset-top)*1.4))] pb-2">
+      <div className="flex items-center gap-2 px-3 pt-[max(1rem,calc(var(--top-inset)*1.4))] pb-2">
         {/* Home: a new chat; on phones this also closes the menu. */}
         <NavLink
           to="/"
@@ -215,7 +215,7 @@ export function AppLayout() {
 
   return (
     <DrawerContext.Provider value={open}>
-      <div className="flex h-dvh w-full overflow-hidden bg-paper text-ink">
+      <div className="flex h-[var(--app-height)] w-full overflow-hidden bg-paper text-ink">
         <aside className="hidden w-72 shrink-0 border-r border-line lg:block">
           <Sidebar onNavigate={close} />
         </aside>

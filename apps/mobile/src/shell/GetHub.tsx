@@ -10,7 +10,10 @@ export function GetHub(props: {
 
   return (
     <div className="flex flex-col gap-4 p-6">
-      <button onClick={props.onBack} className="text-sm font-medium text-ink">
+      <button
+        onClick={props.onBack}
+        className="-ml-2 min-h-11 self-start px-2 text-sm font-medium text-ink"
+      >
         {t('scan.back.button')}
       </button>
 

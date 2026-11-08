@@ -500,4 +500,13 @@ ALTER TABLE push_subscriptions ADD COLUMN kind TEXT NOT NULL DEFAULT 'web' CHECK
 ALTER TABLE push_subscriptions ADD COLUMN relay_handle TEXT;
 `,
   },
+  {
+    id: 23,
+    name: 'session-via-link',
+    // Sessions started with a sign-in link are never "recently signed in" (security review
+    // 2026-11-07): only a passphrase makes a session fresh. No encrypted columns.
+    sql: `
+ALTER TABLE sessions ADD COLUMN via_link INTEGER NOT NULL DEFAULT 0 CHECK (via_link IN (0, 1));
+`,
+  },
 ];

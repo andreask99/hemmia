@@ -1,0 +1,7 @@
+/* The demo bar sits above the app: it takes the top inset (status bar) and its own height, and
+   the app frame (AppLayout) gets the rest (--top-inset, --app-height in ../index.css). */
+html.demo {
+  --demo-bar: 40px;
+  --top-inset: 0px;
+  --app-height: calc(100dvh - env(safe-area-inset-top) - var(--demo-bar));
+}

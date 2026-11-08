@@ -3,7 +3,6 @@ title: Getting an API key
 description: Create a key at Anthropic or OpenAI, set a monthly spending limit and keep the key safe.
 nav: guides
 order: 20
-draft: true
 ---
 
 # Getting an API key

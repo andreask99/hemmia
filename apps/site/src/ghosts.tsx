@@ -2,7 +2,19 @@
  * The Hemmia ghost in poses for the website (MARKETING.md §3): the logo's drawing plus one
  * prop each. Same colours as the app icon in both themes (the ghost is always cream).
  */
-export type Pose = 'wave' | 'book' | 'pot' | 'glass' | 'key' | 'house' | 'sleep' | 'sun' | 'brush';
+export const POSES = [
+  'wave',
+  'book',
+  'pot',
+  'glass',
+  'key',
+  'house',
+  'sleep',
+  'sun',
+  'brush',
+] as const;
+export type Pose = (typeof POSES)[number];
+export const isPose = (s: string): s is Pose => (POSES as readonly string[]).includes(s);
 
 const GREEN = '#1f4d3f';
 const INK = '#17231f';

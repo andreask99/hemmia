@@ -122,6 +122,39 @@ body {
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
 }
+/* Press feedback, as native buttons give it: instant dim and shrink on touch, eased release.
+   Unlayered on purpose so it wins over `transition-colors` utilities (it keeps their colour
+   transitions). iOS WebKit only applies :active with a touchstart listener on the document,
+   which both apps' main.tsx add. */
+button,
+[role='button'] {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+button,
+[role='button'],
+a[href] {
+  transition-property: color, background-color, border-color, box-shadow, opacity, scale;
+  transition-duration: 180ms;
+  transition-timing-function: ease-out;
+}
+button:not(:disabled):active,
+[role='button']:not([aria-disabled='true']):active {
+  scale: 0.97;
+  opacity: 0.8;
+  transition-duration: 0ms;
+}
+a[href]:active {
+  opacity: 0.6;
+  transition-duration: 0ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  button:not(:disabled):active,
+  [role='button']:not([aria-disabled='true']):active {
+    scale: none;
+  }
+}
 /* Keyboard focus ring. In the base layer so utilities (e.g. focus:outline-none) can override
    it; text fields show focus through their own border instead of a hard outline. */
 @layer base {

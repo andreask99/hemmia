@@ -12,6 +12,7 @@ import {
   type AdminModelsResponse,
   AdminUpdateModelsRequest,
   AdminUpdateUserRequest,
+  type AdminInviteListResponse,
   type AdminUserListResponse,
   CreateInviteRequest,
   type CreateInviteResponse,
@@ -26,6 +27,7 @@ import type { ModelRegistry } from '../models/types.ts';
 import type { Admin } from '../security/admin.ts';
 import type { Auth } from '../security/auth.ts';
 import { currentUser, HttpError, requireAdmin, requireUser } from '../security/http.ts';
+import { createRateLimiter } from '../security/rate-limit.ts';
 import { toMe } from './auth.ts';
 
 export interface AccountRouteDeps {
@@ -43,16 +45,27 @@ export interface AccountRouteDeps {
   freeMemory?: () => Promise<void>;
   /** Loads an Ollama model once before it's offered (LlmClient.check). */
   checkModel?: (model: string, signal: AbortSignal) => Promise<void>;
+  now?: () => number;
 }
+
+const FRESH_SESSION_MS = 15 * 60_000;
 
 /** Loading a large model from disk can take a while; past this, the model is offered anyway. */
 const CHECK_TIMEOUT_MS = 180_000;
 
 const SessionParams = z.object({ sessionId: z.string().regex(/^[A-Za-z0-9-]{1,64}$/) });
 const UserParams = z.object({ userId: z.string().regex(/^[A-Za-z0-9-]{1,64}$/) });
+const InviteParams = z.object({ inviteId: z.string().regex(/^[A-Za-z0-9-]{1,64}$/) });
 
 export function registerAccountRoutes(app: FastifyInstance, deps: AccountRouteDeps): void {
   const { auth, admin } = deps;
+  const now = deps.now ?? Date.now;
+  const passwordTries = createRateLimiter({
+    max: 5,
+    windowMs: 15 * 60_000,
+    backoff: true,
+    ...(deps.now ? { now: deps.now } : {}),
+  });
 
   app.get(
     '/api/me/sessions',
@@ -101,6 +114,25 @@ export function registerAccountRoutes(app: FastifyInstance, deps: AccountRouteDe
     async (req, reply): Promise<CreateInviteResponse> => {
       const user = currentUser(req);
       const body = CreateInviteRequest.parse(req.body ?? {});
+      // A new admin account outlives the session that made it, so an admin invite needs the
+      // passphrase: from a session it started less than 15 minutes ago, or typed again. A session
+      // from a sign-in link never counts (security review 2026-11-08).
+      if (body.role === 'admin') {
+        const started = auth.sessionPasswordAt(user.sessionId) ?? 0;
+        if (now() - started > FRESH_SESSION_MS) {
+          // Asking without a passphrase (to learn whether one is needed) costs no try.
+          if (!body.password) throw new HttpError(401, 'invalid_credentials');
+          const key = `invite-password:${user.userId}`;
+          const r = passwordTries.hit(key);
+          if (!r.allowed) {
+            throw new HttpError(429, 'rate_limited', Math.max(1, Math.ceil(r.retryAfterMs / 1000)));
+          }
+          if (!(await auth.verifyPassword(user.userId, body.password))) {
+            throw new HttpError(401, 'invalid_credentials');
+          }
+          passwordTries.reset(key);
+        }
+      }
       const invite = auth.createInvite({
         role: body.role,
         restricted: body.restricted,
@@ -114,6 +146,23 @@ export function registerAccountRoutes(app: FastifyInstance, deps: AccountRouteDe
       };
     },
   );
+
+  // Open invites can be withdrawn (security review 2026-11-07: a leaked or stale admin invite).
+  app.get(
+    '/api/admin/invites',
+    { preHandler: requireAdmin },
+    async (): Promise<AdminInviteListResponse> => {
+      return { invites: admin.listInvites() };
+    },
+  );
+
+  app.delete('/api/admin/invites/:inviteId', { preHandler: requireAdmin }, async (req, reply) => {
+    const { inviteId } = InviteParams.parse(req.params);
+    if (!admin.revokeInvite(inviteId, currentUser(req).userId)) {
+      throw new HttpError(404, 'not_found');
+    }
+    return reply.code(204).send();
+  });
 
   app.get(
     '/api/admin/users',

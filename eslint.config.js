@@ -14,6 +14,8 @@ export default tseslint.config(
       'services/**',
       'apps/mobile/ios/**',
       'apps/mobile/android/**',
+      // The demo build (apps/web: npm run build:demo).
+      'apps/mobile/public/demo/**',
     ],
   },
   js.configs.recommended,

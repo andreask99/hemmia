@@ -12,6 +12,7 @@ import {
   SessionListResponse,
   CreateInviteResponse,
   AdminUserListResponse,
+  AdminInviteListResponse,
 } from '@hemmia/shared';
 import {
   type AdminAddModelRequest,
@@ -84,9 +85,31 @@ export function useAdminUsers() {
 }
 
 export function useCreateInvite() {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (body: CreateInviteRequest) =>
       api('/admin/invites', { method: 'POST', body, schema: CreateInviteResponse }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['admin', 'invites'] });
+    },
+  });
+}
+
+export function useAdminInvites() {
+  return useQuery({
+    queryKey: ['admin', 'invites'],
+    queryFn: () => api('/admin/invites', { schema: AdminInviteListResponse }),
+  });
+}
+
+export function useRevokeInvite() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) =>
+      api(`/admin/invites/${encodeURIComponent(id)}`, { method: 'DELETE' }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['admin', 'invites'] });
+    },
   });
 }
 

@@ -3,7 +3,6 @@ title: Hemmia auf dem Telefon
 description: Hemmia allein mit deinem eigenen Schlüssel von Anthropic oder OpenAI nutzen. Deine Chats bleiben auf dem Telefon.
 nav: guides
 order: 10
-draft: true
 ---
 
 # Hemmia auf dem Telefon
@@ -16,7 +15,7 @@ Deine Nachrichten gehen direkt von deinem Telefon zum Anbieter, den du gewählt 
 
 <!-- steps -->
 ## App installieren
-Installiere Hemmia aus dem App Store oder von Google Play. Du brauchst iOS ab Version 15 oder Android ab Version 8. <!-- CHECK: Store-Links, sobald die Apps veröffentlicht sind -->
+Hemmia fürs iPhone ist in der Beta und wird über TestFlight getestet; du brauchst iOS ab Version 15. Schreib an [andreas.apps@icloud.com](mailto:andreas.apps@icloud.com), dann bekommst du eine Einladung per E-Mail. Die Android-App kommt später. Erst mal reinschauen? Die [Demo](/demo/?lang=de) zeigt Hemmia mit einer erfundenen Familie.
 
 ## „Nur ich, auf diesem Telefon“ wählen
 Tippe auf dem ersten Bildschirm auf **Nur ich, auf diesem Telefon**.
@@ -46,7 +45,7 @@ Tippe in der Chatliste auf **Einstellungen**.
 - **KI-Anbieter:** einen Schlüssel für den zweiten Anbieter hinzufügen, einen Schlüssel **Ersetzen** oder **Entfernen**.
 - **Über mich:** ein paar Zeilen, die die KI über dich wissen soll (dein Name, deine Sprache, was du machst). Sie werden bei jedem Chat mitgeschickt.
 - **Sprache:** Deutsch oder Englisch.
-- **Wie mit deinen Daten umgegangen wird** öffnet die [Datenschutzseite](/de/privacy/).
+- **Datenschutzerklärung** und **Nutzungsbedingungen** öffnen die [Datenschutzerklärung](/de/legal/privacy/) und die [Nutzungsbedingungen](/de/legal/terms/).
 
 ## Exportieren, importieren und löschen
 

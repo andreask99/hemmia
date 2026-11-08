@@ -13,6 +13,8 @@ export const en = {
   'welcome.paste.placeholder': 'https://hub.example.com/j#1234567890',
   'welcome.paste.continue': 'Continue',
   'welcome.getHub.button': "I don't have Hemmia at home yet",
+  'welcome.demo.title': 'Have a look first',
+  'welcome.demo.text': 'Try Hemmia with a made-up family: chats, pictures and the planner.',
   'getHub.title': 'Hemmia lives on a computer at home',
   'getHub.intro':
     'Install the Hemmia hub on a computer that stays on: a Mac with Apple silicon, or a PC, NAS or Raspberry Pi with Docker. Your chats are stored there, encrypted.',
@@ -79,6 +81,8 @@ export const de: Record<ShellKey, string> = {
   'welcome.paste.placeholder': 'https://hub.example.com/j#1234567890',
   'welcome.paste.continue': 'Weiter',
   'welcome.getHub.button': 'Ich habe Hemmia noch nicht zu Hause',
+  'welcome.demo.title': 'Erst mal reinschauen',
+  'welcome.demo.text': 'Probier Hemmia mit einer erfundenen Familie aus: Chats, Bilder und Planer.',
   'getHub.title': 'Hemmia läuft auf einem Computer zu Hause',
   'getHub.intro':
     'Installiere den Hemmia-Hub auf einem Computer, der immer an ist: ein Mac mit Apple Silicon oder ein PC, NAS oder Raspberry Pi mit Docker. Deine Chats werden dort gespeichert und verschlüsselt.',

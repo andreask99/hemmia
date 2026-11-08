@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && vite build --ssr src/render.tsx --outDir dist-ssr && node scripts/prerender.ts",
+    "build": "vite build && vite build --ssr src/render.tsx --outDir dist-ssr && node scripts/prerender.ts && npm run build:demo",
+    "build:demo": "HEMMIA_DEMO_OUT=$PWD/dist/demo npm --prefix ../web run build:demo >/dev/null && cp dist/demo/index.html dist/demo/404.html",
     "preview": "vite preview --host 127.0.0.1 --port 4320 --strictPort",
     "check": "npm run build && node scripts/check.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"

@@ -144,6 +144,8 @@ export type UpdateMeRequest = z.infer<typeof UpdateMeRequest>;
 export const CreateInviteRequest = z.object({
   role: Role.default('member'),
   restricted: z.boolean().default(false),
+  /** Needed for an admin invite unless the session started with the passphrase < 15 min ago. */
+  password: z.string().max(256).optional(),
 });
 export type CreateInviteRequest = z.infer<typeof CreateInviteRequest>;
 
@@ -171,6 +173,21 @@ export type AdminUser = z.infer<typeof AdminUser>;
 
 export const AdminUserListResponse = z.object({ users: z.array(AdminUser) });
 export type AdminUserListResponse = z.infer<typeof AdminUserListResponse>;
+
+/** An invite that can still be accepted (never its code: only its hash is stored). */
+export const AdminInvite = z.object({
+  id: z.string(),
+  role: Role,
+  restricted: z.boolean(),
+  /** Who created it, or null if that account was deleted. */
+  createdBy: z.string().nullable(),
+  createdAt: z.number().int(),
+  expiresAt: z.number().int(),
+});
+export type AdminInvite = z.infer<typeof AdminInvite>;
+
+export const AdminInviteListResponse = z.object({ invites: z.array(AdminInvite) });
+export type AdminInviteListResponse = z.infer<typeof AdminInviteListResponse>;
 
 export const AdminUpdateUserRequest = z
   .object({ disabled: z.boolean().optional(), restricted: z.boolean().optional() })

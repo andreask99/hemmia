@@ -2,7 +2,7 @@
  * Admin operations on accounts. They never touch content or keys: the admin can't read
  * anyone's chats. Owned by Claude.
  */
-import type { Role } from '@hemmia/shared';
+import type { AdminInvite, Role } from '@hemmia/shared';
 import type { DB } from '../db/database.ts';
 
 export interface UserSummary {
@@ -45,6 +45,44 @@ export function createAdmin(db: DB, now: () => number = Date.now) {
   }
 
   return {
+    /** Invites that can still be accepted, newest first. */
+    listInvites(): AdminInvite[] {
+      return db
+        .prepare<
+          [number],
+          {
+            id: string;
+            role: Role;
+            restricted: 0 | 1;
+            created_by: string | null;
+            created_at: number;
+            expires_at: number;
+          }
+        >(
+          `SELECT i.id, i.role, i.restricted, u.username AS created_by, i.created_at, i.expires_at
+           FROM invites i LEFT JOIN users u ON u.id = i.created_by
+           WHERE i.used_at IS NULL AND i.expires_at > ? ORDER BY i.created_at DESC`,
+        )
+        .all(now())
+        .map((r) => ({
+          id: r.id,
+          role: r.role,
+          restricted: r.restricted === 1,
+          createdBy: r.created_by,
+          createdAt: r.created_at,
+          expiresAt: r.expires_at,
+        }));
+    },
+
+    /** Withdraws an unused invite. Returns false if there is no such open invite. */
+    revokeInvite(inviteId: string, by: string): boolean {
+      const done =
+        db.prepare('DELETE FROM invites WHERE id = ? AND used_at IS NULL').run(inviteId).changes ===
+        1;
+      if (done) audit('invite_revoked', by);
+      return done;
+    },
+
     listUsers(): UserSummary[] {
       return db
         .prepare<[], Row>(
@@ -77,6 +115,8 @@ export function createAdmin(db: DB, now: () => number = Date.now) {
         );
         db.prepare('DELETE FROM sessions WHERE user_id = ?').run(id);
         db.prepare('DELETE FROM link_codes WHERE user_id = ? AND used_at IS NULL').run(id);
+        // Their open invites go too: a departing admin can't leave a way back in.
+        db.prepare('DELETE FROM invites WHERE created_by = ? AND used_at IS NULL').run(id);
         audit('user_disabled', id);
       })();
       return true;

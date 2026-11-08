@@ -47,7 +47,7 @@ public class HubLauncherPlugin extends Plugin {
 
     @PluginMethod
     public void open(PluginCall call) {
-        if (main().hubHost != null) {
+        if (main().hubHost != null || !SecureStorePlugin.callerIsShell(this)) {
             call.reject("not allowed");
             return;
         }
@@ -77,7 +77,7 @@ public class HubLauncherPlugin extends Plugin {
 
     @PluginMethod
     public void stagePhoneExport(PluginCall call) {
-        if (main().hubHost != null) {
+        if (main().hubHost != null || !SecureStorePlugin.callerIsShell(this)) {
             call.reject("not allowed");
             return;
         }
@@ -124,7 +124,7 @@ public class HubLauncherPlugin extends Plugin {
 
     @PluginMethod
     public void launchInfo(PluginCall call) {
-        if (main().hubHost != null) {
+        if (main().hubHost != null || !SecureStorePlugin.callerIsShell(this)) {
             call.reject("not allowed");
             return;
         }

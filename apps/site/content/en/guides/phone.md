@@ -3,7 +3,6 @@ title: Hemmia on your phone
 description: Use Hemmia on its own with your own Anthropic or OpenAI key. Your chats stay on your phone.
 nav: guides
 order: 10
-draft: true
 ---
 
 # Hemmia on your phone
@@ -16,7 +15,7 @@ Your messages go straight from your phone to the provider you chose, under that 
 
 <!-- steps -->
 ## Install the app
-Install Hemmia from the App Store or Google Play. It needs iOS 15 or Android 8 or later. <!-- CHECK: store links once the apps are published -->
+Hemmia for iPhone is in beta and tested on TestFlight; it needs iOS 15 or later. To join, write to [andreas.apps@icloud.com](mailto:andreas.apps@icloud.com) and you get an invitation by email. The Android app comes later. Want to look around first? The [demo](/demo/?lang=en) shows Hemmia with a made-up family.
 
 ## Choose "Just me, on this phone"
 On the first screen, tap **Just me, on this phone**.
@@ -46,7 +45,7 @@ Tap **Settings** on the chat list.
 - **AI providers:** add a key for the second provider, **Replace** a key or **Remove** it.
 - **About me:** a few lines the AI should know about you (your name, your language, what you do). They are sent with every chat.
 - **Language:** English or German.
-- **How your data is handled** opens the [privacy page](/privacy/).
+- **Privacy policy** and **Terms of use** open the [privacy policy](/legal/privacy/) and the [terms](/legal/terms/).
 
 ## Export, import and delete
 

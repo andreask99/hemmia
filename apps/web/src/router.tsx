@@ -95,6 +95,7 @@ export const routes: RouteObject[] = [
   },
 ];
 
-export function createAppRouter() {
-  return createBrowserRouter(routes);
+/** `basename`: the demo is served under /demo/ (src/demo). */
+export function createAppRouter(basename?: string) {
+  return createBrowserRouter(routes, basename ? { basename } : {});
 }

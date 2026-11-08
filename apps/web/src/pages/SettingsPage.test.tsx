@@ -62,8 +62,23 @@ function setup(me: object = ME) {
         ],
       });
     }
-    if (url === '/api/admin/invites')
+    if (url === '/api/admin/invites' && init?.method === 'POST')
       return json({ link: 'https://hemmia.example/invite#abc', expiresAt: 1 }, 201);
+    if (url === '/api/admin/invites') {
+      return json({
+        invites: [
+          {
+            id: 'i1',
+            role: 'admin',
+            restricted: false,
+            createdBy: 'anna',
+            createdAt: 1,
+            expiresAt: Date.UTC(2030, 0, 15),
+          },
+        ],
+      });
+    }
+    if (url.startsWith('/api/admin/invites/')) return new Response(null, { status: 204 });
     return undefined;
   });
 }
@@ -112,6 +127,18 @@ describe('SettingsPage', () => {
     });
   });
 
+  it('lets an admin withdraw an open invite', async () => {
+    const calls = setup({ ...ME, id: 'u1', role: 'admin' });
+    renderRoute('/settings?tab=family');
+    expect(await screen.findByRole('heading', { name: 'Open invites' })).toBeDefined();
+    fireEvent.click(screen.getByRole('button', { name: 'Withdraw' }));
+    await vi.waitFor(() => {
+      expect(
+        calls.some((c) => c.url === '/api/admin/invites/i1' && c.init?.method === 'DELETE'),
+      ).toBe(true);
+    });
+  });
+
   it('lets an admin create a teen invite and manage others but not disable themselves', async () => {
     const calls = setup({ ...ME, id: 'u1', role: 'admin' });
     renderRoute('/settings?tab=family');
@@ -122,7 +149,7 @@ describe('SettingsPage', () => {
       'https://hemmia.example/invite#abc',
     );
     expect(link.readOnly).toBe(true);
-    const post = calls.find((c) => c.url === '/api/admin/invites');
+    const post = calls.find((c) => c.url === '/api/admin/invites' && c.init?.method === 'POST');
     expect(JSON.parse(post?.init?.body as string)).toEqual({ role: 'member', restricted: true });
     expect(await screen.findByText('ben')).toBeDefined();
     expect(screen.getAllByRole('button', { name: 'Disable' })).toHaveLength(1);

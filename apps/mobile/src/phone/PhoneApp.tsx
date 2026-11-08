@@ -251,7 +251,7 @@ export function PhoneApp(props: PhoneAppProps) {
             onClick={() => {
               setScreen({ name: 'settings' });
             }}
-            className="self-start text-sm font-medium"
+            className="-ml-2 min-h-11 self-start px-2 text-sm font-medium"
           >
             ‹ {t('settings.title')}
           </button>

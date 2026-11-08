@@ -6,6 +6,12 @@
 /* While the app frame is shown (AppLayout), the page itself never scrolls: the frame is exactly
    the screen's height and scrolls inside. Without this, the home-screen app on iPhone lets the
    whole page rubber-band, top bar included. Sign-in and setup pages keep normal scrolling. */
+/* The demo (src/demo) shows a bar above the app: it takes the top inset and part of the height. */
+:root {
+  --top-inset: env(safe-area-inset-top);
+  --app-height: 100dvh;
+}
+
 html.app-frame,
 html.app-frame body {
   height: 100%;

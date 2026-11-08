@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useUiText } from './text.tsx';
 import { CloseIcon, DownloadIcon } from './icons.tsx';
+import { attachmentUrl } from './attachmentUrl.ts';
 
 export function ImageViewer({ id, onClose }: { id: string; onClose: () => void }) {
   const t = useUiText();
@@ -19,7 +20,7 @@ export function ImageViewer({ id, onClose }: { id: string; onClose: () => void }
   return (
     <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex flex-col bg-black/92">
       <div className="flex justify-end gap-1 p-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
-        <a href={`/api/attachments/${id}`} download="hemmia-image.png" className={button}>
+        <a href={attachmentUrl(id)} download="hemmia-image.png" className={button}>
           <DownloadIcon size={18} />
           {t('image.save')}
         </a>
@@ -29,7 +30,7 @@ export function ImageViewer({ id, onClose }: { id: string; onClose: () => void }
         </button>
       </div>
       <img
-        src={`/api/attachments/${id}`}
+        src={attachmentUrl(id)}
         alt=""
         className="min-h-0 flex-1 object-contain p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
       />

@@ -29,7 +29,8 @@ public class SecureStorePlugin: CAPPlugin, CAPBridgedPlugin {
     private func fromShell(_ call: CAPPluginCall, _ body: @escaping (String) -> Void) {
         DispatchQueue.main.async {
             guard let vc = self.bridge?.viewController as? HubBridgeViewController, vc.hubHost == nil,
-                let url = self.bridge?.webView?.url, url.scheme == "capacitor", url.host == "localhost"
+                let url = self.bridge?.webView?.url, url.scheme == "capacitor", url.host == "localhost",
+                !HubLauncherPlugin.isDemo(url)
             else { return call.reject("not allowed") }
             guard let name = call.getString("name"), Self.accessibility[name] != nil else {
                 return call.reject("unknown name")

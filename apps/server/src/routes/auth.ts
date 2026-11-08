@@ -32,6 +32,8 @@ export interface AuthRouteDeps {
   onSession?: (req: FastifyRequest, reply: FastifyReply, userId: string, sessionId: string) => void;
   /** Sign out everywhere also removes the user's other devices. */
   onLogoutAll?: (req: FastifyRequest, userId: string) => void;
+  /** Whether the request's paired device belongs to this username (its own login limit). */
+  deviceOf?: (req: FastifyRequest, username: string) => boolean;
 }
 
 export function toMe(user: SessionUser): MeResponse {
@@ -84,9 +86,18 @@ export function registerAuthRoutes(app: FastifyInstance, deps: AuthRouteDeps): v
   const limiterOptions = deps.now ? { now: deps.now } : {};
   // Every unauthenticated auth attempt from one address.
   const perIp: RateLimiter = createRateLimiter({ max: 20, windowMs: WINDOW_MS, ...limiterOptions });
-  // Failed attempts per username (login and recovery), with exponential backoff.
-  const perUser: RateLimiter = createRateLimiter({
+  // Failed attempts per username from one network (login and recovery), with exponential
+  // backoff. Keyed on the network too, so nobody can lock a family member out from elsewhere
+  // (security review 2026-11-07); the looser limit per username alone still caps guessing
+  // from many networks.
+  const perUserIp: RateLimiter = createRateLimiter({
     max: 5,
+    windowMs: WINDOW_MS,
+    backoff: true,
+    ...limiterOptions,
+  });
+  const perUser: RateLimiter = createRateLimiter({
+    max: 30,
     windowMs: WINDOW_MS,
     backoff: true,
     ...limiterOptions,
@@ -96,16 +107,35 @@ export function registerAuthRoutes(app: FastifyInstance, deps: AuthRouteDeps): v
     limited(perIp.hit(`ip:${ipBucket(req.ip)}`));
   }
 
-  async function withUserLimit<T>(key: string, fn: () => Promise<T>): Promise<T> {
-    limited(perUser.check(key));
-    try {
-      const result = await fn();
-      perUser.reset(key);
-      return result;
-    } catch (err) {
-      perUser.hit(key);
-      throw err;
+  /**
+   * The limits for one username. From a device already paired to that account: per device only,
+   * so guesses from anywhere else can't lock the person out on their own phone (security
+   * review 2026-11-08; also behind Docker, where every request has the gateway's address).
+   * Otherwise per network, and in total for the username.
+   */
+  function userLimits(req: FastifyRequest, key: string, username: string): [RateLimiter, string][] {
+    if (req.device !== null && deps.deviceOf?.(req, username) === true) {
+      return [[perUserIp, `${key}:device:${req.device}`]];
     }
+    return [
+      [perUserIp, `${key}:${ipBucket(req.ip)}`],
+      [perUser, key],
+    ];
+  }
+
+  /**
+   * Runs a password check under the given limits. Each attempt is recorded before the slow
+   * Argon2 check, so parallel requests can't all pass the limit (security review 2026-11-07);
+   * a success clears the limits again.
+   */
+  async function withUserLimit<T>(
+    limits: [RateLimiter, string][],
+    fn: () => Promise<T>,
+  ): Promise<T> {
+    for (const [limiter, key] of limits) limited(limiter.hit(key));
+    const result = await fn();
+    for (const [limiter, key] of limits) limiter.reset(key);
+    return result;
   }
 
   /** Hands a new session to the device gate before the cookie goes out. */
@@ -134,7 +164,7 @@ export function registerAuthRoutes(app: FastifyInstance, deps: AuthRouteDeps): v
     guardIp(req);
     const body = LoginRequest.parse(req.body);
     const key = `login:${body.username.toLowerCase()}`;
-    const session = await withUserLimit(key, () =>
+    const session = await withUserLimit(userLimits(req, key, body.username), () =>
       auth.login({ ...body, userAgentLabel: userAgentLabel(req.headers['user-agent']) }),
     );
     bound(req, reply, session.token);
@@ -158,7 +188,7 @@ export function registerAuthRoutes(app: FastifyInstance, deps: AuthRouteDeps): v
     guardIp(req);
     const body = RecoverRequest.parse(req.body);
     const key = `recover:${body.username.toLowerCase()}`;
-    const res = await withUserLimit(key, () =>
+    const res = await withUserLimit(userLimits(req, key, body.username), () =>
       auth.recover({ ...body, userAgentLabel: userAgentLabel(req.headers['user-agent']) }),
     );
     bound(req, reply, res.session.token);
@@ -182,7 +212,7 @@ export function registerAuthRoutes(app: FastifyInstance, deps: AuthRouteDeps): v
   app.post('/api/auth/password', { preHandler: requireUser }, async (req, reply) => {
     const user = currentUser(req);
     const body = ChangePasswordRequest.parse(req.body);
-    await withUserLimit(`password:${user.userId}`, () =>
+    await withUserLimit([[perUserIp, `password:${user.userId}`]], () =>
       auth.changePassword({
         userId: user.userId,
         currentSessionId: user.sessionId,

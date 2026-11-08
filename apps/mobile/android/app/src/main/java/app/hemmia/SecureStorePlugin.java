@@ -41,15 +41,17 @@ public class SecureStorePlugin extends Plugin {
 
     /**
      * True when the page in the web view is the bundled shell (the bridge's local URL), as on iOS
-     * (SECURITY.md §7). The URL can only be read on the UI thread; runOnUiThread runs at once when
-     * the call is already there.
+     * (SECURITY.md §7). The demo (/demo/, the hub's web app with a made-up family) is bundled too
+     * but is not the shell: it never gets keys or hub launching (security review 2026-11-08).
+     * The URL can only be read on the UI thread; runOnUiThread runs at once when the call is
+     * already there. Also used by HubLauncherPlugin.
      */
-    private boolean callerIsShell() {
+    static boolean callerIsShell(Plugin plugin) {
         final String[] current = { null };
         final CountDownLatch read = new CountDownLatch(1);
-        getActivity().runOnUiThread(() -> {
-            if (getBridge() != null && getBridge().getWebView() != null) {
-                current[0] = getBridge().getWebView().getUrl();
+        plugin.getActivity().runOnUiThread(() -> {
+            if (plugin.getBridge() != null && plugin.getBridge().getWebView() != null) {
+                current[0] = plugin.getBridge().getWebView().getUrl();
             }
             read.countDown();
         });
@@ -59,18 +61,21 @@ public class SecureStorePlugin extends Plugin {
             Thread.currentThread().interrupt();
             return false;
         }
-        if (current[0] == null || getBridge() == null) return false;
+        if (current[0] == null || plugin.getBridge() == null) return false;
         Uri page = Uri.parse(current[0]);
-        Uri shell = Uri.parse(getBridge().getLocalUrl());
+        Uri shell = Uri.parse(plugin.getBridge().getLocalUrl());
+        String path = page.getPath() == null ? "/" : page.getPath();
         return page.getScheme() != null
             && page.getScheme().equals(shell.getScheme())
             && page.getHost() != null
             && page.getHost().equals(shell.getHost())
-            && page.getPort() == shell.getPort();
+            && page.getPort() == shell.getPort()
+            && !path.startsWith("/demo/")
+            && !path.equals("/demo");
     }
 
     private boolean refuse(PluginCall call) {
-        if (((MainActivity) getActivity()).hubHost != null || !callerIsShell()) {
+        if (((MainActivity) getActivity()).hubHost != null || !callerIsShell(this)) {
             call.reject("not allowed");
             return true;
         }

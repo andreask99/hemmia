@@ -224,6 +224,9 @@ export function registerSecurity(app: FastifyInstance, deps: SecurityDeps): void
   app.decorateRequest('device', null);
 
   app.addHook('onRequest', async (req, reply) => {
+    // Only origin-form request targets: the router would route an absolute-form one
+    // ("GET https://hub/api/x") to /api/x while the device gate reads its full text.
+    if (!req.url.startsWith('/')) throw new HttpError(400, 'bad_request');
     const extra = deps.extraHosts?.() ?? [];
     const allowed = extra.length > 0 ? [...config.allowedHosts, ...extra] : config.allowedHosts;
     const host = hostnameOf(req.headers.host);

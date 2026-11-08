@@ -196,6 +196,116 @@ describe('sign-in links', () => {
   });
 });
 
+describe('sessions from sign-in links (security review 2026-11-07)', () => {
+  async function linkedDevice(post: Awaited<ReturnType<typeof setup>>['post']) {
+    const link = CreateLinkResponse.parse((await post('/api/links', { kind: 'signin' })).json());
+    const redeemed = await post('/api/links/redeem', { kind: 'l', code: link.code }, '');
+    return setCookies(redeemed.headers['set-cookie']).join('; ');
+  }
+
+  it('needs the passphrase to make more links, even right after signing in with one', async () => {
+    const { post } = await setup();
+    const cookies = await linkedDevice(post);
+    expect((await post('/api/links', { kind: 'signin' }, cookies)).statusCode).toBe(401);
+    expect(
+      (await post('/api/links', { kind: 'signin', password: 'blue tractor sings loudly' }, cookies))
+        .statusCode,
+    ).toBe(201);
+  });
+
+  it("ends the previous owner's sessions when a device code moves their device", async () => {
+    const { b, post } = await setup();
+    const cookies = await linkedDevice(post);
+    const deviceCookie = cookies.split('; ').find((c) => c.startsWith('hemmia_device=')) ?? '';
+    const invite = b.auth.createInvite({ role: 'member', restricted: false, createdBy: null });
+    await post(
+      '/api/auth/invite/accept',
+      { code: invite.code, username: 'ben', password: 'blue tractor sings loudly' },
+      '',
+    );
+    const ben = b.db.prepare("SELECT id FROM users WHERE username = 'ben'").get() as { id: string };
+    const code = CreateLinkResponse.parse(
+      (await post('/api/links', { kind: 'device', userId: ben.id })).json(),
+    ).code;
+
+    const device = b.db
+      .prepare('SELECT d.id FROM devices d JOIN sessions s ON s.device_id = d.id')
+      .get() as { id: string };
+    const redeemed = await post('/api/links/redeem', { kind: 'd', code }, deviceCookie);
+    expect(redeemed.statusCode).toBe(200);
+    expect(b.db.prepare('SELECT user_id FROM devices WHERE id = ?').get(device.id)).toEqual({
+      user_id: ben.id,
+    });
+    expect(
+      b.db.prepare('SELECT COUNT(*) AS n FROM sessions WHERE device_id = ?').get(device.id),
+    ).toEqual({ n: 0 });
+    // The old session cookie no longer works.
+    const me = await b.app.inject({
+      method: 'GET',
+      url: '/api/me',
+      headers: { host: 'homehub.example.ts.net', cookie: cookies },
+    });
+    expect(me.statusCode).toBe(401);
+  });
+});
+
+describe('passphrase checks for lasting access (security review 2026-11-08)', () => {
+  it('asks for the passphrase for an admin invite unless the session is fresh from it', async () => {
+    const { post } = await setup();
+    expect((await post('/api/admin/invites', { role: 'admin' })).statusCode).toBe(201);
+    clock += 16 * 60_000;
+    expect((await post('/api/admin/invites', { role: 'member' })).statusCode).toBe(201);
+    expect((await post('/api/admin/invites', { role: 'admin' })).statusCode).toBe(401);
+    expect(
+      (await post('/api/admin/invites', { role: 'admin', password: 'wrong wrong wrong' }))
+        .statusCode,
+    ).toBe(401);
+    expect(
+      (await post('/api/admin/invites', { role: 'admin', password: 'blue tractor sings loudly' }))
+        .statusCode,
+    ).toBe(201);
+  });
+
+  it('never treats a sign-in link session as fresh for an admin invite', async () => {
+    const { post } = await setup();
+    const link = CreateLinkResponse.parse((await post('/api/links', { kind: 'signin' })).json());
+    const redeemed = await post('/api/links/redeem', { kind: 'l', code: link.code }, '');
+    const cookies = setCookies(redeemed.headers['set-cookie']).join('; ');
+    expect((await post('/api/admin/invites', { role: 'admin' }, cookies)).statusCode).toBe(401);
+  });
+
+  it('lets the person sign in on their own device while their username is capped elsewhere', async () => {
+    const { b, post } = await setup();
+    const code = CreateLinkResponse.parse(
+      (await post('/api/links', { kind: 'device' })).json(),
+    ).code;
+    const paired = await post('/api/links/redeem', { kind: 'd', code }, '');
+    const device = setCookies(paired.headers['set-cookie']).find((c) =>
+      c.startsWith('hemmia_device='),
+    );
+    const login = (password: string, ip: string, cookies = '') =>
+      b.app.inject({
+        method: 'POST',
+        url: '/api/auth/login',
+        remoteAddress: ip,
+        headers: {
+          origin: ORIGIN,
+          host: 'homehub.example.ts.net',
+          'content-type': 'application/json',
+          ...(cookies ? { cookie: cookies } : {}),
+        },
+        payload: JSON.stringify({ username: 'boss', password }),
+      });
+    for (let i = 0; i < 30; i++) {
+      expect((await login('wrong wrong wrong', `10.9.${String(i)}.1`)).statusCode).toBe(401);
+    }
+    expect((await login('blue tractor sings loudly', '10.9.200.1')).statusCode).toBe(429);
+    expect((await login('blue tractor sings loudly', '10.9.200.1', device ?? '')).statusCode).toBe(
+      200,
+    );
+  });
+});
+
 describe('device codes and invites', () => {
   it('pairs a device for an existing user, who then signs in', async () => {
     const { b, post } = await setup();

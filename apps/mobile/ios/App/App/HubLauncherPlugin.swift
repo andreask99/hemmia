@@ -36,6 +36,11 @@ public class HubLauncherPlugin: CAPPlugin, CAPBridgedPlugin {
 
     private enum Caller { case shell, currentHub, other }
 
+    /// The bundled demo: the hub's web app with a made-up family, never the shell.
+    static func isDemo(_ url: URL) -> Bool {
+        return url.path == "/demo" || url.path.hasPrefix("/demo/")
+    }
+
     /// Runs `body` on the main thread with the controller and who is calling.
     private func withCaller(_ call: CAPPluginCall, _ body: @escaping (HubBridgeViewController, Caller) -> Void) {
         DispatchQueue.main.async {
@@ -46,7 +51,9 @@ public class HubLauncherPlugin: CAPPlugin, CAPBridgedPlugin {
                 return
             }
             let origin = url.host.map { h in url.port.map { "\(h):\($0)" } ?? h }
-            if vc.hubHost == nil && url.scheme == "capacitor" && url.host == "localhost" {
+            // The bundled demo (/demo/) is not the shell: no keys, no hub launching (security
+            // review 2026-11-08).
+            if vc.hubHost == nil && url.scheme == "capacitor" && url.host == "localhost" && !Self.isDemo(url) {
                 body(vc, .shell)
             } else if let hub = vc.hubHost, url.scheme == "https", origin == hub {
                 body(vc, .currentHub)

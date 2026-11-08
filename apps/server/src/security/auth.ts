@@ -168,7 +168,8 @@ export function createAuth(options: AuthOptions) {
     return KdfParamsSchema.parse(JSON.parse(json));
   }
 
-  function insertSession(userId: string, dek: Buffer, label: string): NewSession {
+  /** `viaLink`: started with a sign-in link, not the passphrase (never "fresh"). */
+  function insertSession(userId: string, dek: Buffer, label: string, viaLink = false): NewSession {
     const t = now();
     const sessionId = randomUUID();
     const token = randomToken();
@@ -178,8 +179,8 @@ export function createAuth(options: AuthOptions) {
     const expiresAt = t + SESSION_IDLE_MS;
     db.prepare(
       `INSERT INTO sessions (id, user_id, token_hash, wrapped_dek, created_at, last_seen_at,
-         expires_at, absolute_expires_at, user_agent_label)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         expires_at, absolute_expires_at, user_agent_label, via_link)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     ).run(
       sessionId,
       userId,
@@ -190,6 +191,7 @@ export function createAuth(options: AuthOptions) {
       expiresAt,
       t + SESSION_ABSOLUTE_MS,
       label.slice(0, 64),
+      viaLink ? 1 : 0,
     );
     return { token, sessionId, expiresAt };
   }
@@ -402,7 +404,7 @@ export function createAuth(options: AuthOptions) {
     sessionWithDek(userId: string, dek: Buffer, label: string): NewSession | null {
       const user = q.userById.get(userId);
       if (!user || user.disabled_at !== null) return null;
-      return insertSession(userId, dek, label);
+      return insertSession(userId, dek, label, true);
     },
 
     /** An invite that can still be accepted (not used, not expired). */
@@ -411,13 +413,17 @@ export function createAuth(options: AuthOptions) {
       return invite !== undefined && invite.used_at === null && invite.expires_at > now();
     },
 
-    /** When a session started (for "recently signed in" checks), or null. */
-    sessionCreatedAt(sessionId: string): number | null {
-      return (
-        db
-          .prepare<[string], { created_at: number }>('SELECT created_at FROM sessions WHERE id = ?')
-          .get(sessionId)?.created_at ?? null
-      );
+    /**
+     * When a session was started with the passphrase (login, setup, invite, recovery), for
+     * "recently signed in" checks; null for a session from a sign-in link or an unknown one.
+     */
+    sessionPasswordAt(sessionId: string): number | null {
+      const row = db
+        .prepare<[string], { created_at: number; via_link: number }>(
+          'SELECT created_at, via_link FROM sessions WHERE id = ?',
+        )
+        .get(sessionId);
+      return row && row.via_link === 0 ? row.created_at : null;
     },
 
     /** True while the hub has no users (setup mode). */

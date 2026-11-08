@@ -3,7 +3,6 @@ title: API-Schlüssel besorgen
 description: Einen Schlüssel bei Anthropic oder OpenAI erstellen, ein monatliches Ausgabenlimit setzen und den Schlüssel sicher aufbewahren.
 nav: guides
 order: 20
-draft: true
 ---
 
 # API-Schlüssel besorgen

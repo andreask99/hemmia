@@ -8,6 +8,8 @@ export function Welcome(props: {
   onGetHub: () => void;
   /** "Just me, on this phone" (phone mode, PHONE-MODE.md §3). */
   onPhoneMode: () => void;
+  /** The demo with a made-up family (apps/web/src/demo, bundled under demo/). */
+  onDemo: () => void;
   language?: ShellLanguage;
 }) {
   const { t, language } = useShellText(props.language);
@@ -49,6 +51,15 @@ export function Welcome(props: {
       <div className="flex-grow"></div>
 
       <div className="flex flex-col gap-3 w-full">
+        <button
+          type="button"
+          onClick={props.onDemo}
+          className="w-full rounded-xl bg-champagne p-4 text-left text-on-champagne mb-3"
+        >
+          <span className="block font-semibold">{t('welcome.demo.title')}</span>
+          <span className="block text-sm opacity-80">{t('welcome.demo.text')}</span>
+        </button>
+
         <button
           onClick={props.onScan}
           className="w-full min-h-[52px] rounded-xl bg-card border border-line text-ink font-semibold text-base"

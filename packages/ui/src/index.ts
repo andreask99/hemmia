@@ -7,3 +7,4 @@ export * from './Markdown.tsx';
 export * from './CodeBlock.tsx';
 export * from './ImageViewer.tsx';
 export * from './LoadingBar.tsx';
+export * from './attachmentUrl.ts';

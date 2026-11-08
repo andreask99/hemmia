@@ -30,6 +30,9 @@ const sha256 = (s: string) => createHash('sha256').update(s, 'utf8').digest();
  * after percent-decoding, as the router sees it: `/%61pi/me` is an API path too.
  */
 export function allowedWithoutDevice(method: string, url: string): boolean {
+  // Only origin-form targets ("/path"). An absolute-form target ("https://hub/api/x") would be
+  // routed to /api/x but read here as the app shell (security review 2026-11-07).
+  if (!url.startsWith('/')) return false;
   let path: string;
   try {
     path = decodeURIComponent(url.split('?')[0] ?? '');
@@ -191,13 +194,53 @@ export function createGate(o: { db: DB; secure: boolean; now?: () => number }) {
           )
           .get(userId, deviceId)?.n ?? 0;
       if (count >= MAX_DEVICES_PER_USER) throw new TooManyDevicesError();
-      o.db.prepare('UPDATE devices SET user_id = ? WHERE id = ?').run(userId, deviceId);
-      o.db.prepare('UPDATE sessions SET device_id = ? WHERE id = ?').run(deviceId, sessionId);
+      o.db.transaction(() => {
+        // Someone else signing in on this device: the previous owner's sessions on it end, as
+        // with a device code (assign).
+        o.db
+          .prepare('DELETE FROM sessions WHERE device_id = ? AND user_id != ?')
+          .run(deviceId, userId);
+        o.db.prepare('UPDATE devices SET user_id = ? WHERE id = ?').run(userId, deviceId);
+        o.db.prepare('UPDATE sessions SET device_id = ? WHERE id = ?').run(deviceId, sessionId);
+      })();
     },
 
-    /** A device code redeemed on an already paired device: it now belongs to that user. */
+    /**
+     * A device code redeemed on an already paired device: it now belongs to that user, within
+     * their device limit. If it belonged to someone else, their sessions on it end, so they
+     * aren't left signed in on a device they can no longer see or remove (security review
+     * 2026-11-07). Throws TooManyDevicesError.
+     */
     assign(deviceId: string, userId: string): void {
-      o.db.prepare('UPDATE devices SET user_id = ? WHERE id = ?').run(userId, deviceId);
+      const current = o.db
+        .prepare<[string], { user_id: string | null }>('SELECT user_id FROM devices WHERE id = ?')
+        .get(deviceId);
+      if (!current || current.user_id === userId) return;
+      const count =
+        o.db
+          .prepare<[string], { n: number }>(
+            'SELECT COUNT(*) AS n FROM devices WHERE user_id = ? AND revoked_at IS NULL',
+          )
+          .get(userId)?.n ?? 0;
+      if (count >= MAX_DEVICES_PER_USER) throw new TooManyDevicesError();
+      o.db.transaction(() => {
+        if (current.user_id !== null) {
+          o.db.prepare('DELETE FROM sessions WHERE device_id = ?').run(deviceId);
+        }
+        o.db.prepare('UPDATE devices SET user_id = ? WHERE id = ?').run(userId, deviceId);
+      })();
+    },
+
+    /** Whether a (not revoked) device belongs to the account with this username. */
+    ownedBy(deviceId: string, username: string): boolean {
+      return (
+        o.db
+          .prepare<[string, string], { n: number }>(
+            `SELECT COUNT(*) AS n FROM devices d JOIN users u ON u.id = d.user_id
+             WHERE d.id = ? AND d.revoked_at IS NULL AND u.username = ? COLLATE NOCASE`,
+          )
+          .get(deviceId, username)?.n === 1
+      );
     },
 
     list(userId: string): DeviceRow[] {

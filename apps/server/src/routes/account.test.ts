@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 import {
+  AdminInviteListResponse,
   AdminUserListResponse,
   CreateInviteResponse,
   MeResponse,
@@ -131,6 +132,38 @@ describe('admin', () => {
       (await send('PATCH', `/api/admin/users/${annaId}`, boss, { disabled: true })).statusCode,
     ).toBe(204);
     expect((await send('GET', '/api/me', anna)).statusCode).toBe(401);
+  });
+
+  it('lists open invites and withdraws one (security review 2026-11-07)', async () => {
+    const boss = await signUp('boss', 'admin');
+    const created = CreateInviteResponse.parse(
+      (await send('POST', '/api/admin/invites', boss, { role: 'admin' })).json(),
+    );
+    const listed = AdminInviteListResponse.parse(
+      (await send('GET', '/api/admin/invites', boss)).json(),
+    ).invites;
+    expect(listed).toHaveLength(1);
+    expect(listed[0]).toMatchObject({ role: 'admin', restricted: false, createdBy: 'boss' });
+    expect(JSON.stringify(listed)).not.toMatch(/code|hash/i);
+
+    const id = listed[0]?.id ?? '';
+    expect((await send('DELETE', `/api/admin/invites/${id}`, boss)).statusCode).toBe(204);
+    expect((await send('DELETE', `/api/admin/invites/${id}`, boss)).statusCode).toBe(404);
+    expect(
+      AdminInviteListResponse.parse((await send('GET', '/api/admin/invites', boss)).json()).invites,
+    ).toEqual([]);
+    // The withdrawn link no longer works.
+    const code = created.link.split('#')[1] ?? '';
+    const accept = await send('POST', '/api/auth/invite/accept', '', {
+      code,
+      username: 'mallory',
+      password: 'blue tractor sings loudly',
+    });
+    expect(accept.statusCode).toBeGreaterThanOrEqual(400);
+
+    const member = await signUp('anna');
+    expect((await send('GET', '/api/admin/invites', member)).statusCode).toBe(403);
+    expect((await send('DELETE', `/api/admin/invites/${id}`, member)).statusCode).toBe(403);
   });
 
   it("won't let an admin disable themselves", async () => {

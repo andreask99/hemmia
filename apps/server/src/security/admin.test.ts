@@ -60,6 +60,15 @@ describe('admin', () => {
     expect(admin.listUsers().find((u) => u.username === 'ben')?.restricted).toBe(true);
   });
 
+  it("drops a disabled admin's unused invites", () => {
+    const anna = admin.listUsers().find((u) => u.username === 'anna')?.id ?? null;
+    auth.createInvite({ role: 'admin', restricted: false, createdBy: anna });
+    auth.createInvite({ role: 'member', restricted: false, createdBy: null });
+    expect(admin.listInvites()).toHaveLength(2);
+    admin.disableUser('anna');
+    expect(admin.listInvites().map((i) => i.createdBy)).toEqual([null]);
+  });
+
   it('returns false for unknown users', () => {
     expect(admin.disableUser('nobody')).toBe(false);
     expect(admin.enableUser('nobody')).toBe(false);

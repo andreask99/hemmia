@@ -276,38 +276,74 @@ describe('auth flow', () => {
     expect(wrong.body).toBe(unknown.body);
   });
 
-  it('rate-limits failed logins per username, then allows again later', async () => {
+  it('rate-limits failed logins per username and network, then allows again later', async () => {
     await signUp();
     for (let i = 0; i < 5; i++) {
       const r = await post(
         '/api/auth/login',
         { username: 'anna', password: 'wrong password!!' },
-        {
-          remoteAddress: `10.0.0.${String(i)}`,
-        },
+        { remoteAddress: '10.0.0.1' },
       );
       expect(r.statusCode).toBe(401);
     }
     const blocked = await post(
       '/api/auth/login',
       { username: 'anna', password: PASSWORD },
-      {
-        remoteAddress: '10.0.0.99',
-      },
+      { remoteAddress: '10.0.0.1' },
     );
     expect(blocked.statusCode).toBe(429);
     expect(errorCode(blocked)).toBe('rate_limited');
     expect(Number(blocked.headers['retry-after'])).toBeGreaterThan(0);
 
+    // Someone else's wrong guesses don't lock Anna out from her own network.
+    const elsewhere = await post(
+      '/api/auth/login',
+      { username: 'anna', password: PASSWORD },
+      { remoteAddress: '10.0.0.99' },
+    );
+    expect(elsewhere.statusCode).toBe(200);
+
     clock += 16 * 60_000;
     const ok = await post(
       '/api/auth/login',
       { username: 'anna', password: PASSWORD },
-      {
-        remoteAddress: '10.0.0.99',
-      },
+      { remoteAddress: '10.0.0.1' },
     );
     expect(ok.statusCode).toBe(200);
+  });
+
+  it('caps guesses for one username across many networks', async () => {
+    await signUp();
+    for (let i = 0; i < 30; i++) {
+      const r = await post(
+        '/api/auth/login',
+        { username: 'anna', password: 'wrong password!!' },
+        { remoteAddress: `10.0.${String(i)}.1` },
+      );
+      expect(r.statusCode).toBe(401);
+    }
+    const blocked = await post(
+      '/api/auth/login',
+      { username: 'anna', password: PASSWORD },
+      { remoteAddress: '10.0.200.1' },
+    );
+    expect(blocked.statusCode).toBe(429);
+  });
+
+  it('counts parallel login attempts before checking the passphrase', async () => {
+    await signUp();
+    const results = await Promise.all(
+      Array.from({ length: 8 }, () =>
+        post(
+          '/api/auth/login',
+          { username: 'anna', password: 'wrong password!!' },
+          { remoteAddress: '10.0.0.7' },
+        ),
+      ),
+    );
+    const codes = results.map((r) => r.statusCode);
+    expect(codes.filter((c) => c === 401)).toHaveLength(5);
+    expect(codes.filter((c) => c === 429)).toHaveLength(3);
   });
 
   it('rate-limits per client address behind Tailscale serve', async () => {
