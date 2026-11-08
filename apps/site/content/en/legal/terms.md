@@ -3,12 +3,12 @@ title: Terms of Use
 description: The terms for using the Hemmia apps, the hub software as we distribute it, Hemmia Connect and the update service.
 nav: legal
 order: 901
-date: 2026-11-07
+date: 2026-11-08
 ---
 
 # Terms of Use
 
-Last updated: 7 November 2026
+Last updated: 8 November 2026
 
 <!-- note -->
 **The short version**
@@ -79,7 +79,7 @@ You agree:
 
 ## 7. Hemmia Connect
 
-- **What it is:** an optional way to reach your hub from anywhere. The admin switches it on in the hub's settings. Your hub gets an address of the form `<random-id>.h.hemmia.app`. The connection is encrypted from your phone to your hub; we can't read it (see the Privacy Policy).
+- **What it is:** an optional way to reach your hub from anywhere. The admin switches it on in the hub's settings. Your hub gets an address of the form `<random-id>.h.hemmia.app`. The connection is encrypted from your phone to your hub; we don't read it and, without leaving a public trace, can't (see the Privacy Policy).
 - **Price:** free during the beta. If Connect becomes a paid service (currently planned: €29 a year or €2.99 a month per hub, with 30 days free), we will tell admins in the hub at least 30 days before, and Connect will only continue for a hub if its admin chooses to buy it. Purchases would go through a payment provider that sells in its own name, under its own terms, which we will link to before you buy. Access from anywhere with Tailscale, which you set up yourself, stays free.
 - **Limits:** each hub can pass up to 20 GB a month through the relay. When a hub reaches it, Connect pauses for that hub until the next month (counted in UTC). We may also pause Connect for everyone if the relay's own monthly traffic allowance is used up. Hubs remain reachable at home and over Tailscale.
 - **Versions:** to protect everyone, Connect may refuse hubs running a version with a known security problem. The hub then tells its admin to update.

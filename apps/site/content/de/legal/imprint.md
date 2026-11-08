@@ -33,7 +33,7 @@ Wir erstellen die Inhalte dieser Website mit Sorgfalt, übernehmen aber keine Ge
 
 ## Marken
 
-Apple, das Apple-Logo, iPhone, Mac und App Store sind Marken von Apple Inc. Anthropic und Claude sind Marken von Anthropic, PBC. OpenAI und ChatGPT sind Marken von OpenAI. Docker ist eine Marke von Docker, Inc. Tailscale ist eine Marke von Tailscale Inc. Sie werden nur genannt, um zu sagen, womit Hemmia zusammenarbeitet; keines dieser Unternehmen empfiehlt Hemmia.
+Apple, das Apple-Logo, iPhone, Mac und App Store sind Marken von Apple Inc. Anthropic und Claude sind Marken von Anthropic, PBC. OpenAI und ChatGPT sind Marken von OpenAI. Docker ist eine Marke von Docker, Inc. Tailscale ist eine Marke von Tailscale Inc. Ollama ist eine Marke von Ollama, Inc. LM Studio ist eine Marke von Element Labs, Inc. OpenRouter ist eine Marke von OpenRouter, Inc. Android, Gemma und Google sind Marken von Google LLC. Raspberry Pi ist eine Marke von Raspberry Pi Ltd. Sie werden nur genannt, um zu sagen, womit Hemmia zusammenarbeitet; keines dieser Unternehmen empfiehlt Hemmia.
 
 ## Links
 

@@ -24,7 +24,7 @@ export const FOOTER_NAV: readonly NavItem[] = [
   { target: 'press', label: { en: 'Press', de: 'Presse' } },
   { target: 'legal/privacy', label: { en: 'Privacy policy', de: 'Datenschutzerklärung' } },
   { target: 'legal/terms', label: { en: 'Terms of use', de: 'Nutzungsbedingungen' } },
-  { target: 'legal/imprint', label: { en: 'Imprint', de: 'Impressum' } },
+  { target: 'legal/imprint', label: { en: 'Legal notice', de: 'Impressum' } },
 ];
 
 export interface ResolvedNavItem {

@@ -14,6 +14,7 @@ export interface HomeText {
     titleEm: string;
     lede: string;
     start: string;
+    /** The second button (to the FAQ). */
     how: string;
     store: string;
     pills: string[];
@@ -37,12 +38,17 @@ export interface HomeText {
   compare: {
     title: string;
     intro: string;
+    /** The first column's heading is for screen readers only. */
     head: [string, string, string];
     rows: [string, string, string][];
   };
   flow: { eyebrow: string; title: string; intro: string; steps: { title: string; text: string }[] };
   promises: { title: string; items: { pose: Pose; title: string; text: string }[] };
-  cost: { title: string; intro: string; items: { title: string; price: string; text: string }[] };
+  cost: {
+    title: string;
+    intro: string;
+    items: { title: string; price: string; note?: string; text: string }[];
+  };
   faq: { title: string; items: { q: string; a: string }[]; more: string };
   next: { title: string; text: string };
   cta: { title: string; text: string; start: string };
@@ -51,25 +57,25 @@ export interface HomeText {
 export const HOME: Record<Lang, HomeText> = {
   en: {
     hero: {
-      eyebrow: 'Free · iPhone app · Hemmia at home on a Mac or with Docker',
+      eyebrow: 'Free · iPhone app (beta) · Hemmia at home on a Mac or with Docker',
       title: 'Your AI,',
       titleEm: 'at home.',
       lede: 'Hemmia is a private AI for the whole family. It runs on a computer in your house, or simply on your phone, with the AI models you choose. Everyone gets their own account and their own chats.',
       start: 'Get started',
-      how: 'How it works',
+      how: 'Questions and answers',
       store: 'iPhone app coming soon',
       pills: [
         'No account with us',
         'No ads',
         'No tracking',
-        'Chats stay at home',
+        'Chats stored on your devices',
         'Free with local models',
       ],
       shotAlt: 'Hemmia on a phone: a chat with the family hub',
     },
     asks: {
       title: 'What families ask Hemmia',
-      intro: 'Everyday questions, from homework to dinner. Asked at home, answered at home.',
+      intro: 'Everyday questions, from homework to dinner, for everyone in the house.',
       items: [
         {
           pose: 'book',
@@ -88,8 +94,8 @@ export const HOME: Record<Lang, HomeText> = {
         },
         {
           pose: 'sun',
-          title: 'Your day, in brief',
-          text: 'A short morning brief with your plans and goals, if you want one.',
+          title: 'Plan your week',
+          text: 'Weekly goals for school, work and home, and a short brief each morning.',
         },
         {
           pose: 'brush',
@@ -106,7 +112,7 @@ export const HOME: Record<Lang, HomeText> = {
         {
           tag: 'Two minutes',
           title: 'Just on your phone',
-          text: 'Install the app, add your own key from Anthropic or OpenAI, and start chatting. Your chats and your key stay on the phone.',
+          text: 'Install the app, add your own key from Anthropic or OpenAI, and start chatting. Your chats and your key are stored on the phone.',
           needs: ['An iPhone', 'A key from Anthropic or OpenAI'],
           cost: 'You pay the provider for what you use, a few cents a day for most people. No markup.',
           shot: 'phone-chat',
@@ -131,10 +137,10 @@ export const HOME: Record<Lang, HomeText> = {
       intro: 'Hemmia is built around a household, not around one person at a desk.',
       points: [
         'Invite everyone with a QR code or a link.',
-        'Everyone has their own private chats, locked with their own passphrase. Not even the person who runs the hub can read them.',
+        'Everyone has their own private chats, locked with their own passphrase. Other family members can’t open them, and neither can the admin account.',
         'Teen accounts see only the models you allow, search the web with strict safe search (or not at all), and can’t create pictures.',
         'Notifications when an answer or a picture is ready.',
-        'Reach Hemmia from anywhere with Hemmia Connect or Tailscale, without opening ports on your router.',
+        'Your phones reach Hemmia at home and away with Hemmia Connect or Tailscale, without opening ports on your router.',
       ],
       shotAlt: 'The family settings with everyone’s accounts',
     },
@@ -142,23 +148,31 @@ export const HOME: Record<Lang, HomeText> = {
       title: 'Hemmia and the usual AI apps',
       intro:
         'Most AI apps are built for one person and keep every conversation on their servers. Hemmia does it differently.',
-      head: ['', 'Many AI apps', 'Hemmia'],
+      head: ['Topic', 'Many AI apps', 'Hemmia'],
       rows: [
         [
           'Where your chats are stored',
           'On the company’s servers',
           'On your hub or your phone, encrypted',
         ],
-        ['Who can read them', 'The company, under its own rules', 'Only you, with your passphrase'],
+        [
+          'Who can read them',
+          'The company, under its own rules',
+          'You. A cloud provider only for chats where you pick its model',
+        ],
         ['Account needed', 'Yes, with email and often a phone number', 'No account with us'],
-        ['Ads and tracking', 'Often, or planned', 'None'],
+        ['Ads and tracking', 'Common', 'None'],
         [
           'A family of four',
-          'Usually one subscription per person',
+          'A paid plan per person for the best models',
           'Free with local models, or one shared key',
         ],
         ['Choice of AI', 'The company’s own models', 'Local models, Anthropic or OpenAI'],
-        ['Accounts for children', 'Rarely, or not allowed', 'Teen accounts with limits you set'],
+        [
+          'Accounts for children',
+          'Set up by the company, under its rules',
+          'Teen accounts with limits you set',
+        ],
       ],
     },
     flow: {
@@ -170,7 +184,7 @@ export const HOME: Record<Lang, HomeText> = {
         { title: 'You write or add a photo.', text: 'On your phone, in the app or the browser.' },
         {
           title: 'It goes to your hub, or stays on your phone.',
-          text: 'Away from home through Hemmia Connect or Tailscale, encrypted all the way to your computer. Our relay passes it on but can’t read it.',
+          text: 'Through Hemmia Connect or Tailscale, encrypted all the way to your computer. Our relay passes it on but can’t read it.',
         },
         {
           title: 'The model you chose answers.',
@@ -178,7 +192,7 @@ export const HOME: Record<Lang, HomeText> = {
         },
         {
           title: 'The answer is stored on your device.',
-          text: 'Encrypted with your passphrase, on the hub or the phone. Not on a server of ours.',
+          text: 'Encrypted on the hub with your passphrase, or on the phone with a key kept in its secure storage. Not on a server of ours.',
         },
       ],
     },
@@ -187,8 +201,8 @@ export const HOME: Record<Lang, HomeText> = {
       items: [
         {
           pose: 'house',
-          title: 'Chats stay at home',
-          text: 'Stored on your own hub or phone, encrypted.',
+          title: 'Chats stored at home',
+          text: 'On your own hub or phone, encrypted. With models on your hub, nothing leaves the house.',
         },
         {
           pose: 'key',
@@ -229,12 +243,13 @@ export const HOME: Record<Lang, HomeText> = {
         {
           title: 'Cloud models',
           price: 'At the provider’s prices',
-          text: 'Optional, with your own key. A few cents a day for most people; set a spending limit at the provider.',
+          text: 'Optional, with your own key. A few cents a day for most people; set a spending limit at the provider. Hemmia also stops at a monthly limit per person.',
         },
         {
           title: 'Hemmia Connect',
-          price: '€29 a year',
-          text: 'Optional: reach your hub from anywhere with one switch. 30 days free, free during the beta. Or set up Tailscale yourself, for free.',
+          price: 'Free in the beta',
+          note: 'then €29 a year per hub',
+          text: 'Optional: your phones reach the hub with one switch, at home and away, up to 20 GB a month. Free during the beta, then 30 days free. Or set up Tailscale yourself, for free.',
         },
       ],
     },
@@ -243,7 +258,7 @@ export const HOME: Record<Lang, HomeText> = {
       items: [
         {
           q: 'Do you see my chats?',
-          a: 'No. They are stored on your hub or your phone, encrypted with your passphrase. When you choose a cloud model, Hemmia asks first and the chat goes to that provider with your own key.',
+          a: 'No. They are stored on your hub or your phone, encrypted. When you choose a cloud model, Hemmia asks first and the chat goes to that provider with your own key.',
         },
         {
           q: 'What computer do I need for a hub?',
@@ -259,43 +274,42 @@ export const HOME: Record<Lang, HomeText> = {
         },
         {
           q: 'What happens if I lose my passphrase?',
-          a: 'You get a recovery code when you create your account. With it you can set a new passphrase. Without it, nobody can open your chats, not even the person who runs the hub.',
+          a: 'You get a recovery code when you create your account. With it you can set a new passphrase. Without it, nobody can open your chats again, not even an admin.',
         },
       ],
       more: 'All questions',
     },
     next: {
       title: 'Coming next',
-      text: 'Planned, without dates: an advisor for bigger decisions, a planner for the week and shared boards for the family.',
+      text: 'Planned, without dates: the Android app, and spaces the family shares.',
     },
     cta: {
       title: 'Bring a private AI home.',
-      text: 'Hemmia at home is free, as an installer for your Mac or with Docker; you use it in the browser and the iPhone app, which is coming soon.',
+      text: 'Hemmia is in beta. Hemmia at home will be free, as an installer for your Mac or with Docker; you use it in the browser and in the iPhone app, which is in testing now.',
       start: 'Get started',
     },
   },
   de: {
     hero: {
-      eyebrow: 'Kostenlos · iPhone-App · Hemmia zu Hause auf einem Mac oder mit Docker',
+      eyebrow: 'Kostenlos · iPhone-App (Beta) · Hemmia zu Hause auf einem Mac oder mit Docker',
       title: 'Deine KI,',
       titleEm: 'zu Hause.',
       lede: 'Hemmia ist eine private KI für die ganze Familie. Sie läuft auf einem Computer bei dir zu Hause oder einfach auf deinem Telefon, mit den KI-Modellen, die du wählst. Alle bekommen ihr eigenes Konto und ihre eigenen Chats.',
       start: 'Loslegen',
-      how: 'So funktioniert es',
+      how: 'Fragen und Antworten',
       store: 'iPhone-App bald verfügbar',
       pills: [
         'Kein Konto bei uns',
         'Keine Werbung',
         'Kein Tracking',
-        'Chats bleiben zu Hause',
+        'Chats auf deinen Geräten',
         'Kostenlos mit lokalen Modellen',
       ],
       shotAlt: 'Hemmia auf einem Telefon: ein Chat mit dem Familien-Hub',
     },
     asks: {
       title: 'Was Familien Hemmia fragen',
-      intro:
-        'Fragen aus dem Alltag, von den Hausaufgaben bis zum Abendessen. Zu Hause gefragt, zu Hause beantwortet.',
+      intro: 'Fragen aus dem Alltag, von den Hausaufgaben bis zum Abendessen, für alle im Haus.',
       items: [
         {
           pose: 'book',
@@ -305,17 +319,17 @@ export const HOME: Record<Lang, HomeText> = {
         {
           pose: 'pot',
           title: 'Abendessen aus dem Kühlschrank',
-          text: 'Fotografier, was da ist, und bekomm drei Ideen.',
+          text: 'Fotografier, was da ist, und du bekommst drei Ideen.',
         },
         {
           pose: 'glass',
           title: 'Briefe, erklärt',
-          text: 'Füg ein PDF vom Finanzamt oder der Schule hinzu und lies es in einfachen Worten.',
+          text: 'Lade ein PDF vom Finanzamt oder von der Schule hoch und lass es dir in einfachen Worten erklären.',
         },
         {
           pose: 'sun',
-          title: 'Dein Tag, kurz',
-          text: 'Ein kurzer Morgenüberblick mit deinen Plänen und Zielen, wenn du willst.',
+          title: 'Deine Woche planen',
+          text: 'Wochenziele für Schule, Arbeit und Zuhause und jeden Morgen ein kurzer Überblick.',
         },
         {
           pose: 'brush',
@@ -327,16 +341,16 @@ export const HOME: Record<Lang, HomeText> = {
     ways: {
       title: 'Zwei Wege zum Start',
       intro:
-        'Starte in zwei Minuten auf dem Telefon oder richte Hemmia für die ganze Familie zu Hause ein. Wechseln kannst du später.',
+        'Starte in zwei Minuten auf dem Telefon oder richte Hemmia für die ganze Familie zu Hause ein. Du kannst später jederzeit wechseln.',
       items: [
         {
           tag: 'Zwei Minuten',
           title: 'Nur auf dem Telefon',
-          text: 'Installier die App, füg deinen eigenen Schlüssel von Anthropic oder OpenAI hinzu und chatte los. Deine Chats und dein Schlüssel bleiben auf dem Telefon.',
+          text: 'Installier die App, füge deinen eigenen Schlüssel von Anthropic oder OpenAI ein und chatte los. Deine Chats und dein Schlüssel werden auf dem Telefon gespeichert.',
           needs: ['Ein iPhone', 'Ein Schlüssel von Anthropic oder OpenAI'],
           cost: 'Du zahlst den Anbieter für das, was du nutzt, für die meisten ein paar Cent am Tag. Ohne Aufschlag.',
           shot: 'phone-chat',
-          alt: 'Hemmia auf einem Telefon, ganz allein',
+          alt: 'Hemmia allein auf dem iPhone, ohne Hub',
         },
         {
           tag: 'Für die ganze Familie',
@@ -357,10 +371,10 @@ export const HOME: Record<Lang, HomeText> = {
       intro: 'Hemmia ist für einen Haushalt gebaut, nicht für eine Person am Schreibtisch.',
       points: [
         'Lade alle mit einem QR-Code oder einem Link ein.',
-        'Alle haben ihre eigenen privaten Chats, gesichert mit ihrer eigenen Passphrase. Nicht einmal, wer den Hub betreibt, kann sie lesen.',
-        'Konten für Jugendliche sehen nur die Modelle, die du freigibst, suchen im Web mit strengem SafeSearch (oder gar nicht) und erstellen keine Bilder.',
+        'Alle haben ihre eigenen privaten Chats, gesichert mit ihrer eigenen Passphrase. Andere in der Familie können sie nicht öffnen, auch nicht das Admin-Konto.',
+        'Konten für Jugendliche sehen nur die Modelle, die du freigibst, suchen im Web mit strengem Jugendfilter (oder gar nicht) und erstellen keine Bilder.',
         'Mitteilungen, wenn eine Antwort oder ein Bild fertig ist.',
-        'Erreiche Hemmia von überall mit Hemmia Connect oder Tailscale, ohne Ports am Router zu öffnen.',
+        'Eure Telefone erreichen Hemmia zu Hause und unterwegs mit Hemmia Connect oder Tailscale, ohne Ports am Router zu öffnen.',
       ],
       shotAlt: 'Die Familieneinstellungen mit den Konten aller',
     },
@@ -368,7 +382,7 @@ export const HOME: Record<Lang, HomeText> = {
       title: 'Hemmia und die üblichen KI-Apps',
       intro:
         'Die meisten KI-Apps sind für eine Person gebaut und speichern jedes Gespräch auf ihren Servern. Hemmia macht es anders.',
-      head: ['', 'Viele KI-Apps', 'Hemmia'],
+      head: ['Thema', 'Viele KI-Apps', 'Hemmia'],
       rows: [
         [
           'Wo deine Chats liegen',
@@ -378,19 +392,19 @@ export const HOME: Record<Lang, HomeText> = {
         [
           'Wer sie lesen kann',
           'Die Firma, nach ihren eigenen Regeln',
-          'Nur du, mit deiner Passphrase',
+          'Du. Ein Cloud-Anbieter nur bei Chats, in denen du sein Modell wählst',
         ],
         ['Konto nötig', 'Ja, mit E-Mail und oft Telefonnummer', 'Kein Konto bei uns'],
-        ['Werbung und Tracking', 'Oft, oder geplant', 'Keins'],
+        ['Werbung und Tracking', 'Verbreitet', 'Keine'],
         [
           'Eine vierköpfige Familie',
-          'Meist ein Abo pro Person',
+          'Ein Bezahl-Abo pro Person für die besten Modelle',
           'Kostenlos mit lokalen Modellen oder ein gemeinsamer Schlüssel',
         ],
         ['Welche KI', 'Die eigenen Modelle der Firma', 'Lokale Modelle, Anthropic oder OpenAI'],
         [
           'Konten für Kinder',
-          'Selten oder nicht erlaubt',
+          'Von der Firma festgelegt, nach ihren Regeln',
           'Konten für Jugendliche mit deinen Grenzen',
         ],
       ],
@@ -407,7 +421,7 @@ export const HOME: Record<Lang, HomeText> = {
         },
         {
           title: 'Es geht an deinen Hub oder bleibt auf dem Telefon.',
-          text: 'Unterwegs über Hemmia Connect oder Tailscale, verschlüsselt bis zu deinem Computer. Unser Relay leitet es weiter, kann es aber nicht lesen.',
+          text: 'Über Hemmia Connect oder Tailscale, verschlüsselt bis zu deinem Computer. Unser Relay leitet es weiter, kann es aber nicht lesen.',
         },
         {
           title: 'Das Modell, das du gewählt hast, antwortet.',
@@ -415,7 +429,7 @@ export const HOME: Record<Lang, HomeText> = {
         },
         {
           title: 'Die Antwort wird auf deinem Gerät gespeichert.',
-          text: 'Verschlüsselt mit deiner Passphrase, auf dem Hub oder dem Telefon. Nicht auf einem Server von uns.',
+          text: 'Verschlüsselt: auf dem Hub mit deiner Passphrase, auf dem Telefon mit einem Schlüssel aus dessen sicherem Speicher. Nicht auf einem Server von uns.',
         },
       ],
     },
@@ -424,12 +438,12 @@ export const HOME: Record<Lang, HomeText> = {
       items: [
         {
           pose: 'house',
-          title: 'Chats bleiben zu Hause',
-          text: 'Gespeichert auf deinem eigenen Hub oder Telefon, verschlüsselt.',
+          title: 'Chats bleiben bei dir',
+          text: 'Auf deinem eigenen Hub oder Telefon, verschlüsselt. Mit Modellen auf dem Hub verlässt nichts das Haus.',
         },
         {
           pose: 'key',
-          title: 'Alle haben ihr eigenes Schloss',
+          title: 'Jede Person schließt selbst ab',
           text: 'Die Chats jeder Person sind mit ihrer eigenen Passphrase gesichert.',
         },
         {
@@ -444,7 +458,7 @@ export const HOME: Record<Lang, HomeText> = {
         },
         {
           pose: 'glass',
-          title: 'Deine Wahl der KI',
+          title: 'Du wählst die KI',
           text: 'Modelle auf deinem eigenen Computer oder Anthropic und OpenAI mit deinem Schlüssel.',
         },
         {
@@ -466,12 +480,13 @@ export const HOME: Record<Lang, HomeText> = {
         {
           title: 'Cloud-Modelle',
           price: 'Zu den Preisen des Anbieters',
-          text: 'Optional, mit deinem eigenen Schlüssel. Für die meisten ein paar Cent am Tag; leg beim Anbieter ein Ausgabenlimit fest.',
+          text: 'Optional, mit deinem eigenen Schlüssel. Für die meisten ein paar Cent am Tag; leg beim Anbieter ein Ausgabenlimit fest. Hemmia hält außerdem bei einem Monatslimit pro Person an.',
         },
         {
           title: 'Hemmia Connect',
-          price: '29 € im Jahr',
-          text: 'Optional: Erreiche deinen Hub von überall mit einem Schalter. 30 Tage gratis, während der Beta kostenlos. Oder richte Tailscale selbst ein, kostenlos.',
+          price: 'Kostenlos in der Beta',
+          note: 'danach 29 € im Jahr pro Hub',
+          text: 'Optional: Deine Telefone erreichen den Hub mit einem Schalter, zu Hause und unterwegs, bis 20 GB im Monat. Während der Beta kostenlos, danach 30 Tage gratis. Oder richte Tailscale selbst ein, kostenlos.',
         },
       ],
     },
@@ -480,7 +495,7 @@ export const HOME: Record<Lang, HomeText> = {
       items: [
         {
           q: 'Seht ihr meine Chats?',
-          a: 'Nein. Sie liegen auf deinem Hub oder Telefon, verschlüsselt mit deiner Passphrase. Wählst du ein Cloud-Modell, fragt Hemmia vorher, und der Chat geht mit deinem eigenen Schlüssel an diesen Anbieter.',
+          a: 'Nein. Sie liegen auf deinem Hub oder Telefon, verschlüsselt. Wählst du ein Cloud-Modell, fragt Hemmia vorher, und der Chat geht mit deinem eigenen Schlüssel an diesen Anbieter.',
         },
         {
           q: 'Welchen Computer brauche ich für einen Hub?',
@@ -496,18 +511,18 @@ export const HOME: Record<Lang, HomeText> = {
         },
         {
           q: 'Was passiert, wenn ich meine Passphrase verliere?',
-          a: 'Beim Anlegen deines Kontos bekommst du einen Wiederherstellungscode. Damit setzt du eine neue Passphrase. Ohne ihn kann niemand deine Chats öffnen, auch nicht, wer den Hub betreibt.',
+          a: 'Beim Anlegen deines Kontos bekommst du einen Wiederherstellungscode. Damit setzt du eine neue Passphrase. Ohne ihn kann niemand deine Chats wieder öffnen, auch kein Admin.',
         },
       ],
       more: 'Alle Fragen',
     },
     next: {
       title: 'Als Nächstes',
-      text: 'Geplant, ohne Termine: ein Ratgeber für größere Entscheidungen, ein Wochenplaner und gemeinsame Pinnwände für die Familie.',
+      text: 'Geplant, ohne Termine: die Android-App und Bereiche, die die Familie teilt.',
     },
     cta: {
       title: 'Hol dir eine private KI nach Hause.',
-      text: 'Hemmia zu Hause ist kostenlos, als Installationspaket für deinen Mac oder mit Docker; du nutzt es im Browser und in der iPhone-App, die bald kommt.',
+      text: 'Hemmia ist in der Beta. Hemmia zu Hause wird kostenlos sein, als Installationspaket für deinen Mac oder mit Docker; du nutzt es im Browser und in der iPhone-App, die gerade getestet wird.',
       start: 'Loslegen',
     },
   },

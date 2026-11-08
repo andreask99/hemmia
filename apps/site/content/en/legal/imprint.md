@@ -33,7 +33,7 @@ We write the content of this website with care, but we give no guarantee that it
 
 ## Trademarks
 
-Apple, the Apple logo, iPhone, Mac and App Store are trademarks of Apple Inc. Anthropic and Claude are trademarks of Anthropic, PBC. OpenAI and ChatGPT are trademarks of OpenAI. Docker is a trademark of Docker, Inc. Tailscale is a trademark of Tailscale Inc. They are named only to say what Hemmia works with; none of these companies endorses Hemmia.
+Apple, the Apple logo, iPhone, Mac and App Store are trademarks of Apple Inc. Anthropic and Claude are trademarks of Anthropic, PBC. OpenAI and ChatGPT are trademarks of OpenAI. Docker is a trademark of Docker, Inc. Tailscale is a trademark of Tailscale Inc. Ollama is a trademark of Ollama, Inc. LM Studio is a trademark of Element Labs, Inc. OpenRouter is a trademark of OpenRouter, Inc. Android, Gemma and Google are trademarks of Google LLC. Raspberry Pi is a trademark of Raspberry Pi Ltd. They are named only to say what Hemmia works with; none of these companies endorses Hemmia.
 
 ## Links
 

@@ -3,12 +3,12 @@ title: Nutzungsbedingungen
 description: Die Bedingungen für die Hemmia-Apps, die Hub-Software, wie wir sie verteilen, Hemmia Connect und den Update-Dienst.
 nav: legal
 order: 901
-date: 2026-11-07
+date: 2026-11-08
 ---
 
 # Nutzungsbedingungen
 
-Stand: 7. November 2026
+Stand: 8. November 2026
 
 <!-- note -->
 **Das Wichtigste in Kürze**
@@ -24,22 +24,22 @@ Diese Zusammenfassung dient der Übersicht. Massgebend sind die folgenden Beding
 
 ## 1. Wer wir sind und was diese Bedingungen umfassen
 
-Hemmia wird angeboten von Andreas Kalkum, Burgstrasse 21, 5634 Merenschwand, Schweiz, E-Mail andreas.apps@icloud.com („wir", „uns").
+Hemmia wird angeboten von Andreas Kalkum, Burgstrasse 21, 5634 Merenschwand, Schweiz, E-Mail andreas.apps@icloud.com („wir“, „uns“).
 
 Diese Bedingungen gelten für:
 
-- die **Hemmia-App** für iPhone (und später andere Telefone) („die App");
-- die **Hemmia-Hub-Software**, wie wir sie als Mac-Paket oder Docker-Image verteilen („der Hub");
-- **Hemmia Connect**, unser Relay, über das Telefone einen Hub von überall erreichen, und die Mitteilungen, die wir darüber zustellen („Connect");
+- die **Hemmia-App** für iPhone (und später andere Telefone) („die App“);
+- die **Hemmia-Hub-Software**, wie wir sie als Mac-Paket oder Docker-Image verteilen („der Hub“);
+- **Hemmia Connect**, unser Relay, über das Telefone einen Hub von überall erreichen, und die Mitteilungen, die wir darüber zustellen („Connect“);
 - den **Update-Dienst**, der Hubs über neue Versionen informiert;
 
-zusammen „Hemmia". Mit der Nutzung von Hemmia stimmst du diesen Bedingungen zu. Unsere [Datenschutzerklärung](/de/legal/privacy/) erklärt, wie wir mit Daten umgehen; sie ist nicht Teil dieses Vertrags, aber du solltest sie lesen.
+zusammen „Hemmia“. Mit der Nutzung von Hemmia stimmst du diesen Bedingungen zu. Unsere [Datenschutzerklärung](/de/legal/privacy/) erklärt, wie wir mit Daten umgehen; sie ist nicht Teil dieses Vertrags, aber du solltest sie lesen.
 
-Die App wird über Apples App Store verteilt. Für die App gilt zusätzlich Apples Licensed Application End User License Agreement („Apple-EULA"). Diese Bedingungen ergänzen sie. Widersprechen sich beide, gelten diese Bedingungen, ausser wo die Apple-EULA oder Abschnitt 12 etwas anderes verlangt.
+Die App wird über Apples App Store verteilt. Für die App gilt zusätzlich Apples Licensed Application End User License Agreement („Apple-EULA“). Diese Bedingungen ergänzen sie. Widersprechen sich beide, gelten diese Bedingungen, ausser wo die Apple-EULA oder Abschnitt 12 etwas anderes verlangt.
 
 ## 2. Wer Hemmia nutzen darf
 
-Für die App musst du mindestens 13 Jahre alt sein. Bist du unter 18 oder an deinem Wohnort noch nicht volljährig, brauchst du die Erlaubnis eines Elternteils oder einer erziehungsberechtigten Person. Auf einem Hub entscheidet die Person, die ihn betreibt (der „Admin"), wer ein Konto bekommt, und ist dafür verantwortlich, wie Kinder ihn nutzen. Nutzt du die App allein mit einem KI-Anbieter, gelten auch dessen Altersregeln.
+Für die App musst du mindestens 13 Jahre alt sein. Bist du unter 18 oder an deinem Wohnort noch nicht volljährig, brauchst du die Erlaubnis eines Elternteils oder einer erziehungsberechtigten Person. Auf einem Hub entscheidet die Person, die ihn betreibt (der „Admin“), wer ein Konto bekommt, und ist dafür verantwortlich, wie Kinder ihn nutzen. Nutzt du die App allein mit einem KI-Anbieter, gelten auch dessen Altersregeln.
 
 ## 3. Deine Lizenz
 
@@ -79,7 +79,7 @@ Du verpflichtest dich,
 
 ## 7. Hemmia Connect
 
-- **Was es ist:** ein optionaler Weg, deinen Hub von überall zu erreichen. Der Admin schaltet es in den Einstellungen des Hubs ein. Dein Hub bekommt eine Adresse der Form `<zufällige-id>.h.hemmia.app`. Die Verbindung ist von deinem Telefon bis zu deinem Hub verschlüsselt; wir können sie nicht lesen (siehe Datenschutzerklärung).
+- **Was es ist:** ein optionaler Weg, deinen Hub von überall zu erreichen. Der Admin schaltet es in den Einstellungen des Hubs ein. Dein Hub bekommt eine Adresse der Form `<zufällige-id>.h.hemmia.app`. Die Verbindung ist von deinem Telefon bis zu deinem Hub verschlüsselt; wir lesen sie nicht und könnten es nicht, ohne eine öffentliche Spur zu hinterlassen (siehe Datenschutzerklärung).
 - **Preis:** während der Beta kostenlos. Wird Connect kostenpflichtig (derzeit geplant: 29 € im Jahr oder 2,99 € im Monat pro Hub, mit 30 Tagen gratis), informieren wir Admins im Hub mindestens 30 Tage vorher, und Connect läuft für einen Hub nur weiter, wenn sein Admin es kauft. Käufe liefen über einen Zahlungsanbieter, der in eigenem Namen verkauft, zu seinen eigenen Bedingungen, die wir vor dem Kauf verlinken. Der Zugriff von überall mit Tailscale, das du selbst einrichtest, bleibt kostenlos.
 - **Grenzen:** Jeder Hub kann pro Monat bis zu 20 GB über das Relay schicken. Erreicht ein Hub die Grenze, pausiert Connect für diesen Hub bis zum nächsten Monat (gezählt in UTC). Ist das monatliche Datenkontingent des Relays selbst aufgebraucht, können wir Connect auch für alle pausieren. Zu Hause und über Tailscale bleiben Hubs erreichbar.
 - **Versionen:** Zum Schutz aller kann Connect Hubs mit einer Version ablehnen, die ein bekanntes Sicherheitsproblem hat. Der Hub fordert seinen Admin dann zum Update auf.
@@ -125,7 +125,7 @@ Diese Bestimmungen gelten, weil die App über den App Store verteilt wird:
 - Entspricht die App nicht einer anwendbaren Gewährleistung, kannst du Apple benachrichtigen, und Apple erstattet den Kaufpreis der App (falls vorhanden). Soweit gesetzlich zulässig, hat Apple keine weitere Gewährleistungspflicht für die App. Alle anderen Ansprüche, Verluste, Haftungen, Schäden, Kosten oder Ausgaben wegen einer nicht erfüllten Gewährleistung liegen in unserer Verantwortung, vorbehaltlich Abschnitt 10.
 - Wir, nicht Apple, sind für Ansprüche von dir oder Dritten im Zusammenhang mit der App oder deren Besitz oder Nutzung zuständig, einschliesslich Produkthaftungsansprüchen, Ansprüchen, dass die App gesetzliche oder regulatorische Anforderungen nicht erfüllt, und Ansprüchen aus Konsumentenschutz-, Datenschutz- oder ähnlichen Gesetzen.
 - Behauptet ein Dritter, die App oder dein Besitz und deine Nutzung der App verletze seine geistigen Eigentumsrechte, sind wir, nicht Apple, allein für Untersuchung, Verteidigung, Beilegung und Erledigung dieses Anspruchs verantwortlich.
-- Du bestätigst, dass du dich nicht in einem Land befindest, das einem Embargo der US-Regierung unterliegt oder als „terrorunterstützend" eingestuft ist, und dass du auf keiner Liste verbotener oder eingeschränkter Parteien der US-Regierung stehst.
+- Du bestätigst, dass du dich nicht in einem Land befindest, das einem Embargo der US-Regierung unterliegt oder als „terrorunterstützend“ eingestuft ist, und dass du auf keiner Liste verbotener oder eingeschränkter Parteien der US-Regierung stehst.
 - Bei der Nutzung der App musst du auch anwendbare Bedingungen Dritter einhalten, etwa die deines Mobilfunk- oder Internetanbieters.
 - Apple und seine Tochtergesellschaften sind Drittbegünstigte dieser Bedingungen. Sobald du sie akzeptierst, hat Apple das Recht (und gilt als damit einverstanden), sie dir gegenüber als Drittbegünstigter durchzusetzen.
 - Fragen, Beschwerden oder Ansprüche zur App richte bitte über die Kontaktangaben in Abschnitt 1 an uns.

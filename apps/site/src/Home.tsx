@@ -14,6 +14,8 @@ function Shot(p: {
   lang: Lang;
   shots: Readonly<Record<string, ShotSize>>;
   className?: string;
+  /** The hero image: loaded first instead of lazily. */
+  eager?: boolean;
 }) {
   const size = p.shots[p.name];
   if (!size) return null;
@@ -23,7 +25,8 @@ function Shot(p: {
       alt={p.alt}
       width={size.width}
       height={size.height}
-      loading="lazy"
+      loading={p.eager ? 'eager' : 'lazy'}
+      {...(p.eager ? { fetchPriority: 'high' as const } : {})}
       className={p.className}
     />
   );
@@ -40,8 +43,10 @@ export function Home({
 }) {
   const t = HOME[lang];
   const link = (slug: string) => (existing.has(slug) ? pagePath(lang, slug) : null);
-  const start = link('get-started') ?? link('download') ?? pagePath(lang, '');
+  // Until the downloads exist, "Get started" leads to how it works (get-started and download
+  // only say "coming soon"); the second button then isn't needed.
   const how = link('how-it-works');
+  const start = how ?? pagePath(lang, '');
   const faq = link('faq');
   return (
     <div className="home">
@@ -59,8 +64,8 @@ export function Home({
               <a className="h-btn" href={start}>
                 {t.hero.start}
               </a>
-              {how && (
-                <a className="h-btn h-btn-quiet" href={how}>
+              {faq && (
+                <a className="h-btn h-btn-quiet" href={faq}>
                   {t.hero.how}
                 </a>
               )}
@@ -80,6 +85,7 @@ export function Home({
               lang={lang}
               shots={shots}
               className="h-phone"
+              eager
             />
           </div>
         </div>
@@ -163,7 +169,7 @@ export function Home({
                 <tr>
                   {t.compare.head.map((h, i) => (
                     <th key={i} scope="col">
-                      {h}
+                      {i === 0 ? <span className="sr-only">{h}</span> : h}
                     </th>
                   ))}
                 </tr>
@@ -234,6 +240,7 @@ export function Home({
               <div key={c.title} className="h-card h-price">
                 <h3>{c.title}</h3>
                 <p className="h-amount">{c.price}</p>
+                {c.note && <p className="h-note">{c.note}</p>}
                 <p>{c.text}</p>
               </div>
             ))}

@@ -3,7 +3,7 @@ import type { FetchLike } from './cloudhttp.ts';
 import { createOpenAiClient, replayOf, toOpenAi } from './openai.ts';
 import { type ChatChunk, type CloudChatRequest, LlmError } from './types.ts';
 
-const KEY = 'sk-proj-test-0123456789abcdefghij';
+const KEY = 'sk-proj-test-0123456789abcdefghij'; // gitleaks:allow (made-up test value)
 const JPEG = '/9j/4AAQSkZJRgABAQ';
 
 function sse(events: readonly object[]): string {

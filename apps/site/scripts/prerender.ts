@@ -28,6 +28,10 @@ interface RenderModule {
       shots: Readonly<Record<string, { width: number; height: number }>>;
     },
   ) => string;
+  renderNotFound: (
+    assets: { css: string[]; scripts: string[] },
+    existing: ReadonlySet<string>,
+  ) => string;
   parseDownloads: (text: string, file: string) => unknown[];
   Screenshots: { parse: (data: unknown) => Record<string, { width: number; height: number }> };
   parseContent: (
@@ -106,6 +110,9 @@ writeFileSync(
     .map((u) => `  <url><loc>${SITE_URL}${u}</loc></url>`)
     .join('\n')}\n</urlset>\n`,
 );
+// Cloudflare Pages answers unknown paths with this page and status 404 (without it, the home
+// page with status 200).
+writeFileSync(join(DIST, '404.html'), mod.renderNotFound(assets, existing));
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
 writeFileSync(
   join(DIST, 'feed.xml'),

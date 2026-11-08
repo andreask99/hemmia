@@ -15,13 +15,13 @@ Hemmia comes in two ways. You can start with one and move to the other later.
 
 The Hemmia app talks directly to the AI provider you chose, Anthropic (Claude) or OpenAI, with your own key. There is no server of ours in between.
 
-- Your key is kept in the phone's secure storage (the Keychain on iPhone, the Keystore on Android) and never leaves the phone except to the provider.
+- Your key is kept in the phone's secure storage (the Keychain on the iPhone) and never leaves the phone except to the provider.
 - Your chats are saved on the phone, encrypted.
 - You pay the provider for what you use. A typical day of chatting costs a few cents.
 
 ## At home
 
-A *hub* is the computer at home that runs Hemmia: a Mac, or any computer that can run Docker, like a PC, a NAS or a Raspberry Pi. It stays on, and everyone in the family uses it from their phones, tablets and laptops.
+A *hub* is the computer at home that runs Hemmia: a Mac, or any computer that can run Docker, like a PC or a NAS. It stays on, and everyone in the family uses it from their phones, tablets and laptops.
 
 - **Local models** run on the hub itself through Ollama or LM Studio. Nothing you write leaves the house. They are slower and less capable than the best cloud models, but they are getting better quickly.
 - **Cloud models** are optional: each person can add their own key from Anthropic, OpenAI or OpenRouter. The key is stored encrypted with that person's passphrase, so nobody else can see or use it. Chats with these models go to that provider.

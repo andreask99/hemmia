@@ -7,7 +7,7 @@ order: 10
 
 # So funktioniert es
 
-Hemmia gibt es auf zwei Wegen. Du kannst mit einem anfangen und später wechseln.
+Es gibt zwei Wege, Hemmia zu nutzen. Du kannst mit einem anfangen und später wechseln.
 
 <!-- diagram name="how" -->
 
@@ -15,13 +15,13 @@ Hemmia gibt es auf zwei Wegen. Du kannst mit einem anfangen und später wechseln
 
 Die Hemmia-App spricht direkt mit dem KI-Anbieter, den du gewählt hast, Anthropic (Claude) oder OpenAI, mit deinem eigenen Schlüssel. Dazwischen ist kein Server von uns.
 
-- Dein Schlüssel liegt im sicheren Speicher des Telefons (Schlüsselbund beim iPhone, Keystore bei Android) und verlässt das Telefon nur in Richtung Anbieter.
+- Dein Schlüssel liegt im sicheren Speicher des Telefons (der Schlüsselbund des iPhones) und verlässt das Telefon nur in Richtung Anbieter.
 - Deine Chats werden verschlüsselt auf dem Telefon gespeichert.
 - Du bezahlst den Anbieter für das, was du nutzt. Ein normaler Tag mit Chatten kostet ein paar Cent.
 
 ## Zu Hause
 
-Ein *Hub* ist der Computer zu Hause, auf dem Hemmia läuft: ein Mac oder ein Computer, auf dem Docker läuft, etwa ein PC, ein NAS oder ein Raspberry Pi. Er bleibt an, und die ganze Familie nutzt ihn von Telefon, Tablet und Laptop.
+Ein *Hub* ist der Computer zu Hause, auf dem Hemmia läuft: ein Mac oder ein Computer, auf dem Docker läuft, etwa ein PC oder ein NAS. Er bleibt an, und die ganze Familie nutzt ihn von Telefon, Tablet und Laptop.
 
 - **Lokale Modelle** laufen über Ollama oder LM Studio direkt auf dem Hub. Nichts, was du schreibst, verlässt das Haus. Sie sind langsamer und können weniger als die besten Cloud-Modelle, werden aber schnell besser.
 - **Cloud-Modelle** sind freiwillig: Jede Person kann ihren eigenen Schlüssel von Anthropic, OpenAI oder OpenRouter eintragen. Er wird mit ihrer Passphrase verschlüsselt gespeichert, niemand sonst kann ihn sehen oder nutzen. Chats mit diesen Modellen gehen an den jeweiligen Anbieter.

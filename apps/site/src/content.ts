@@ -71,6 +71,9 @@ export interface Page {
 }
 
 /** The URL path of a page: /…/ for English, /de/…/ for German. */
+/** The site's address, for canonical, alternate and social links. */
+export const SITE_URL = 'https://hemmia.app';
+
 export function pagePath(lang: Lang, slug: string): string {
   const base = lang === 'en' ? '/' : '/de/';
   return slug === '' ? base : `${base}${slug}/`;

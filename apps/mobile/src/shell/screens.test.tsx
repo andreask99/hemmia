@@ -349,6 +349,30 @@ describe('Outdated', () => {
   });
 });
 
+describe('Welcome legal links', () => {
+  afterEach(() => {
+    cleanup();
+  });
+
+  it('links the privacy policy and terms in the phone language', () => {
+    render(
+      <Welcome
+        onScan={vi.fn()}
+        onPasteLink={vi.fn()}
+        onGetHub={vi.fn()}
+        onPhoneMode={vi.fn()}
+        language="de"
+      />,
+    );
+    expect(screen.getByRole('link', { name: 'Datenschutzerklärung' }).getAttribute('href')).toBe(
+      'https://hemmia.app/de/legal/privacy/',
+    );
+    expect(screen.getByRole('link', { name: 'Nutzungsbedingungen' }).getAttribute('href')).toBe(
+      'https://hemmia.app/de/legal/terms/',
+    );
+  });
+});
+
 describe('ConfirmHub', () => {
   afterEach(() => {
     cleanup();

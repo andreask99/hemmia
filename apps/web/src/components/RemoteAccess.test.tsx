@@ -60,6 +60,12 @@ describe('RemoteAccess', () => {
     expect(screen.getByText('This month: 1.2 GB of 50.0 GB')).toBeDefined();
     expect(screen.getByText('Certificate valid until 12 Jan 2027')).toBeDefined();
     expect(screen.getByRole<HTMLInputElement>('switch').checked).toBe(true);
+    expect(screen.getByRole('link', { name: 'Terms of use' }).getAttribute('href')).toBe(
+      'https://hemmia.app/legal/terms/',
+    );
+    expect(screen.getByRole('link', { name: 'Privacy policy' }).getAttribute('href')).toBe(
+      'https://hemmia.app/legal/privacy/',
+    );
   });
 
   it('turns Connect on', async () => {

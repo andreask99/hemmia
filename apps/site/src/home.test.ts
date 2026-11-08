@@ -51,6 +51,10 @@ describe('home page', () => {
       /open[ -]source/i, // only once the repository is public (P8.5)
       /chatgpt|gemini|copilot|siri|alexa/i,
       /works offline|funktioniert offline/i,
+      // Only true for data at rest, not against whoever controls the running hub (SECURITY.md).
+      /not even the person who runs|nicht einmal, wer den hub/i,
+      /answered at home|zu hause beantwortet/i,
+      /raspberry/i,
     ];
     for (const lang of LANGS) {
       const text = JSON.stringify(HOME[lang]);

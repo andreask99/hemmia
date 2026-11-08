@@ -9,7 +9,7 @@ order: 90
 
 ## Is Hemmia free?
 
-Yes. There is no subscription and no account with us. If you use cloud models, you pay the provider (Anthropic, OpenAI or OpenRouter) directly for what you use. Local models on your hub cost only electricity.
+Yes. The apps and the hub are free, and there is no account with us. The one optional paid extra is Hemmia Connect, which lets your phones reach the hub with one switch (free during the beta). Tailscale does the same for free if you set it up yourself. If you use cloud models, you pay the provider (Anthropic, OpenAI or OpenRouter) directly for what you use. Local models on your hub cost only electricity.
 
 ## What does it cost to use cloud models?
 
@@ -29,7 +29,7 @@ Good for everyday questions, writing and summaries, and they keep everything at 
 
 ## What computer do I need for a hub?
 
-A Mac with Apple silicon (16 GB of memory or more is best for local models), or any computer that runs Docker, such as a PC, a NAS or a Raspberry Pi. If you only use cloud models, a small computer is enough. It needs to stay on.
+A Mac with Apple silicon (16 GB of memory or more is best for local models), or any computer that runs Docker, such as a PC or a NAS. If you only use cloud models, a small computer is enough. It needs to stay on.
 
 ## Why is there a relay?
 

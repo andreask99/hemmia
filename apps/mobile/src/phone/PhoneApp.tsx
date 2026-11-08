@@ -44,7 +44,11 @@ export interface PhoneAppProps {
 }
 
 const newId = () => crypto.randomUUID().replace(/-/g, '');
-const PRIVACY = { en: 'https://hemmia.app/privacy/', de: 'https://hemmia.app/de/privacy/' };
+const PRIVACY = {
+  en: 'https://hemmia.app/legal/privacy/',
+  de: 'https://hemmia.app/de/legal/privacy/',
+};
+const TERMS = { en: 'https://hemmia.app/legal/terms/', de: 'https://hemmia.app/de/legal/terms/' };
 
 /** Links leave the app: with no allowNavigation they open in the system browser. */
 const openOutside = (url: string) => {
@@ -227,6 +231,9 @@ export function PhoneApp(props: PhoneAppProps) {
           }}
           onPrivacy={() => {
             openOutside(PRIVACY[language]);
+          }}
+          onTerms={() => {
+            openOutside(TERMS[language]);
           }}
           onDeleteEverything={() => {
             void deleteEverything(store, keys).then(props.onLeave);

@@ -18,6 +18,7 @@ export interface PhoneSettingsProps {
   onImport: (file: File) => void;
   onMoveToHub: () => void;
   onPrivacy: () => void;
+  onTerms: () => void;
   onDeleteEverything: () => void;
   onBack: () => void;
   language?: ShellLanguage;
@@ -170,6 +171,9 @@ export function PhoneSettings(props: PhoneSettingsProps) {
         </button>
         <button type="button" className={row} onClick={props.onPrivacy}>
           <span className="text-ink">{t('settings.privacy')}</span>
+        </button>
+        <button type="button" className={row} onClick={props.onTerms}>
+          <span className="text-ink">{t('settings.terms')}</span>
         </button>
       </div>
 

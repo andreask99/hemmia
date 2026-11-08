@@ -10,7 +10,8 @@ export function Welcome(props: {
   onPhoneMode: () => void;
   language?: ShellLanguage;
 }) {
-  const { t } = useShellText(props.language);
+  const { t, language } = useShellText(props.language);
+  const site = language === 'de' ? 'https://hemmia.app/de' : 'https://hemmia.app';
   const [link, setLink] = useState('');
   const trimmedLink = link.trim();
   const canContinue = trimmedLink.length > 0;
@@ -98,6 +99,15 @@ export function Welcome(props: {
         >
           {t('welcome.getHub.button')}
         </button>
+
+        <p className="mt-4 flex justify-center gap-4 text-xs text-muted">
+          <a href={`${site}/legal/privacy/`} target="_blank" rel="noopener noreferrer">
+            {t('legal.privacy')}
+          </a>
+          <a href={`${site}/legal/terms/`} target="_blank" rel="noopener noreferrer">
+            {t('legal.terms')}
+          </a>
+        </p>
       </div>
     </div>
   );

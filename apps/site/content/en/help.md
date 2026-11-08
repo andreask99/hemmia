@@ -3,7 +3,6 @@ title: Troubleshooting
 description: What to do when the hub isn't reachable, a setup link expired, you forgot your passphrase, a model is slow or a key is refused.
 nav: help
 order: 90
-draft: true
 ---
 
 # Troubleshooting
@@ -14,7 +13,7 @@ The app shows what to check and when it last reached the hub from this phone.
 
 - Is the computer switched on and awake? A Mac that goes to sleep can't answer.
 - Does it have internet?
-- Is Hemmia Connect or Tailscale on? Phones reach the hub only through one of them, at home too: see [Away from home](/guides/remote/).
+- Is Hemmia Connect or Tailscale on? Phones reach the hub only through one of them, at home too: see [How it works](/how-it-works/).
 
 Tap **Try again** once the computer is back, or **Switch to another hub** to open a different hub.
 
@@ -42,4 +41,8 @@ Local models run on the hub's computer, and big models need a lot of memory. In 
 
 ## Notifications don't arrive
 
-<!-- CHECK: write once push (P5.6) has been tested on real phones: notification permission in the phone's settings, the hub needs internet, Android battery optimisation -->
+Check that notifications for Hemmia are allowed in the phone's Settings, and that the hub is connected to the internet. Notifications come from the hub, so they arrive only while it is switched on.
+
+## Contact
+
+Still stuck? Write to [andreas.apps@icloud.com](mailto:andreas.apps@icloud.com), in English, German, French or Italian. Say which device and which version you use (in the app's settings); never send your passphrase, recovery code or keys.

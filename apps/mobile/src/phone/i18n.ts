@@ -46,7 +46,8 @@ export const en = {
   'settings.exportNote': 'The export file is not protected. Keep it somewhere safe.',
   'settings.import': 'Import chats',
   'settings.moveToHub': 'Move to Hemmia at home',
-  'settings.privacy': 'How your data is handled',
+  'settings.privacy': 'Privacy policy',
+  'settings.terms': 'Terms of use',
   'settings.deleteAll': 'Delete everything on this phone',
   'settings.deleteWarning':
     'This deletes your chats, photos and keys on this phone. Export your chats first if you want to keep them.',
@@ -145,7 +146,8 @@ export const de: Record<PhoneKey, string> = {
   'settings.exportNote': 'Die Exportdatei ist nicht geschützt. Bewahre sie sicher auf.',
   'settings.import': 'Chats importieren',
   'settings.moveToHub': 'Zu Hemmia zu Hause umziehen',
-  'settings.privacy': 'Wie mit deinen Daten umgegangen wird',
+  'settings.privacy': 'Datenschutzerklärung',
+  'settings.terms': 'Nutzungsbedingungen',
   'settings.deleteAll': 'Alles auf diesem Telefon löschen',
   'settings.deleteWarning':
     'Das löscht deine Chats, Fotos und Schlüssel auf diesem Telefon. Exportiere deine Chats vorher, wenn du sie behalten willst.',

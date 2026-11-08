@@ -58,6 +58,8 @@
   --line: #e0dccf;
   --forest: #1f4d3f;
   --forest-hover: #173d32;
+  /* Forest as a text colour: in dark mode lighter than --forest (WCAG AA on paper and cards). */
+  --forest-text: #1f4d3f;
   --on-forest: #f6f2e7;
   --champagne: #e9e2cd;
   --on-champagne: #4a4025;
@@ -77,6 +79,7 @@
     --line: #2a3731;
     --forest: #2f6b57;
     --forest-hover: #3a7e67;
+    --forest-text: #8cc7ad;
     --on-forest: #f6f2e7;
     --champagne: #2b3530;
     --on-champagne: #e5d6b0;

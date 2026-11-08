@@ -3,7 +3,6 @@ title: Hilfe
 description: Was du tun kannst, wenn der Hub nicht erreichbar ist, ein Einrichtungslink abgelaufen ist, du deine Passphrase vergessen hast, ein Modell langsam ist oder ein Schlüssel abgelehnt wird.
 nav: help
 order: 90
-draft: true
 ---
 
 # Hilfe
@@ -14,7 +13,7 @@ Die App zeigt, was du prüfen kannst, und wann dieses Telefon den Hub zuletzt er
 
 - Ist der Computer eingeschaltet und wach? Ein Mac im Ruhezustand kann nicht antworten.
 - Hat er Internet?
-- Ist Hemmia Connect oder Tailscale eingeschaltet? Telefone erreichen den Hub nur über eins davon, auch zu Hause: siehe [Unterwegs](/de/guides/remote/).
+- Ist Hemmia Connect oder Tailscale eingeschaltet? Telefone erreichen den Hub nur über eins davon, auch zu Hause: siehe [So funktioniert es](/de/how-it-works/).
 
 Tippe auf **Erneut versuchen**, wenn der Computer wieder läuft, oder auf **Zu einem anderen Hub wechseln**, um einen anderen Hub zu öffnen.
 
@@ -42,4 +41,8 @@ Lokale Modelle laufen auf dem Computer des Hubs, und große Modelle brauchen vie
 
 ## Benachrichtigungen kommen nicht an
 
-<!-- CHECK: schreiben, sobald Push (P5.6) auf echten Telefonen getestet ist -->
+Prüf, ob Mitteilungen für Hemmia in den Einstellungen des Telefons erlaubt sind und ob der Hub mit dem Internet verbunden ist. Mitteilungen kommen vom Hub, sie kommen also nur an, solange er eingeschaltet ist.
+
+## Kontakt
+
+Kommst du nicht weiter? Schreib an [andreas.apps@icloud.com](mailto:andreas.apps@icloud.com), auf Deutsch, Englisch, Französisch oder Italienisch. Sag dazu, welches Gerät und welche Version du nutzt (in den Einstellungen der App); schick nie deine Passphrase, deinen Wiederherstellungscode oder Schlüssel.

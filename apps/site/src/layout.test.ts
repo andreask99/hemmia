@@ -45,4 +45,15 @@ describe('Layout', () => {
     expect(html.indexOf('href="#main"')).toBeGreaterThan(-1);
     expect(html.indexOf('href="#main"')).toBeLessThan(html.indexOf('<header'));
   });
+
+  it('has a canonical, the full hreflang set and social tags', () => {
+    const html = render('de', 'faq');
+    expect(html).toContain('<link rel="canonical" href="https://hemmia.app/de/faq/"/>');
+    expect(html).toContain('hrefLang="en" href="https://hemmia.app/faq/"');
+    expect(html).toContain('hrefLang="de" href="https://hemmia.app/de/faq/"');
+    expect(html).toContain('hrefLang="x-default" href="https://hemmia.app/faq/"');
+    expect(html).toContain('property="og:image"');
+    expect(html).toContain('content="de_DE"');
+    expect(html).toContain('© 2026 Andreas Kalkum');
+  });
 });

@@ -36,6 +36,8 @@ export function RemoteAccess() {
   }
 
   const gb = (bytes: number) => (bytes / 1e9).toFixed(1);
+  // Connect is our service: its terms and privacy policy (legal review 2026-11-07, A15).
+  const site = language === 'de' ? 'https://hemmia.app/de' : 'https://hemmia.app';
 
   return (
     <div className="flex flex-col gap-1.5">
@@ -54,6 +56,26 @@ export function RemoteAccess() {
           className="h-6 w-6 shrink-0 accent-[var(--forest)]"
         />
       </label>
+      <p className="text-xs text-muted">
+        {t('remote.legal')}{' '}
+        <a
+          href={`${site}/legal/terms/`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline"
+        >
+          {t('remote.terms')}
+        </a>
+        {' · '}
+        <a
+          href={`${site}/legal/privacy/`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline"
+        >
+          {t('remote.privacy')}
+        </a>
+      </p>
       {setRemote.isPending && (
         <span role="status" className="text-sm text-muted">
           {t('remote.working')}

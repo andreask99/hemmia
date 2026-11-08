@@ -1,6 +1,6 @@
 ---
-title: Deine KI, zu Hause
-description: Hemmia ist eine private KI für dich und deine Familie. Sie läuft auf deinem eigenen Computer oder einfach auf deinem Telefon, mit den Modellen deiner Wahl.
+title: Hemmia: private KI für deine Familie, zu Hause
+description: Hemmia ist eine kostenlose, private KI für die ganze Familie: auf einem Computer bei dir zu Hause oder auf deinem iPhone, mit lokalen Modellen oder deinem eigenen Schlüssel. Kein Konto bei uns, keine Werbung, kein Tracking.
 nav: home
 order: 0
 ---

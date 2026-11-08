@@ -1,19 +1,21 @@
 ---
 title: Datenschutz und Sicherheit, einfach erklärt
-description: Was auf deinen Geräten bleibt, was an einen KI-Anbieter geht, was unser Relay sieht und was diese Website sammelt (nichts).
+description: Was auf deinen Geräten bleibt, was an einen KI-Anbieter geht, was unser Relay sieht und was diese Website aufbewahrt.
 nav: privacy
 order: 20
 ---
 
 # Datenschutz und Sicherheit, einfach erklärt
 
-Auf dieser Seite steht in einfachen Worten, was mit deinen Daten passiert. Die technischen Einzelheiten stehen im Sicherheitskonzept, das mit dem Quellcode veröffentlicht ist.
+Auf dieser Seite steht in einfachen Worten, was mit deinen Daten passiert. Die technischen Einzelheiten stehen im Sicherheitskonzept, das mit dem Quellcode veröffentlicht wird. Verbindlich ist unsere [Datenschutzerklärung](/de/legal/privacy/).
 
 ## Was auf deinen Geräten bleibt
 
-- **Zu Hause:** Deine Chats, Fotos und Dokumente liegen auf deinem Hub. Die Inhalte jeder Person sind mit einem Schlüssel verschlüsselt, der aus ihrer eigenen Passphrase entsteht. Andere in der Familie können sie nicht lesen, auch nicht, wer den Hub betreut. Wenn du deine Passphrase vergisst, kommst du mit deinem Wiederherstellungscode wieder hinein.
+- **Zu Hause:** Deine Chats, Fotos und Dokumente liegen auf deinem Hub. Die Inhalte jeder Person sind mit einem Schlüssel verschlüsselt, der aus ihrer eigenen Passphrase entsteht. Andere in der Familie können sie nicht lesen, auch nicht das Admin-Konto des Hubs. Wenn du deine Passphrase vergisst, kommst du mit deinem Wiederherstellungscode wieder hinein.
 - **Auf dem Telefon:** Deine Chats und Fotos liegen in der App, verschlüsselt mit einem Schlüssel, den nur der sichere Speicher des Telefons kennt.
 - Es gibt kein Hemmia-Konto und keinen Server von uns, der deine Chats aufbewahrt.
+
+**Eine Grenze:** Während du Hemmia nutzt, muss der Hub deine Nachrichten entschlüsseln, um sie zu beantworten. Wer in diesem Moment den Computer des Hubs vollständig kontrolliert (nicht nur das Admin-Konto), könnte sie theoretisch lesen. Die Verschlüsselung schützt, was gespeichert ist, und schützt jede Person vor den anderen.
 
 ## Was an einen KI-Anbieter geht, und wann
 
@@ -26,16 +28,16 @@ Auf dieser Seite steht in einfachen Worten, was mit deinen Daten passiert. Die t
 Wenn du Hemmia Connect einschaltest, erreichen Telefone deinen Hub unterwegs über unser Relay.
 
 - Die Verbindung ist vom Telefon bis zum Hub verschlüsselt. Das Relay leitet sie weiter, hat aber keinen Schlüssel dafür. Es sieht nie deine Nachrichten, Passphrasen, Fotos oder welchen Chat du gerade öffnest.
-- Es weiß: die Adresse deines Hubs, wann er zuletzt verbunden war, wie viele Daten diesen Monat durchgingen und, solange eine Verbindung offen ist, die IP-Adresse des Telefons. In den Protokollen stehen IP-Adressen nur gekürzt.
+- Es weiss: die Adresse deines Hubs, wann er zuletzt verbunden war, wie viele Daten diesen Monat durchgingen und, solange eine Verbindung offen ist, die IP-Adresse des Telefons, die es auch an deinen Hub weitergibt, damit dieser das Erraten von Passwörtern bremsen kann. In den Protokollen stehen IP-Adressen nur gekürzt.
 - **Das eine, was es theoretisch könnte:** Wer das Relay betreibt, verwaltet die Adressen unter seiner Domain. Er könnte daher theoretisch ein Zertifikat für die Adresse deines Hubs bekommen und Verbindungen abfangen, solange er das tut. Das ist dasselbe Vertrauen, das du jeder Website und ihrer Verschlüsselung entgegenbringst. Jedes solche Zertifikat wird in öffentlichen Protokollen veröffentlicht und ist dort sichtbar. Wenn du dieses Vertrauen nicht geben möchtest, nutze stattdessen **Tailscale** oder nutze den Hub nur im Browser auf seinem eigenen Computer.
 
-## Benachrichtigungen
+## Mitteilungen
 
-Wenn eine Antwort oder ein Bild fertig ist, bekommt dein Telefon eine Benachrichtigung. Sie enthält keinen Inhalt: Der Text, den du siehst („Deine Antwort ist da“), kommt aus der App selbst, und der Verweis auf den Chat ist von deinem Hub verschlüsselt. Weder Apple noch Google noch unser Relay können erkennen, zu welchem Chat sie gehört.
+Wenn eine Antwort oder ein Bild fertig ist, bekommt dein Telefon eine Mitteilung. Sie enthält keinen Inhalt: Der Text, den du siehst („Deine Antwort ist da“), kommt aus der App selbst, und der Verweis auf den Chat ist von deinem Hub verschlüsselt. Weder Apple noch unser Relay können erkennen, zu welchem Chat sie gehört.
 
 ## Update-Prüfung
 
-Einmal am Tag fragt ein Hub, der aus unserem Paket oder Docker-Image installiert wurde, unseren Server, ob es eine neuere Version gibt. Die Anfrage sagt nur, welche Version er hat, ob es die Mac- oder die Docker-Version ist und ob er normale oder Test-Versionen bekommt. Wir zählen diese Anfragen pro Tag und wissen so ungefähr, wie viele Hubs welche Version haben. Deine IP-Adresse speichern wir nicht, und über dich oder deine Familie wird nichts geschickt. Die Antwort ist signiert, damit dein Hub ihr nur vertraut, wenn sie wirklich von uns kommt. Ausschalten lässt sich die Prüfung mit `HEMMIA_UPDATE_CHECK=0` (Docker: in `.env`); ein Schalter in den Einstellungen kommt mit den automatischen Updates.
+Einmal am Tag fragt ein Hub, der aus unserem Paket oder Docker-Image installiert wurde, unseren Server, ob es eine neuere Version gibt. Die Anfrage sagt nur, welche Version er hat, ob es die Mac- oder die Docker-Version ist und ob er normale oder Test-Versionen bekommt. Wir zählen diese Anfragen pro Tag und wissen so ungefähr, wie viele Hubs welche Version haben. Deine IP-Adresse speichern wir nicht, und über dich oder deine Familie wird nichts geschickt. Die Antwort ist signiert, damit dein Hub ihr nur vertraut, wenn sie wirklich von uns kommt. Mit Docker schaltest du die Prüfung aus, indem du `HEMMIA_UPDATE_CHECK=0` in `.env` setzt. Auf dem Mac ist ein Schalter in den Einstellungen geplant; bis dahin schreib uns, dann sagen wir dir, wie.
 
 ## Diese Website
 
@@ -44,3 +46,5 @@ Keine Cookies, keine Statistik, keine Zählpixel, keine Schriften oder Skripte v
 ## Open Source
 
 Der Code von Hemmia wird unter der AGPL-Lizenz veröffentlicht, damit alle nachprüfen können, was er tut. Wenn du ein Sicherheitsproblem findest, melde es bitte vertraulich an andreas.apps@icloud.com. Wir beheben es so schnell wie möglich.
+
+Verbindlich sind unsere [Datenschutzerklärung](/de/legal/privacy/) und unsere [Nutzungsbedingungen](/de/legal/terms/).

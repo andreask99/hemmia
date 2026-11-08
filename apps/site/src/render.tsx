@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { type Page, pagePath } from './content.ts';
 import { Blocks, parseBlocks } from './directives.tsx';
 import { DownloadCards } from './DownloadCards.tsx';
+import { GhostPose } from './ghosts.tsx';
 import { Home } from './Home.tsx';
 import type { Download } from './downloads.ts';
 import type { ShotSize } from './screenshots.ts';
@@ -42,6 +43,7 @@ export function renderPage(
       css={assets.css}
       scripts={assets.scripts}
       wide={page.slug === ''}
+      {...(page.slug === '' ? { fullTitle: page.header.title } : {})}
     >
       {page.slug === '' ? (
         <Home lang={page.lang} shots={data.shots} existing={existing} />
@@ -55,6 +57,35 @@ export function renderPage(
           />
         </article>
       )}
+    </Layout>,
+  );
+  return `<!doctype html>${html}`;
+}
+
+/** The "page not found" page (dist/404.html): both languages, the sleeping ghost, links home. */
+export function renderNotFound(assets: RenderAssets, existing: ReadonlySet<string>): string {
+  const html = renderToStaticMarkup(
+    <Layout
+      lang="en"
+      title="Page not found"
+      description="This page doesn't exist."
+      otherPath={pagePath('de', '')}
+      slug="404"
+      existing={existing}
+      css={assets.css}
+      scripts={[]}
+      notFound
+    >
+      <article className="prose not-found">
+        <GhostPose pose="sleep" size={140} />
+        <h1>Page not found</h1>
+        <p>
+          This page doesn't exist (any more). <a href={pagePath('en', '')}>Go to the home page</a>
+        </p>
+        <p lang="de">
+          Diese Seite gibt es nicht (mehr). <a href={pagePath('de', '')}>Zur Startseite</a>
+        </p>
+      </article>
     </Layout>,
   );
   return `<!doctype html>${html}`;

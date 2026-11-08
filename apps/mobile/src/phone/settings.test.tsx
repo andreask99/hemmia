@@ -17,6 +17,7 @@ function setup(over: Partial<PhoneSettingsProps> = {}) {
     onImport: vi.fn(),
     onMoveToHub: vi.fn(),
     onPrivacy: vi.fn(),
+    onTerms: vi.fn(),
     onDeleteEverything: vi.fn(),
     onBack: vi.fn(),
     language: 'en',
@@ -57,11 +58,13 @@ describe('PhoneSettings', () => {
     const file = new File(['{}'], 'Hemmia-chats.json', { type: 'application/json' });
     fireEvent.change(screen.getByLabelText('Import chats'), { target: { files: [file] } });
     fireEvent.click(screen.getByRole('button', { name: 'Move to Hemmia at home' }));
-    fireEvent.click(screen.getByRole('button', { name: 'How your data is handled' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Privacy policy' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Terms of use' }));
     expect(p.onExport).toHaveBeenCalledTimes(1);
     expect(p.onImport).toHaveBeenCalledWith(file);
     expect(p.onMoveToHub).toHaveBeenCalledTimes(1);
     expect(p.onPrivacy).toHaveBeenCalledTimes(1);
+    expect(p.onTerms).toHaveBeenCalledTimes(1);
   });
 
   it('deletes everything only after a second, explicit tap', () => {
