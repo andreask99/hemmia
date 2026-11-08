@@ -1,5 +1,5 @@
 import { createPrivateKey, generateKeyPairSync } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { accountUrlFor, createAcmeClient } from './acme/client.ts';
 import { loadRelayConfig, type RelayConfig, RelayConfigError } from './config.ts';
@@ -23,27 +23,38 @@ try {
 }
 const log = createLogger(config.logLevel);
 
+/** Reads a file, or null if it doesn't exist (no exists-then-read race). */
+function readIfExists(file: string): string | null {
+  try {
+    return readFileSync(file, 'utf8');
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code === 'ENOENT') return null;
+    throw err;
+  }
+}
+
 /** The ACME account key and URL live in <dataDir>/acme/ (created on first start). */
 function acmeAccount(dataDir: string) {
   const dir = join(dataDir, 'acme');
-  if (!existsSync(dir)) mkdirSync(dir, { recursive: true, mode: 0o700 });
+  mkdirSync(dir, { recursive: true, mode: 0o700 });
   const keyFile = join(dir, 'account.pem');
   const urlFile = join(dir, 'account-url.txt');
-  if (!existsSync(keyFile)) {
+  let pem = readIfExists(keyFile);
+  if (pem === null) {
     const { privateKey } = generateKeyPairSync('ec', { namedCurve: 'P-256' });
+    const fresh = privateKey.export({ type: 'pkcs8', format: 'pem' }).toString();
     try {
-      // 'wx': never replace a key another start wrote in the meantime.
-      writeFileSync(keyFile, privateKey.export({ type: 'pkcs8', format: 'pem' }), {
-        mode: 0o600,
-        flag: 'wx',
-      });
+      // 'wx': never replace a key another start wrote in the meantime; then use that one.
+      writeFileSync(keyFile, fresh, { mode: 0o600, flag: 'wx' });
+      pem = fresh;
     } catch (err) {
       if ((err as NodeJS.ErrnoException).code !== 'EEXIST') throw err;
+      pem = readFileSync(keyFile, 'utf8');
     }
   }
   return {
-    key: createPrivateKey(readFileSync(keyFile, 'utf8')),
-    url: existsSync(urlFile) ? readFileSync(urlFile, 'utf8').trim() : null,
+    key: createPrivateKey(pem),
+    url: readIfExists(urlFile)?.trim() ?? null,
     saveUrl: (u: string) => {
       writeFileSync(urlFile, u, { mode: 0o600 });
     },
