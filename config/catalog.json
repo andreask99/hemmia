@@ -4,11 +4,15 @@
       "ollamaModel": "gemma4:26b",
       "label": {
         "en": "gemma4 26B",
-        "de": "gemma4 26B"
+        "de": "gemma4 26B",
+        "fr": "gemma4 26B",
+        "it": "gemma4 26B"
       },
       "description": {
         "en": "Best all-rounder: fast, good German, sees photos",
-        "de": "Bester Allrounder: schnell, gutes Deutsch, versteht Fotos"
+        "de": "Bester Allrounder: schnell, gutes Deutsch, versteht Fotos",
+        "fr": "Le meilleur polyvalent : rapide, bon en français, voit les photos",
+        "it": "Il miglior tuttofare: veloce, buon italiano, vede le foto"
       },
       "downloadGiB": 17,
       "memoryGiB": 22,
@@ -26,11 +30,15 @@
       "ollamaModel": "gemma4:12b",
       "label": {
         "en": "gemma4 12B",
-        "de": "gemma4 12B"
+        "de": "gemma4 12B",
+        "fr": "gemma4 12B",
+        "it": "gemma4 12B"
       },
       "description": {
         "en": "Same quality class as the 26B at half the speed, needs less memory",
-        "de": "Ähnlich gut wie das 26B, halb so schnell, braucht weniger Speicher"
+        "de": "Ähnlich gut wie das 26B, halb so schnell, braucht weniger Speicher",
+        "fr": "Même niveau de qualité que le 26B à moitié de la vitesse, demande moins de mémoire",
+        "it": "Stessa classe di qualità del 26B a metà velocità, richiede meno memoria"
       },
       "downloadGiB": 7.5,
       "memoryGiB": 11,
@@ -48,11 +56,15 @@
       "ollamaModel": "gemma4:e4b",
       "label": {
         "en": "gemma4 E4B",
-        "de": "gemma4 E4B"
+        "de": "gemma4 E4B",
+        "fr": "gemma4 E4B",
+        "it": "gemma4 E4B"
       },
       "description": {
         "en": "Small and quick, sees photos; for computers with 12–16 GB",
-        "de": "Klein und flott, versteht Fotos; für Computer mit 12–16 GB"
+        "de": "Klein und flott, versteht Fotos; für Computer mit 12–16 GB",
+        "fr": "Petit et rapide, voit les photos ; pour les ordinateurs de 12 à 16 Go",
+        "it": "Piccolo e veloce, vede le foto; per computer con 12–16 GB"
       },
       "downloadGiB": 6.2,
       "memoryGiB": 8,
@@ -66,11 +78,15 @@
       "ollamaModel": "gemma4:e2b",
       "label": {
         "en": "gemma4 E2B",
-        "de": "gemma4 E2B"
+        "de": "gemma4 E2B",
+        "fr": "gemma4 E2B",
+        "it": "gemma4 E2B"
       },
       "description": {
         "en": "Small, also understands photos; needs 12 GB or more",
-        "de": "Klein, versteht auch Fotos; braucht 12 GB oder mehr"
+        "de": "Klein, versteht auch Fotos; braucht 12 GB oder mehr",
+        "fr": "Petit, comprend aussi les photos ; demande 12 Go ou plus",
+        "it": "Piccolo, capisce anche le foto; richiede 12 GB o più"
       },
       "downloadGiB": 4.3,
       "memoryGiB": 6,
@@ -88,11 +104,15 @@
       "ollamaModel": "qwen3:4b-instruct",
       "label": {
         "en": "Qwen3 4B",
-        "de": "Qwen3 4B"
+        "de": "Qwen3 4B",
+        "fr": "Qwen3 4B",
+        "it": "Qwen3 4B"
       },
       "description": {
         "en": "The smallest: runs on 8 GB, quick and simple answers, no photos",
-        "de": "Das kleinste: läuft mit 8 GB, schnelle und einfache Antworten, keine Fotos"
+        "de": "Das kleinste: läuft mit 8 GB, schnelle und einfache Antworten, keine Fotos",
+        "fr": "Le plus petit : tourne avec 8 Go, réponses rapides et simples, pas de photos",
+        "it": "Il più piccolo: gira con 8 GB, risposte rapide e semplici, niente foto"
       },
       "downloadGiB": 2.3,
       "memoryGiB": 3,
@@ -110,11 +130,15 @@
       "ollamaModel": "qwen3-coder:30b",
       "label": {
         "en": "Qwen3-Coder 30B",
-        "de": "Qwen3-Coder 30B"
+        "de": "Qwen3-Coder 30B",
+        "fr": "Qwen3-Coder 30B",
+        "it": "Qwen3-Coder 30B"
       },
       "description": {
         "en": "For programming questions; no photos",
-        "de": "Für Programmierfragen; keine Fotos"
+        "de": "Für Programmierfragen; keine Fotos",
+        "fr": "Pour les questions de programmation ; pas de photos",
+        "it": "Per domande di programmazione; niente foto"
       },
       "downloadGiB": 17,
       "memoryGiB": 21,

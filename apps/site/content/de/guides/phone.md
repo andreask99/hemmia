@@ -44,7 +44,7 @@ Tippe in der Chatliste auf **Einstellungen**.
 
 - **KI-Anbieter:** einen Schlüssel für den zweiten Anbieter hinzufügen, einen Schlüssel **Ersetzen** oder **Entfernen**.
 - **Über mich:** ein paar Zeilen, die die KI über dich wissen soll (dein Name, deine Sprache, was du machst). Sie werden bei jedem Chat mitgeschickt.
-- **Sprache:** Deutsch oder Englisch.
+- **Sprache:** Deutsch, Englisch, Französisch oder Italienisch.
 - **Datenschutzerklärung** und **Nutzungsbedingungen** öffnen die [Datenschutzerklärung](/de/legal/privacy/) und die [Nutzungsbedingungen](/de/legal/terms/).
 
 ## Exportieren, importieren und löschen

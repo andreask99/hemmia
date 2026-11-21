@@ -3,22 +3,22 @@ title: Privacy Policy
 description: How Hemmia's apps, Hemmia Connect, the update check and this website handle personal data, under the Swiss FADP and the EU GDPR.
 nav: legal
 order: 900
-date: 2026-11-08
+date: 2026-11-21
 ---
 
 # Privacy Policy
 
-Last updated: 8 November 2026 · Applies to the Hemmia apps, the Hemmia hub software as we distribute it, Hemmia Connect (our relay), the update check and this website (hemmia.app).
+Last updated: 21 November 2026 · Applies to the Hemmia apps, the Hemmia hub software as we distribute it, Hemmia Connect (our relay), the update check and this website (hemmia.app).
 
 <!-- note -->
 **The short version**
 
-- **No account with us.** You never sign up with us to use Hemmia. We don't ask for your name, email address or phone number.
+- **No account with us.** You don't need an account with us to use Hemmia. If you email us, send us a question or join the beta, we receive your email address (section 16).
 - **Your chats are not stored with us.** They live on your own Hemmia hub (a computer at home) or on your phone, encrypted. We never receive them.
 - **Hemmia at home is your own system.** Whoever runs a hub decides what happens on it; we don't operate it and can't see into it.
 - **On the phone alone, you choose an AI provider** (Anthropic or OpenAI) and use your own key. The app asks for your permission first; your messages then go from your phone to that provider, under your own account with them, not through us.
-- **Hemmia Connect** passes encrypted connections between your phones and your hub. We don't read them, and couldn't without leaving a public trace (section 4). To work, it keeps a random hub ID, a monthly byte count, notification addresses (encrypted) and shortened IP addresses in logs for 14 days.
-- **The update check** tells us only a version number, Mac or Docker, and the release channel. We count these per day; we don't store your IP address.
+- **Hemmia Connect** passes encrypted connections between your phones and your hub. We don't read them; to do so we would have to change the software we run or obtain a certificate that appears in public logs (section 4). To work, it keeps a random hub ID, a monthly byte count, notification device tokens (encrypted) and shortened IP addresses (in logs for 14 days; the one from the hub's registration as long as the hub is registered).
+- **The update check** tells us only a version number, Mac or Docker, and the release channel. We count these per day; we don't store your IP address. The **daily model list** request tells us nothing about your hub; we don't count it or store your IP address.
 - **No ads, no tracking, no analytics**, no selling or sharing of data for marketing, no profiling, no training of AI models on your data.
 
 The rest of this policy gives the details, as required by the Swiss Federal Act on Data Protection (FADP) and the EU General Data Protection Regulation (GDPR).
@@ -41,7 +41,7 @@ The rest of this policy gives the details, as required by the Swiss Federal Act 
 13. Your rights
 14. Children and teenagers
 15. Security
-16. This website
+16. This website, questions and the beta
 17. Changes to this policy
 
 ## 1. Who is responsible
@@ -89,7 +89,7 @@ The hub list, sign-ins, settings, your API key and the key that encrypts your ch
 
 Hemmia Connect lets your phones reach your hub from anywhere, without opening your router. The admin switches it on in the hub's settings. Our relay server is hosted by Oracle Cloud Infrastructure in Zurich, Switzerland.
 
-**What the relay can't see.** The connection between your phone and your hub is encrypted from end to end (TLS). The certificate's private key exists only on your hub. The relay passes the encrypted data on without being able to read it: no messages, passphrases, photos or documents. Because we manage the domain, we could in theory obtain another certificate for your hub's address; every certificate is published in public Certificate Transparency logs, so this could not happen unnoticed, and we don't do it. If you'd rather not rely on this, use Tailscale (section 3.1).
+**What the relay can't see.** The connection between your phone and your hub is encrypted from end to end (TLS). The certificate's private key exists only on your hub. The relay passes the encrypted data on without being able to read it: no messages, passphrases, photos or documents. Because we manage the domain, we could in theory obtain another certificate for your hub's address; every certificate is published in public Certificate Transparency logs, so this could not happen unnoticed, and we don't do it. We also run the join page (below) and the relay software itself: changed versions of them could read the codes in shared links, and that would leave no public trace. We don't do this either, the relay's source code is public, and sign-in links work only once and only for 10 minutes. If you'd rather not rely on us at all, use Tailscale (section 3.1).
 
 **What the relay processes, and why:**
 
@@ -103,6 +103,8 @@ Hemmia Connect lets your phones reach your hub from anywhere, without opening yo
 | Certificate requests (they contain only the hub's address) | To get the hub's certificate (section 7) | Contract with the admin |
 
 The relay does not record who uses a hub, which pages are opened, or what is said.
+
+**The join page** (`join.hemmia.app`). Invite and sign-in links you share open on this page, which hands them to the app or to your hub. The code in a link stays in the part of the address after `#`, which browsers don't send to the server; the page passes it on in your browser. To deliver the page, our server processes your IP address, which it keeps only in memory to limit requests and doesn't log. Legal basis: our legitimate interest in delivering links securely (Art. 6(1)(f) GDPR).
 
 **Switching Connect off or forgetting the address.** Switching Connect off stops all connections. **Forget this address** in the hub's settings deletes the hub's registration on the relay. A hub that hasn't connected for 12 months is deleted automatically.
 
@@ -124,6 +126,8 @@ Hemmia is not yet available for Android. Before the Android app is released, Goo
 Hubs installed from our Mac package or Docker image check once a day for a newer version. The request goes to our relay and contains only the hub's version (for example `0.1.0`), the platform (`mac` or `docker`) and the channel (`stable` or `beta`). Our server counts these requests per day, version, platform and channel. It uses your IP address only in memory, to count one address at most three times a day, and never stores or logs it. The answer is signed, so your hub only acts on information that really comes from us.
 
 The counts tell us roughly how many hubs run which version; they contain no personal data. Legal basis for the short processing of the IP address: our legitimate interest in keeping hubs up to date and knowing which versions are in use (Art. 6(1)(f) GDPR). The admin can turn the check off; the hub then sends nothing. With Docker: set `HEMMIA_UPDATE_CHECK=0` in the `.env` file next to `compose.yaml` (see the Docker guide). On a Mac, a switch in the settings is planned; until then, write to us and we'll tell you how to turn it off.
+
+**The model list.** Once a day, every hub connected to our relay (not only those installed from our package or Docker image) also fetches the list of models Hemmia suggests, so the admin can download new ones and hear about newer versions of the models the family uses. That request contains nothing about the hub: no version, no identifier, no names of models in use. We don't count it, and we don't store or log your IP address. The list is signed like the update information. Legal basis for this brief processing of the IP address: our legitimate interest in suggesting suitable models and telling families about newer versions (Art. 6(1)(f) GDPR). The admin turns it off in Settings → Models ("Look for new models").
 
 ## 7. Certificates for your hub's address
 
@@ -158,8 +162,10 @@ We pass data only to the following recipients, and only as described above:
 | Oracle (Oracle Cloud Infrastructure) | Processor that hosts our relay (sections 4–6) | Zurich, Switzerland |
 | Cloudflare | Processor for our domain's DNS (including the temporary certificate records, section 7) and for hosting this website (section 16): IP addresses and technical request data | Global network, including the USA |
 | Let's Encrypt (Internet Security Research Group) | Independent certificate authority: your hub's address, published in Certificate Transparency logs | USA |
-| Apple | Delivers notifications to the iPhone app (device token, kind of notification, hub address, opaque reference) and runs the App Store, as an independent controller; also hosts our email (iCloud Mail), as our processor | Global, including the USA |
+| Apple | Delivers notifications to the iPhone app (device token, kind of notification, hub address, opaque reference), runs the App Store and TestFlight (section 16), as an independent controller; also provides our email service (iCloud Mail), where emails to and from us are stored | Global, including the USA |
 | Anthropic or OpenAI | Only if you use the app on its own and choose them: your messages and photos, under your own account with them (section 3.2). We don't receive this data and have no access to it; the provider processes it under your contract with them. | USA and elsewhere, under their policies |
+
+**AI tools.** We use AI coding assistants to develop Hemmia and to deploy updates to our servers. They are not given the personal data described in this policy: we read relay data, questions and emails ourselves.
 
 We may disclose data if we are legally obliged to, for example to a court or authority. Given how little we hold, there is usually very little we could disclose. We can never disclose chats: we don't have them.
 
@@ -177,6 +183,9 @@ Our relay and its data are in Switzerland. Some processing by Cloudflare, Let's 
 | Notification device tokens (encrypted) | When the hub or the app removes them, or after 90 days without use |
 | Notification rate list | After 1 day |
 | Relay logs (shortened IP addresses, hub IDs, byte counts) | After 14 days at the latest |
+| Questions and feedback sent through the website or a hub (section 16) | After 12 months |
+| Emails with us | When the matter is settled, and after 12 months at the latest, unless we are legally required to keep them |
+| Beta tester data from TestFlight (section 16) | When the beta ends or you leave it |
 | Update-check counts | Kept; they contain no personal data |
 | Content of connections through the relay | Never stored |
 | Everything on your hub or phone | Under your control; we have no copy |
@@ -201,7 +210,7 @@ Write to andreas.apps@icloud.com to exercise these rights. We respond within one
 
 **A practical note:** because Hemmia has no accounts with us, an email doesn't tell us which records are yours. For Connect, the admin of your hub can see the hub's address in **Settings → System**; send us that address and we can find its records. The quickest way to delete them is **Forget this address** in the same place. If we cannot identify you with reasonable certainty, we will tell you (Art. 11 and 12(2) GDPR). We will never ask for more personal data than is needed for this.
 
-For data on a hub, ask the person who runs it: they hold it, not us. For data you sent to Anthropic or OpenAI, ask that provider.
+For data on a hub, ask the person who runs it: they hold it, not us. Anyone with an account on a hub can delete it, with everything in it, in **Settings → Account → Delete account**; an admin can delete other people's accounts under **Settings → Family**. For data you sent to Anthropic or OpenAI, ask that provider.
 
 ## 14. Children and teenagers
 
@@ -220,10 +229,14 @@ We protect data with technical and organisational measures appropriate to the ri
 
 No system is completely secure. If a data breach is likely to put you at risk, we will inform the competent authorities and, where required, you.
 
-## 16. This website
+## 16. This website, questions and the beta
 
-This website uses no cookies, no analytics, no tracking and no externally loaded fonts or scripts. It is hosted by Cloudflare (Cloudflare Pages). To deliver the pages, Cloudflare necessarily processes your IP address and the technical data your browser sends, such as the browser type and the page requested, and may keep them in short-lived logs for security. We do not receive or evaluate access logs. Legal basis: our legitimate interest in delivering the website securely (Art. 6(1)(f) GDPR). If you email us, we use your email address and message only to answer you or handle your report, and we delete them when the matter is settled unless we are legally required to keep them. Legal basis: our legitimate interest in answering you and handling reports (Art. 6(1)(f) GDPR), or steps you ask for under a contract (Art. 6(1)(b) GDPR).
+This website uses no cookies, no analytics, no tracking and no externally loaded fonts or scripts. It is hosted by Cloudflare (Cloudflare Pages). To deliver the pages, Cloudflare necessarily processes your IP address and the technical data your browser sends, such as the browser type and the page requested, and may keep them in short-lived logs for security. We do not receive or evaluate access logs. Legal basis: our legitimate interest in delivering the website securely (Art. 6(1)(f) GDPR). If you email us, we use your email address and message only to answer you or handle your report, and we delete them when the matter is settled unless we are legally required to keep them. Legal basis: our legitimate interest in answering you and handling reports (Art. 6(1)(f) GDPR), or steps you ask for under a contract (Art. 6(1)(b) GDPR). Emails are kept at most 12 months after the matter is settled.
+
+**Questions and feedback.** On the install pages of this website and on a hub's setup screens you can send us a question or feedback. We receive your message, an email address if you add one (only so we can answer), the language, the page or setup screen it was sent from, and, from a hub, the hub's version (not its ID or your account). It is stored on our relay in Switzerland, sent to us once a day by email (section 10, Apple) and deleted after 12 months. Your IP address is used only in memory to limit how many messages one address can send, and is not stored. Legal basis: our legitimate interest in answering questions and improving Hemmia (Art. 6(1)(f) GDPR). Please don't include personal details you don't want us to have.
+
+**The beta (TestFlight).** If you test the iPhone app before its release, you do so through Apple's TestFlight. You either ask us by email to be invited, or join through a public link. Apple then shares with us your name and email address (if you were invited by email), your device model, iOS version, when you installed and used the test build, crash reports, and any feedback and screenshots you choose to send through TestFlight. We use this only to run the beta and fix problems. Legal basis: steps you asked for by joining the beta (Art. 6(1)(b) GDPR). Apple processes this data as an independent controller under its own terms. We delete it when the beta ends or when you leave it.
 
 ## 17. Changes to this policy
 
-If we change how Hemmia handles data, we will update this policy and the date at the top. Significant changes will be announced in the app or on the hub before they take effect. When Hemmia Connect is offered as a paid service, the payment provider and what it processes will be added here before the first sale. The current version is always at hemmia.app/legal/privacy/, in German at hemmia.app/de/legal/privacy/. Both say the same; if they ever differ, the English version applies.
+If we change how Hemmia handles data, we will update this policy and the date at the top. Significant changes will be announced on hemmia.app, and where we can also in the app or on the hub, before they take effect. When Hemmia Connect is offered as a paid service, the payment provider and what it processes will be added here before the first sale. The current version is always at hemmia.app/legal/privacy/, in German at hemmia.app/de/legal/privacy/, in French at hemmia.app/fr/legal/privacy/ and in Italian at hemmia.app/it/legal/privacy/. All say the same.

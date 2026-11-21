@@ -3,7 +3,6 @@ title: Unterwegs
 description: Deinen Hub mit Hemmia Connect oder Tailscale von deinen Telefonen aus erreichen. Was das Relay sieht und was nicht.
 nav: guides
 order: 75
-draft: true
 ---
 
 # Unterwegs

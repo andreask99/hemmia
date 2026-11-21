@@ -9,6 +9,12 @@ export interface Migration {
   id: number;
   name: string;
   sql: string;
+  /**
+   * Rebuilds a parent table (SQLite's 12-step ALTER): foreign keys are switched off around it,
+   * or dropping the old table would cascade-delete every child row; foreign_key_check must be
+   * clean before the transaction commits.
+   */
+  foreignKeysOff?: boolean;
 }
 
 export const MIGRATIONS: readonly Migration[] = [
@@ -507,6 +513,37 @@ ALTER TABLE push_subscriptions ADD COLUMN relay_handle TEXT;
     // 2026-11-07): only a passphrase makes a session fresh. No encrypted columns.
     sql: `
 ALTER TABLE sessions ADD COLUMN via_link INTEGER NOT NULL DEFAULT 0 CHECK (via_link IN (0, 1));
+`,
+  },
+  {
+    id: 24,
+    name: 'french and italian',
+    foreignKeysOff: true,
+    // Only the language CHECK changes; columns, order and data stay as they are.
+    sql: `
+CREATE TABLE users_new (
+  id                    TEXT PRIMARY KEY,
+  username              TEXT NOT NULL UNIQUE COLLATE NOCASE,
+  role                  TEXT NOT NULL CHECK (role IN ('admin', 'member')),
+  restricted            INTEGER NOT NULL DEFAULT 0 CHECK (restricted IN (0, 1)),
+  language              TEXT NOT NULL DEFAULT 'en' CHECK (language IN ('en', 'de', 'fr', 'it')),
+  default_model_id      TEXT,
+  -- password slot: Argon2id(password, kdf_salt, kdf_params) -> KEK | auth key
+  auth_hash             BLOB NOT NULL,
+  kdf_salt              BLOB NOT NULL,
+  kdf_params            TEXT NOT NULL,
+  wrapped_dek_pw        BLOB NOT NULL,
+  -- recovery slot: Argon2id(recovery code, recovery_salt, recovery_kdf_params) -> RK
+  recovery_salt         BLOB NOT NULL,
+  recovery_kdf_params   TEXT NOT NULL,
+  wrapped_dek_recovery  BLOB NOT NULL,
+  created_at            INTEGER NOT NULL,
+  password_changed_at   INTEGER NOT NULL,
+  disabled_at           INTEGER
+) STRICT;
+INSERT INTO users_new SELECT * FROM users;
+DROP TABLE users;
+ALTER TABLE users_new RENAME TO users;
 `,
   },
 ];

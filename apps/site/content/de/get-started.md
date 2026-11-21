@@ -3,7 +3,6 @@ title: Loslegen
 description: Hemmia auf dem Telefon mit deinem eigenen Schlüssel oder zu Hause für die ganze Familie. Was passt zu dir?
 nav: start
 order: 5
-draft: true
 ---
 
 # Loslegen
@@ -20,7 +19,7 @@ App installieren, deinen eigenen Schlüssel von Anthropic oder OpenAI einfügen 
 
 Richte einen Hub auf einem Computer ein, der eingeschaltet bleibt. Er nutzt lokale Modelle, gibt allen in der Familie ein eigenes Konto und funktioniert auf jedem Gerät.
 
-1. [Hemmia auf einem Mac einrichten](/de/guides/mac/)
+1. [Hemmia auf einem Mac einrichten](/de/guides/mac/) oder [mit Docker](/de/guides/docker/)
 2. [KI-Modelle auswählen](/de/guides/models/)
 3. [Familie einladen](/de/guides/family/)
 

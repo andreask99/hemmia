@@ -4,6 +4,7 @@
  * them re-encoded and encrypted like other attachments, so the phone never contacts the
  * image hosts and the CSP stays 'self'. Queries, URLs and images are never logged.
  */
+import type { Language } from '@hemmia/shared';
 import { z } from 'zod';
 import type { AttachmentRef, WebSearch, WebSource } from '@hemmia/shared';
 import type { ToolSpec } from '../llm/types.ts';
@@ -109,7 +110,7 @@ export interface PhotoSearchOptions {
   searxngUrl: string;
   /** 0 off, 1 moderate, 2 strict (teen accounts). */
   safeSearch: 0 | 1 | 2;
-  language: 'en' | 'de';
+  language: Language;
   signal: AbortSignal;
   /** Validates, re-encodes and stores one downloaded image; throws if it isn't a usable image. */
   save: (bytes: Buffer, source: WebSource) => Promise<AttachmentRef>;

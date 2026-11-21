@@ -1,6 +1,7 @@
 /**
  * Planner: settings, plans and weekly goals. Owned by Claude (per-user data).
  */
+import type { Language } from '@hemmia/shared';
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import {
@@ -120,7 +121,7 @@ export async function sendDueDaily(
   daily: DailyRepo,
   notify: (
     userId: string,
-    payload: { kind: 'daily' | 'week' | 'evening'; chatId: string; lang: 'en' | 'de' },
+    payload: { kind: 'daily' | 'week' | 'evening'; chatId: string; lang: Language },
   ) => Promise<void>,
   nowMs: number,
 ): Promise<number> {

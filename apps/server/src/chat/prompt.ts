@@ -2,8 +2,9 @@
  * System prompts. The restricted (teen) addendum is provisional until the owner decides
  * the policy (docs/DECISIONS.md, open questions).
  */
+import { LANGUAGE_NAMES } from '@hemmia/shared';
 import type { DailySettings, DayTask, Goal, Language, Plan } from '@hemmia/shared';
-import { goalsText, plansText, progressLine, tasksText } from '../tools/plans.ts';
+import { daysWonLine, goalsText, plansText, progressLine, tasksText } from '../tools/plans.ts';
 
 export interface PromptContext {
   language: Language;
@@ -121,7 +122,7 @@ const PLANS = [
 
 /** Briefings are written in the user's language; the labels below are only examples. */
 const inLanguage = (language: Language) =>
-  `Write the whole message in the language of the user's message (if unclear, ${language === 'de' ? 'German' : 'English'}), including headings, labels and the progress line: translate the English examples in these instructions.`;
+  `Write the whole message in the language of the user's message (if unclear, ${LANGUAGE_NAMES[language]}), including headings, labels and the progress line: translate the English examples in these instructions.`;
 
 const pad = (n: number) => String(n).padStart(2, '0');
 const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -166,20 +167,17 @@ export function dailyPrompt(input: {
         '- Week: no goals are set for this week. In one or two lines, offer to set up to 3 goals for work and home now ("just tell me what matters this week").',
       );
     } else {
-      const won =
-        days.days > 0
-          ? ` and "${language === 'de' ? `${String(days.won)} von ${String(days.days)} Tagen gewonnen` : `${String(days.won)} of ${String(days.days)} days won`}"`
-          : '';
+      const won = days.days > 0 ? ` and "${daysWonLine(days.won, days.days, language)}"` : '';
       parts.push(
         `- Week: show the progress "${progressLine(goals, language)}" (keep the numbers and the bar)${won}; if something is done, cheer briefly.`,
       );
       if (tasks.some((t) => t.status !== 'dropped')) {
         parts.push(
-          `- Today: the day plan is already set; show it with the must win first and marked ⭐ (call it "Das Wichtigste" in German, "Must win" in English), each with the goal it serves, and one encouraging sentence. Do not propose another plan.\nToday's plan:\n${tasksText(tasks, goals)}`,
+          `- Today: the day plan is already set; show it with the must win first and marked ⭐ (call it "Must win" in English, "Das Wichtigste" in German, "L’essentiel" in French, "La priorità" in Italian), each with the goal it serves, and one encouraging sentence. Do not propose another plan.\nToday's plan:\n${tasksText(tasks, goals)}`,
         );
       } else {
         parts.push(
-          `- Today: propose the day plan (appointments are not plan items; they come under Appointments): ⭐ one MUST WIN (call it "Das Wichtigste" in German, "Must win" in English), the next concrete, doable-today step toward an open goal (goals planned for ${today} first), with a suggested time slot that fits around today's appointments; then at most two more small items that move a goal forward or are left over (fewer is fine; never invent generic chores)` +
+          `- Today: propose the day plan (appointments are not plan items; they come under Appointments): ⭐ one MUST WIN (call it "Must win" in English, "Das Wichtigste" in German, "L’essentiel" in French, "La priorità" in Italian), the next concrete, doable-today step toward an open goal (goals planned for ${today} first), with a suggested time slot that fits around today's appointments; then at most two more small items that move a goal forward or are left over (fewer is fine; never invent generic chores)` +
             (leftovers.length > 0 ? `, starting with what is left over from yesterday` : '') +
             '. Name the goal each one serves. Do not ask yet: the question comes at the very end of the message.' +
             (leftovers.length > 0
@@ -422,7 +420,7 @@ function weekendNote(ctx: PromptContext): string {
 export function systemPrompt(ctx: PromptContext): string {
   const n = ctx.now;
   const date = `${WEEKDAYS[n.getDay()] ?? ''}, ${String(n.getFullYear())}-${pad(n.getMonth() + 1)}-${pad(n.getDate())}`;
-  const lang = ctx.language === 'de' ? 'German' : 'English';
+  const lang = LANGUAGE_NAMES[ctx.language];
   return [
     BASE,
     `Today is ${date}. The user's app language is ${lang}.`,

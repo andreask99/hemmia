@@ -22,7 +22,7 @@ Hemmia is a private AI for you and your family, at home. It runs on your own com
 - **Two ways to use it:** "Hemmia on your phone" (the app on its own, with your own key) and "Hemmia at home" (a hub on a Mac or with Docker, for the whole family).
 - **Models:** local models through Ollama or LM Studio; cloud models from Anthropic and OpenAI with your own key (on a hub also OpenRouter).
 - **Platforms:** iPhone (iPad runs the iPhone app); hub on a Mac with Apple silicon, or with Docker on Linux, Windows or a NAS. Android is planned.
-- **Languages:** English and German.
+- **Languages:** English, German, French and Italian.
 - **Price:** free. If you use cloud models, you pay the provider directly; Hemmia adds nothing. <!-- CHECK: owner's decision on money (MARKETING.md §9) -->
 - **Licence:** AGPL-3.0, source code on [GitHub](https://github.com/andreask99/hemmia).
 - **No tracking:** no account with us, no analytics in the app or on this website.

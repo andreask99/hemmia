@@ -2,6 +2,7 @@
  * Planner tools for the chat model: plans the user mentions ("dentist on Thursday at 10")
  * and weekly goals for work and home. Stored encrypted per user (db/daily.ts).
  */
+import type { Language } from '@hemmia/shared';
 import { z } from 'zod';
 import type { DayTask, Goal, Plan } from '@hemmia/shared';
 import type { ToolSpec } from '../llm/types.ts';
@@ -214,13 +215,32 @@ export function goalsText(goals: readonly Goal[]): string {
 }
 
 /** "3 of 5 done ▓▓▓░░" for a week's goals (dropped ones don't count), in the app language. */
-export function progressLine(goals: readonly Goal[], language: 'en' | 'de' = 'en'): string {
+export function progressLine(goals: readonly Goal[], language: Language = 'en'): string {
   const counted = goals.filter((g) => g.status !== 'dropped');
   const done = counted.filter((g) => g.status === 'done').length;
   const bar = '▓'.repeat(done) + '░'.repeat(counted.length - done);
   const n = String(done);
   const total = String(counted.length);
-  return language === 'de' ? `${n} von ${total} erledigt ${bar}` : `${n} of ${total} done ${bar}`;
+  const line: Record<Language, string> = {
+    en: `${n} of ${total} done`,
+    de: `${n} von ${total} erledigt`,
+    fr: `${n} sur ${total} faits`,
+    it: `${n} di ${total} fatti`,
+  };
+  return `${line[language]} ${bar}`;
+}
+
+/** "2 of 4 days won", in the app language. */
+export function daysWonLine(won: number, days: number, language: Language = 'en'): string {
+  const w = String(won);
+  const d = String(days);
+  const line: Record<Language, string> = {
+    en: `${w} of ${d} days won`,
+    de: `${w} von ${d} Tagen gewonnen`,
+    fr: `${w} jours réussis sur ${d}`,
+    it: `${w} giorni riusciti su ${d}`,
+  };
+  return line[language];
 }
 
 export const SET_DAY_TOOL: ToolSpec = {

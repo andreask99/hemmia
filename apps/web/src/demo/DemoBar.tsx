@@ -17,6 +17,16 @@ const TEXT = {
     refused: 'Nicht in der Demo: Dafür brauchst du deinen eigenen Hub',
     leave: 'Demo beenden',
   },
+  fr: {
+    label: 'Démo · la famille Berg est inventée',
+    refused: 'Pas dans la démo : il faut ton propre hub',
+    leave: 'Quitter la démo',
+  },
+  it: {
+    label: 'Demo · la famiglia Berg è inventata',
+    refused: 'Non nella demo: serve il tuo hub',
+    leave: 'Esci dalla demo',
+  },
 } as const;
 
 export function DemoBar({ onLeave }: { onLeave: () => void }) {

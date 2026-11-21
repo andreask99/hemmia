@@ -46,14 +46,24 @@ export function migrate(db: DB, migrations: readonly Migration[] = MIGRATIONS): 
   const done: number[] = [];
   for (const m of migrations) {
     if (applied.has(m.id)) continue;
-    db.transaction(() => {
-      db.exec(m.sql);
-      db.prepare('INSERT INTO schema_migrations (id, name, applied_at) VALUES (?, ?, ?)').run(
-        m.id,
-        m.name,
-        Date.now(),
-      );
-    })();
+    // PRAGMA foreign_keys can't change inside a transaction.
+    const fkOn = db.pragma('foreign_keys', { simple: true }) === 1;
+    if (m.foreignKeysOff) db.pragma('foreign_keys = OFF');
+    try {
+      db.transaction(() => {
+        db.exec(m.sql);
+        if (m.foreignKeysOff && (db.pragma('foreign_key_check') as unknown[]).length > 0) {
+          throw new Error(`Migration ${String(m.id)} broke foreign keys`);
+        }
+        db.prepare('INSERT INTO schema_migrations (id, name, applied_at) VALUES (?, ?, ?)').run(
+          m.id,
+          m.name,
+          Date.now(),
+        );
+      })();
+    } finally {
+      if (m.foreignKeysOff && fkOn) db.pragma('foreign_keys = ON');
+    }
     done.push(m.id);
   }
   return done;

@@ -26,7 +26,8 @@ The same with Compose directly: `docker compose --profile ollama --profile searx
 
 Set `HEMMIA_CONNECT=1` in `.env` next to `compose.yaml`. The hub then turns on Hemmia Connect at
 start and the log also shows `Hemmia setup: or open https://<hub>.h.<relay>/setup#…`, which
-works from any device. Only you have that link; it works once.
+works from any device. Only you have that link; it works once. Hemmia Connect is a service of
+ours: by turning it on you agree to the [Terms of Use](https://hemmia.app/legal/terms/).
 
 ## Tailscale instead of Connect
 

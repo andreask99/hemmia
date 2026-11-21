@@ -10,7 +10,6 @@ function render(lang: Lang, slug: string): string {
       lang,
       title: 'T',
       description: 'D',
-      otherPath: '/',
       slug,
       existing: new Set(['', 'privacy', 'guides', 'faq']),
       css: [],
@@ -55,5 +54,15 @@ describe('Layout', () => {
     expect(html).toContain('property="og:image"');
     expect(html).toContain('content="de_DE"');
     expect(html).toContain('© 2026 Andreas Kalkum');
+  });
+
+  it('offers every language, each on the same page', () => {
+    const html = render('fr', 'privacy');
+    expect(html).toContain('<html lang="fr">');
+    expect(html).toContain('href="/it/privacy/"');
+    expect(html).toContain('hrefLang="de"');
+    expect(html).toContain(
+      '<a href="/fr/privacy/" hrefLang="fr" lang="fr" aria-current="true">Français</a>',
+    );
   });
 });

@@ -1,5 +1,5 @@
 /**
- * The home page's words, in English and German (P10.10). Order and messages follow
+ * The home page's words, in English, German, French and Italian (P10.10). Order and messages follow
  * MARKETING.md §2b; every claim follows the claims rules in MARKETING.md §1 (nothing about
  * "collecting nothing", no competitor names, no dated promises, "open source" only once the
  * repository is public).
@@ -288,7 +288,7 @@ export const HOME: Record<Lang, HomeText> = {
     },
     cta: {
       title: 'Bring a private AI home.',
-      text: 'Hemmia is in beta. Hemmia at home will be free, as an installer for your Mac or with Docker; you use it in the browser and in the iPhone app, which is in testing now.',
+      text: 'Hemmia is in beta. Hemmia at home is free, as an installer for your Mac or with Docker; you use it in the browser and in the iPhone app, which is in testing now.',
       start: 'Get started',
     },
   },
@@ -527,8 +527,494 @@ export const HOME: Record<Lang, HomeText> = {
     },
     cta: {
       title: 'Hol dir eine private KI nach Hause.',
-      text: 'Hemmia ist in der Beta. Hemmia zu Hause wird kostenlos sein, als Installationspaket für deinen Mac oder mit Docker; du nutzt es im Browser und in der iPhone-App, die gerade getestet wird.',
+      text: 'Hemmia ist in der Beta. Hemmia zu Hause ist kostenlos, als Installationspaket für deinen Mac oder mit Docker; du nutzt es im Browser und in der iPhone-App, die gerade getestet wird.',
       start: 'Loslegen',
+    },
+  },
+  fr: {
+    hero: {
+      eyebrow: 'Gratuit · App iPhone (bêta) · Hemmia à la maison sur un Mac ou avec Docker',
+      title: 'Ton IA,',
+      titleEm: 'à la maison.',
+      lede: 'Hemmia est une IA privée pour toute la famille. Elle tourne sur un ordinateur chez toi, ou tout simplement sur ton téléphone, avec les modèles d’IA que tu choisis. Chacun a son propre compte et ses propres discussions.',
+      start: 'Commencer',
+      how: 'Questions et réponses',
+      demo: 'Essayer la démo',
+      store: 'App iPhone bientôt disponible',
+      pills: [
+        'Pas de compte chez nous',
+        'Pas de publicité',
+        'Pas de pistage',
+        'Open source',
+        'Discussions stockées sur tes appareils',
+        'Gratuit avec les modèles locaux',
+      ],
+      shotAlt: 'Hemmia sur un téléphone : une discussion avec le hub familial',
+    },
+    asks: {
+      title: 'Ce que les familles demandent à Hemmia',
+      intro: 'Des questions du quotidien, des devoirs au dîner, pour toute la maison.',
+      items: [
+        {
+          pose: 'book',
+          title: 'Aide aux devoirs',
+          text: 'Expliqué pas à pas, au niveau dont ton enfant a besoin.',
+        },
+        {
+          pose: 'pot',
+          title: 'Le dîner avec ce qu’il y a dans le frigo',
+          text: 'Prends une photo de ce qu’il y a et reçois trois idées.',
+        },
+        {
+          pose: 'glass',
+          title: 'Des lettres expliquées',
+          text: 'Ajoute un PDF des impôts ou de l’école et reçois-le en mots simples.',
+        },
+        {
+          pose: 'sun',
+          title: 'Planifier ta semaine',
+          text: 'Des objectifs hebdomadaires pour l’école, le travail et la maison, et un court aperçu chaque matin.',
+        },
+        {
+          pose: 'brush',
+          title: 'Des images',
+          text: 'Décris une image et Hemmia la dessine, sur un Mac à la maison.',
+        },
+      ],
+    },
+    ways: {
+      title: 'Deux façons de commencer',
+      intro:
+        'Commence sur ton téléphone en deux minutes, ou installe Hemmia à la maison pour toute la famille. Tu pourras passer de l’un à l’autre plus tard.',
+      items: [
+        {
+          tag: 'Deux minutes',
+          title: 'Juste sur ton téléphone',
+          text: 'Installe l’app, ajoute ta propre clé d’Anthropic ou d’OpenAI et commence à discuter. Tes discussions et ta clé sont stockées sur le téléphone.',
+          needs: ['Un iPhone', 'Une clé d’Anthropic ou d’OpenAI'],
+          cost: 'Tu paies le fournisseur pour ce que tu utilises, quelques centimes par jour pour la plupart des gens. Sans marge.',
+          shot: 'phone-chat',
+          alt: 'Hemmia sur un téléphone, en discussion tout seul',
+        },
+        {
+          tag: 'Pour toute la famille',
+          title: 'À la maison',
+          text: 'Hemmia tourne sur un ordinateur chez toi, le hub. Il peut utiliser des modèles d’IA qui tournent sur cet ordinateur, et chacun dans la famille a son propre compte sur tous ses appareils.',
+          needs: [
+            'Un Mac avec puce Apple, ou n’importe quel ordinateur avec Docker',
+            'Les téléphones et ordinateurs de la famille',
+          ],
+          cost: 'Gratuit. Les modèles sur le hub ne coûtent que l’électricité ; les modèles cloud sont facultatifs, avec ta propre clé.',
+          shot: 'mac-setup-welcome',
+          alt: 'Configuration de Hemmia sur un Mac',
+        },
+      ],
+    },
+    family: {
+      title: 'Fait pour toute la famille',
+      intro: 'Hemmia est pensé pour un foyer, pas pour une seule personne derrière un bureau.',
+      points: [
+        'Invite tout le monde avec un code QR ou un lien.',
+        'Chacun a ses propres discussions privées, verrouillées par sa propre phrase de passe. Les autres membres de la famille ne peuvent pas les ouvrir, le compte admin non plus.',
+        'Les comptes ados ne voient que les modèles que tu autorises, cherchent sur le web avec un SafeSearch strict (ou pas du tout) et ne peuvent pas créer d’images.',
+        'Des notifications quand une réponse ou une image est prête.',
+        'Tes téléphones joignent Hemmia à la maison et en déplacement avec Hemmia Connect ou Tailscale, sans ouvrir de ports sur ton routeur.',
+      ],
+      shotAlt: 'Les réglages de la famille avec les comptes de chacun',
+    },
+    compare: {
+      title: 'Hemmia et les apps d’IA habituelles',
+      intro:
+        'La plupart des apps d’IA sont faites pour une seule personne et gardent chaque conversation sur leurs serveurs. Hemmia fait autrement.',
+      head: ['Sujet', 'Beaucoup d’apps d’IA', 'Hemmia'],
+      rows: [
+        [
+          'Où tes discussions sont stockées',
+          'Sur les serveurs de l’entreprise',
+          'Sur ton hub ou ton téléphone, chiffrées',
+        ],
+        [
+          'Qui peut les lire',
+          'L’entreprise, selon ses propres règles',
+          'Toi. Un fournisseur cloud seulement pour les discussions où tu choisis son modèle',
+        ],
+        [
+          'Compte nécessaire',
+          'Oui, avec un e-mail et souvent un numéro de téléphone',
+          'Pas de compte chez nous',
+        ],
+        ['Publicité et pistage', 'Courants', 'Aucun'],
+        [
+          'Une famille de quatre',
+          'Un abonnement payant par personne pour les meilleurs modèles',
+          'Gratuit avec les modèles locaux, ou une seule clé partagée',
+        ],
+        ['Choix de l’IA', 'Les modèles de l’entreprise', 'Modèles locaux, Anthropic ou OpenAI'],
+        [
+          'Comptes pour les enfants',
+          'Gérés par l’entreprise, selon ses règles',
+          'Comptes ados avec les limites que tu fixes',
+        ],
+      ],
+    },
+    flow: {
+      eyebrow: 'Sans petits caractères',
+      title: 'Ce qui va vraiment où',
+      intro:
+        '« Privé », c’est facile à dire. Voici exactement ce qui se passe quand tu demandes quelque chose à Hemmia.',
+      steps: [
+        {
+          title: 'Tu écris ou ajoutes une photo.',
+          text: 'Sur ton téléphone, dans l’app ou le navigateur.',
+        },
+        {
+          title: 'Ça va à ton hub, ou ça reste sur ton téléphone.',
+          text: 'Par Hemmia Connect ou Tailscale, chiffré jusqu’à ton ordinateur. Notre relais le transmet mais ne peut pas le lire.',
+        },
+        {
+          title: 'Le modèle que tu as choisi répond.',
+          text: 'Un modèle sur ton hub : rien ne quitte la maison. Un modèle cloud : Hemmia demande d’abord, puis envoie la discussion au fournisseur avec ta propre clé.',
+        },
+        {
+          title: 'La réponse est stockée sur ton appareil.',
+          text: 'Chiffrée sur le hub avec ta phrase de passe, ou sur le téléphone avec une clé gardée dans son stockage sécurisé. Pas sur un serveur à nous.',
+        },
+      ],
+    },
+    promises: {
+      title: 'Six promesses',
+      items: [
+        {
+          pose: 'house',
+          title: 'Discussions stockées à la maison',
+          text: 'Sur ton propre hub ou téléphone, chiffrées. Avec les modèles de ton hub, rien ne quitte la maison.',
+        },
+        {
+          pose: 'key',
+          title: 'Chacun a son propre verrou',
+          text: 'Les discussions de chacun sont verrouillées par sa propre phrase de passe.',
+        },
+        {
+          pose: 'wave',
+          title: 'Pas de compte chez nous',
+          text: 'Tu n’as jamais besoin de t’inscrire chez nous pour utiliser Hemmia.',
+        },
+        {
+          pose: 'sleep',
+          title: 'Pas de publicité, pas de pistage',
+          text: 'Pas de statistiques d’audience dans les apps ni sur ce site.',
+        },
+        {
+          pose: 'glass',
+          title: 'Ton choix d’IA',
+          text: 'Des modèles sur ton propre ordinateur, ou Anthropic et OpenAI avec ta clé.',
+        },
+        {
+          pose: 'book',
+          title: 'Honnête sur les limites',
+          text: 'Les modèles locaux sont plus lents et moins capables que les meilleurs modèles cloud. Nous le disons.',
+        },
+      ],
+    },
+    cost: {
+      title: 'Ce que ça coûte',
+      intro: 'Hemmia est gratuit. Tu ne paies que ce que tu choisis d’ajouter.',
+      items: [
+        {
+          title: 'Hemmia',
+          price: 'Gratuit',
+          text: 'Les apps et le hub. Les modèles sur ton hub ne coûtent que l’électricité.',
+        },
+        {
+          title: 'Modèles cloud',
+          price: 'Aux prix du fournisseur',
+          text: 'Facultatifs, avec ta propre clé. Quelques centimes par jour pour la plupart des gens ; fixe une limite de dépenses chez le fournisseur. Hemmia s’arrête aussi à une limite mensuelle par personne.',
+        },
+        {
+          title: 'Hemmia Connect',
+          price: 'Gratuit pendant la bêta',
+          note: 'puis 29 € par an et par hub',
+          text: 'Facultatif : tes téléphones joignent le hub d’un simple bouton, à la maison et en déplacement, jusqu’à 20 Go par mois. Gratuit pendant la bêta, puis 30 jours offerts. Ou installe toi-même Tailscale, gratuitement.',
+        },
+      ],
+    },
+    faq: {
+      title: 'Questions',
+      items: [
+        {
+          q: 'Vous voyez mes discussions ?',
+          a: 'Non. Elles sont stockées sur ton hub ou ton téléphone, chiffrées. Quand tu choisis un modèle cloud, Hemmia demande d’abord et la discussion part chez ce fournisseur avec ta propre clé.',
+        },
+        {
+          q: 'De quel ordinateur ai-je besoin pour un hub ?',
+          a: 'Un Mac avec puce Apple (M1 ou plus récent, 16 Go de mémoire ou plus pour de bons modèles locaux), ou n’importe quel ordinateur qui fait tourner Docker. Sur ton téléphone seul, tu n’as besoin d’aucun ordinateur.',
+        },
+        {
+          q: 'Les modèles locaux sont-ils bons ?',
+          a: 'Bons pour les questions du quotidien, les devoirs, les recettes et les lettres ; plus lents et moins capables que les meilleurs modèles cloud. Tu peux utiliser les deux et choisir pour chaque discussion.',
+        },
+        {
+          q: 'Mes enfants peuvent-ils l’utiliser ?',
+          a: 'Oui, avec un compte ado que tu crées pour eux : ils ne voient que les modèles que tu autorises et ne peuvent pas créer d’images. Leurs discussions sont privées, comme celles de tout le monde.',
+        },
+        {
+          q: 'Que se passe-t-il si je perds ma phrase de passe ?',
+          a: 'Tu reçois un code de récupération en créant ton compte. Avec lui, tu peux définir une nouvelle phrase de passe. Sans lui, personne ne peut plus ouvrir tes discussions, pas même un admin.',
+        },
+      ],
+      more: 'Toutes les questions',
+    },
+    next: {
+      title: 'Prochainement',
+      text: 'Prévu, sans dates : l’app Android, et des espaces partagés par la famille.',
+    },
+    cta: {
+      title: 'Une IA privée à la maison.',
+      text: 'Hemmia est en bêta. Hemmia à la maison est gratuit, avec un installateur pour ton Mac ou avec Docker ; tu l’utilises dans le navigateur et dans l’app iPhone, actuellement en test.',
+      start: 'Commencer',
+    },
+  },
+  it: {
+    hero: {
+      eyebrow: 'Gratis · App per iPhone (beta) · Hemmia a casa su un Mac o con Docker',
+      title: 'La tua IA,',
+      titleEm: 'a casa.',
+      lede: 'Hemmia è un’IA privata per tutta la famiglia. Gira su un computer di casa tua, o semplicemente sul tuo telefono, con i modelli di IA che scegli. Ognuno ha il proprio account e le proprie chat.',
+      start: 'Inizia',
+      how: 'Domande e risposte',
+      demo: 'Prova la demo',
+      store: 'App per iPhone in arrivo',
+      pills: [
+        'Nessun account da noi',
+        'Niente pubblicità',
+        'Nessun tracciamento',
+        'Open source',
+        'Chat salvate sui tuoi dispositivi',
+        'Gratis con i modelli locali',
+      ],
+      shotAlt: 'Hemmia su un telefono: una chat con l’hub di famiglia',
+    },
+    asks: {
+      title: 'Cosa chiedono le famiglie a Hemmia',
+      intro: 'Domande di tutti i giorni, dai compiti alla cena, per tutti in casa.',
+      items: [
+        {
+          pose: 'book',
+          title: 'Aiuto con i compiti',
+          text: 'Spiegato passo per passo, al livello di cui tuo figlio ha bisogno.',
+        },
+        {
+          pose: 'pot',
+          title: 'La cena con quello che c’è in frigo',
+          text: 'Fai una foto di quello che c’è e ricevi tre idee.',
+        },
+        {
+          pose: 'glass',
+          title: 'Lettere spiegate',
+          text: 'Aggiungi un PDF del fisco o della scuola e ricevilo in parole semplici.',
+        },
+        {
+          pose: 'sun',
+          title: 'Pianifica la settimana',
+          text: 'Obiettivi settimanali per la scuola, il lavoro e la casa, e un breve riepilogo ogni mattina.',
+        },
+        {
+          pose: 'brush',
+          title: 'Immagini',
+          text: 'Descrivi un’immagine e Hemmia la disegna, su un Mac a casa.',
+        },
+      ],
+    },
+    ways: {
+      title: 'Due modi per iniziare',
+      intro:
+        'Inizia sul telefono in due minuti, o configura Hemmia a casa per tutta la famiglia. Più tardi puoi passare dall’uno all’altro.',
+      items: [
+        {
+          tag: 'Due minuti',
+          title: 'Solo sul telefono',
+          text: 'Installa l’app, aggiungi la tua chiave di Anthropic o OpenAI e inizia a chattare. Le tue chat e la tua chiave restano sul telefono.',
+          needs: ['Un iPhone', 'Una chiave di Anthropic o OpenAI'],
+          cost: 'Paghi il fornitore per ciò che usi, pochi centesimi al giorno per la maggior parte delle persone. Senza ricarichi.',
+          shot: 'phone-chat',
+          alt: 'Hemmia su un telefono, che chatta da solo',
+        },
+        {
+          tag: 'Per tutta la famiglia',
+          title: 'A casa',
+          text: 'Hemmia gira su un computer di casa tua, l’hub. Può usare modelli di IA che girano su quel computer, e ognuno in famiglia ha il proprio account su ogni dispositivo.',
+          needs: [
+            'Un Mac con chip Apple, o qualsiasi computer con Docker',
+            'I telefoni e i computer della famiglia',
+          ],
+          cost: 'Gratis. I modelli sull’hub costano solo l’elettricità; i modelli cloud sono facoltativi, con la tua chiave.',
+          shot: 'mac-setup-welcome',
+          alt: 'Configurazione di Hemmia su un Mac',
+        },
+      ],
+    },
+    family: {
+      title: 'Fatto per tutta la famiglia',
+      intro: 'Hemmia è pensato per una casa, non per una sola persona alla scrivania.',
+      points: [
+        'Invita tutti con un codice QR o un link.',
+        'Ognuno ha le proprie chat private, chiuse con la propria passphrase. Gli altri in famiglia non possono aprirle, e nemmeno l’account admin.',
+        'Gli account per ragazzi vedono solo i modelli che consenti, cercano sul web con SafeSearch rigoroso (o per niente) e non possono creare immagini.',
+        'Notifiche quando una risposta o un’immagine è pronta.',
+        'I tuoi telefoni raggiungono Hemmia a casa e fuori con Hemmia Connect o Tailscale, senza aprire porte sul router.',
+      ],
+      shotAlt: 'Le impostazioni della famiglia con gli account di tutti',
+    },
+    compare: {
+      title: 'Hemmia e le solite app di IA',
+      intro:
+        'La maggior parte delle app di IA è fatta per una sola persona e conserva ogni conversazione sui propri server. Hemmia fa diversamente.',
+      head: ['Tema', 'Molte app di IA', 'Hemmia'],
+      rows: [
+        [
+          'Dove sono salvate le tue chat',
+          'Sui server dell’azienda',
+          'Sul tuo hub o sul tuo telefono, cifrate',
+        ],
+        [
+          'Chi può leggerle',
+          'L’azienda, secondo le sue regole',
+          'Tu. Un fornitore cloud solo per le chat in cui scegli il suo modello',
+        ],
+        [
+          'Account necessario',
+          'Sì, con e-mail e spesso un numero di telefono',
+          'Nessun account da noi',
+        ],
+        ['Pubblicità e tracciamento', 'Comuni', 'Nessuno'],
+        [
+          'Una famiglia di quattro',
+          'Un abbonamento a pagamento a persona per i modelli migliori',
+          'Gratis con i modelli locali, o una sola chiave condivisa',
+        ],
+        ['Scelta dell’IA', 'I modelli dell’azienda', 'Modelli locali, Anthropic o OpenAI'],
+        [
+          'Account per i bambini',
+          'Gestiti dall’azienda, secondo le sue regole',
+          'Account per ragazzi con i limiti che imposti tu',
+        ],
+      ],
+    },
+    flow: {
+      eyebrow: 'Niente clausole in piccolo',
+      title: 'Cosa va davvero dove',
+      intro:
+        '«Privato» è facile da dire. Ecco esattamente cosa succede quando chiedi qualcosa a Hemmia.',
+      steps: [
+        {
+          title: 'Scrivi o aggiungi una foto.',
+          text: 'Sul telefono, nell’app o nel browser.',
+        },
+        {
+          title: 'Va al tuo hub, o resta sul telefono.',
+          text: 'Tramite Hemmia Connect o Tailscale, cifrato fino al tuo computer. Il nostro relay lo inoltra ma non può leggerlo.',
+        },
+        {
+          title: 'Risponde il modello che hai scelto.',
+          text: 'Un modello sul tuo hub: niente lascia la casa. Un modello cloud: Hemmia chiede prima, poi invia la chat al fornitore con la tua chiave.',
+        },
+        {
+          title: 'La risposta viene salvata sul tuo dispositivo.',
+          text: 'Cifrata sull’hub con la tua passphrase, o sul telefono con una chiave custodita nella sua memoria sicura. Non su un nostro server.',
+        },
+      ],
+    },
+    promises: {
+      title: 'Sei promesse',
+      items: [
+        {
+          pose: 'house',
+          title: 'Chat salvate a casa',
+          text: 'Sul tuo hub o sul tuo telefono, cifrate. Con i modelli del tuo hub, niente lascia la casa.',
+        },
+        {
+          pose: 'key',
+          title: 'Ognuno ha la propria serratura',
+          text: 'Le chat di ognuno sono chiuse con la propria passphrase.',
+        },
+        {
+          pose: 'wave',
+          title: 'Nessun account da noi',
+          text: 'Non devi mai registrarti da noi per usare Hemmia.',
+        },
+        {
+          pose: 'sleep',
+          title: 'Niente pubblicità, nessun tracciamento',
+          text: 'Nessuna statistica di utilizzo nelle app o su questo sito.',
+        },
+        {
+          pose: 'glass',
+          title: 'La tua scelta di IA',
+          text: 'Modelli sul tuo computer, o Anthropic e OpenAI con la tua chiave.',
+        },
+        {
+          pose: 'book',
+          title: 'Onesti sui limiti',
+          text: 'I modelli locali sono più lenti e meno capaci dei migliori modelli cloud. Lo diciamo.',
+        },
+      ],
+    },
+    cost: {
+      title: 'Quanto costa',
+      intro: 'Hemmia è gratis. Paghi solo ciò che scegli di aggiungere.',
+      items: [
+        {
+          title: 'Hemmia',
+          price: 'Gratis',
+          text: 'Le app e l’hub. I modelli sul tuo hub costano solo l’elettricità.',
+        },
+        {
+          title: 'Modelli cloud',
+          price: 'Ai prezzi del fornitore',
+          text: 'Facoltativi, con la tua chiave. Pochi centesimi al giorno per la maggior parte delle persone; imposta un limite di spesa presso il fornitore. Hemmia si ferma anche a un limite mensile per persona.',
+        },
+        {
+          title: 'Hemmia Connect',
+          price: 'Gratis durante la beta',
+          note: 'poi 29 € all’anno per hub',
+          text: 'Facoltativo: i tuoi telefoni raggiungono l’hub con un solo interruttore, a casa e fuori, fino a 20 GB al mese. Gratis durante la beta, poi 30 giorni gratuiti. Oppure configura Tailscale da solo, gratis.',
+        },
+      ],
+    },
+    faq: {
+      title: 'Domande',
+      items: [
+        {
+          q: 'Vedete le mie chat?',
+          a: 'No. Sono salvate sul tuo hub o sul tuo telefono, cifrate. Quando scegli un modello cloud, Hemmia chiede prima e la chat va a quel fornitore con la tua chiave.',
+        },
+        {
+          q: 'Di quale computer ho bisogno per un hub?',
+          a: 'Un Mac con chip Apple (M1 o più recente, 16 GB di memoria o più per buoni modelli locali), o qualsiasi computer che esegue Docker. Solo con il telefono non ti serve nessun computer.',
+        },
+        {
+          q: 'Quanto sono buoni i modelli locali?',
+          a: 'Buoni per le domande di tutti i giorni, i compiti, le ricette e le lettere; più lenti e meno capaci dei migliori modelli cloud. Puoi usare entrambi e scegliere per ogni chat.',
+        },
+        {
+          q: 'I miei figli possono usarlo?',
+          a: 'Sì, con un account per ragazzi che crei per loro: vedono solo i modelli che consenti e non possono creare immagini. Le loro chat sono private, come quelle di tutti.',
+        },
+        {
+          q: 'Cosa succede se perdo la passphrase?',
+          a: 'Quando crei l’account ricevi un codice di recupero. Con quello puoi impostare una nuova passphrase. Senza, nessuno può più aprire le tue chat, nemmeno un admin.',
+        },
+      ],
+      more: 'Tutte le domande',
+    },
+    next: {
+      title: 'Prossimamente',
+      text: 'Previsti, senza date: l’app per Android e spazi condivisi dalla famiglia.',
+    },
+    cta: {
+      title: 'Porta a casa un’IA privata.',
+      text: 'Hemmia è in beta. Hemmia a casa è gratis, con un programma di installazione per il tuo Mac o con Docker; lo usi nel browser e nell’app per iPhone, ora in fase di test.',
+      start: 'Inizia',
     },
   },
 };

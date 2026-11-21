@@ -11,7 +11,7 @@ export function Offline(props: {
 }) {
   const { t, language } = useShellText(props.language);
   const when = new Date(props.hub.lastReachedAt).toLocaleString(
-    language === 'de' ? 'de-DE' : 'en-GB',
+    { en: 'en-GB', de: 'de-DE', fr: 'fr-CH', it: 'it-CH' }[language],
     { dateStyle: 'medium', timeStyle: 'short' },
   );
 

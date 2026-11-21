@@ -59,15 +59,33 @@ export const EnvSchema = z.object({
 });
 export type Env = z.infer<typeof EnvSchema>;
 
+/**
+ * Text per UI language in the config files. English and German are required; French and
+ * Italian fall back to English (fullText) when a (local) config file doesn't have them yet.
+ */
+const localized = (min: number) =>
+  z.object({
+    en: z.string().min(min),
+    de: z.string().min(min),
+    fr: z.string().min(min).optional(),
+    it: z.string().min(min).optional(),
+  });
+export type ConfigText = z.infer<ReturnType<typeof localized>>;
+
+/** A config text with every UI language (French and Italian fall back to English). */
+export function fullText(t: ConfigText): { en: string; de: string; fr: string; it: string } {
+  return { en: t.en, de: t.de, fr: t.fr ?? t.en, it: t.it ?? t.en };
+}
+
 /** One chat model entry in config/models.json. */
 export const ChatModelConfig = z.object({
   /** Stable id used in the API and database, e.g. "quick". */
   id: z.string().regex(/^[a-z][a-z0-9-]{0,31}$/),
   /** Friendly label per UI language. */
-  label: z.object({ en: z.string().min(1), de: z.string().min(1) }),
-  description: z.object({ en: z.string(), de: z.string() }).optional(),
+  label: localized(1),
+  description: localized(0).optional(),
   /** Size and speed facts shown in the model picker. */
-  details: z.object({ en: z.string(), de: z.string() }).optional(),
+  details: localized(0).optional(),
   /** Ollama model tag, e.g. "qwen3-vl:8b". */
   ollamaModel: z.string().min(1),
   /** Context window to request (num_ctx). */
@@ -89,7 +107,7 @@ export type ChatModelConfig = z.infer<typeof ChatModelConfig>;
 /** The image model entry in config/models.json (mflux). */
 export const ImageModelConfig = z.object({
   id: z.string().regex(/^[a-z][a-z0-9-]{0,31}$/),
-  label: z.object({ en: z.string().min(1), de: z.string().min(1) }),
+  label: localized(1),
   /** mflux model name, e.g. "z-image-turbo". */
   mfluxModel: z.string().min(1),
   /** Quantization bits passed to mflux (e.g. 4 or 8); omit for full precision. */
@@ -113,9 +131,9 @@ export type ImageModelConfig = z.infer<typeof ImageModelConfig>;
  */
 export const CloudModelConfig = z.object({
   id: z.string().regex(/^[a-z][a-z0-9-]{0,31}$/),
-  label: z.object({ en: z.string().min(1), de: z.string().min(1) }),
-  description: z.object({ en: z.string(), de: z.string() }).optional(),
-  details: z.object({ en: z.string(), de: z.string() }).optional(),
+  label: localized(1),
+  description: localized(0).optional(),
+  details: localized(0).optional(),
   provider: z.enum(['anthropic', 'openai', 'openrouter']),
   /** The provider's model id, e.g. "claude-sonnet-5-5" or "google/gemma-4-26b-a4b-it". */
   providerModel: z.string().regex(/^[A-Za-z0-9._:/-]{1,100}$/),
@@ -186,8 +204,8 @@ export type ModelsFile = z.infer<typeof ModelsFile>;
 /** A model the admin can download (config/catalog.json, P1.9). */
 export const CatalogEntry = z.object({
   ollamaModel: z.string().regex(/^[a-z0-9][a-z0-9._/-]{0,80}(:[a-z0-9._-]{1,40})?$/),
-  label: z.object({ en: z.string().min(1), de: z.string().min(1) }),
-  description: z.object({ en: z.string(), de: z.string() }),
+  label: localized(1),
+  description: localized(0),
   downloadGiB: z.number().positive(),
   /** Approximate resident memory while loaded. */
   memoryGiB: z.number().positive(),
@@ -199,6 +217,19 @@ export const CatalogEntry = z.object({
   contextTokens: z.number().int().min(2048).max(262144),
   /** The recommended model for computers with this much total memory. */
   recommendedFor: z.object({ minGiB: z.number(), maxGiB: z.number().nullable() }).optional(),
+  /** Facts from the signed catalogue on the relay (P11.4); absent for bundled-only entries. */
+  remote: z
+    .object({
+      pulls: z.number(),
+      releasedAt: z.string(),
+      addedAt: z.string(),
+      digest: z.string(),
+      tested: z.boolean(),
+      family: z.string(),
+      version: z.string(),
+      supersedes: z.array(z.string()),
+    })
+    .optional(),
 });
 export type CatalogEntry = z.infer<typeof CatalogEntry>;
 export const CatalogFile = z.object({ entries: z.array(CatalogEntry) });

@@ -3,7 +3,6 @@ title: Updating and uninstalling
 description: How you hear about a new version, how to install it, and how to remove Hemmia while keeping your data.
 nav: guides
 order: 85
-draft: true
 ---
 
 # Updating and uninstalling
@@ -35,4 +34,4 @@ Open the Terminal and run:
 sudo "/Library/Application Support/Hemmia/current/packaging/uninstall.sh"
 ```
 
-This removes the program and stops the hub. Your chats and settings stay in `Library/Application Support/Hemmia` in your home folder; delete that folder yourself if you want them gone too.
+This removes the program and stops the hub, and with it the Ollama, pictures and web search that Hemmia installed. Your chats and settings stay in `Library/Application Support/Hemmia` in your home folder; delete that folder yourself if you want them gone too. Downloaded models are in `.ollama` in your home folder; delete them too if no other app uses Ollama.

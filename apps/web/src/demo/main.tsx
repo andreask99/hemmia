@@ -34,7 +34,7 @@ function leaveDemo(): void {
 }
 
 function startLanguage() {
-  // The website's German pages link to /demo/?lang=de.
+  // The website's pages link to /demo/?lang=de (fr, it).
   const asked = new URLSearchParams(location.search).get('lang');
   if (isLanguage(asked)) return asked;
   try {
@@ -43,9 +43,8 @@ function startLanguage() {
   } catch {
     // storage unavailable
   }
-  return (navigator.languages[0] ?? navigator.language).toLowerCase().startsWith('de')
-    ? 'de'
-    : 'en';
+  const browser = (navigator.languages[0] ?? navigator.language).slice(0, 2).toLowerCase();
+  return isLanguage(browser) ? browser : 'en';
 }
 
 const queryClient = new QueryClient({

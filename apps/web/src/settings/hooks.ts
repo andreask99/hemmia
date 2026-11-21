@@ -29,6 +29,9 @@ import {
   SystemStatus,
   AdminEnginesResponse,
   CatalogResponse,
+  InstalledModelsResponse,
+  ModelUpdatesResponse,
+  ReplaceModelResponse,
   OllamaSetupStatus,
   PicturesSetupStatus,
   SearchSetupStatus,
@@ -112,6 +115,29 @@ export function useRevokeInvite() {
       api(`/admin/invites/${encodeURIComponent(id)}`, { method: 'DELETE' }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['admin', 'invites'] });
+    },
+  });
+}
+
+/** Deletes the signed-in account (passphrase again); afterwards nothing cached is kept. */
+export function useDeleteMe() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (password: string) => api('/me/delete', { method: 'POST', body: { password } }),
+    onSuccess: () => {
+      queryClient.clear();
+    },
+  });
+}
+
+/** An admin deletes someone else's account with the admin's own passphrase. */
+export function useDeleteUser() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, password }: { id: string; password: string }) =>
+      api(`/admin/users/${encodeURIComponent(id)}/delete`, { method: 'POST', body: { password } }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['admin', 'users'] });
     },
   });
 }
@@ -330,6 +356,82 @@ export function useInstallSearch() {
     onSuccess: (status) => {
       queryClient.setQueryData(['admin', 'search-setup'], status);
     },
+  });
+}
+
+/** Model updates for admins (P11.7); also feeds the dot on Settings. */
+export function useModelUpdates(enabled = true) {
+  return useQuery({
+    queryKey: ['admin', 'model-updates'],
+    queryFn: () => api('/admin/models/updates', { schema: ModelUpdatesResponse }),
+    enabled,
+    staleTime: 15 * 60_000,
+  });
+}
+
+/** Invalidates everything that shows models after a download, switch or delete. */
+function useRefreshModels() {
+  const queryClient = useQueryClient();
+  return () => {
+    for (const key of ['catalog', 'models', 'model-updates', 'installed']) {
+      void queryClient.invalidateQueries({ queryKey: ['admin', key] });
+    }
+    void queryClient.invalidateQueries({ queryKey: ['models'] });
+  };
+}
+
+export function useModelUpdatesSeen() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => api('/admin/models/updates/seen', { method: 'POST' }),
+    onSuccess() {
+      queryClient.setQueryData<ModelUpdatesResponse>(['admin', 'model-updates'], (d) =>
+        d ? { ...d, unseen: false } : d,
+      );
+    },
+  });
+}
+
+export function useDismissUpdate() {
+  const refresh = useRefreshModels();
+  return useMutation({
+    mutationFn: (key: string) =>
+      api('/admin/models/updates/dismiss', { method: 'POST', body: { key } }),
+    onSuccess: refresh,
+  });
+}
+
+export function useCatalogCheck() {
+  const refresh = useRefreshModels();
+  return useMutation({
+    mutationFn: (on: boolean) =>
+      api('/admin/models/catalog-check', { method: 'PUT', body: { on } }),
+    onSuccess: refresh,
+  });
+}
+
+export function useInstalledModels() {
+  return useQuery({
+    queryKey: ['admin', 'installed'],
+    queryFn: () => api('/admin/models/installed', { schema: InstalledModelsResponse }),
+  });
+}
+
+export function useReplaceModel() {
+  const refresh = useRefreshModels();
+  return useMutation({
+    mutationFn: (body: { from: string; to: string }) =>
+      api('/admin/models/replace', { method: 'POST', body, schema: ReplaceModelResponse }),
+    onSuccess: refresh,
+  });
+}
+
+/** Deletes a model from Ollama's disk (and from the family's models). */
+export function useDeleteModel() {
+  const refresh = useRefreshModels();
+  return useMutation({
+    mutationFn: (model: string) => api('/admin/models/remove', { method: 'POST', body: { model } }),
+    onSuccess: refresh,
   });
 }
 

@@ -131,6 +131,15 @@ sessions.token_hash         = SHA-256(token)
   with user id and time; never content or credentials.
 - Admin role: manage invites, disable accounts, choose enabled/default models. No endpoint
   returns another user's content, and the admin can't decrypt it anyway.
+- Deleting an account (2026-11-08, App Store 5.1.1(v), GDPR Art. 17): the person themselves
+  (`POST /api/me/delete`) or an admin for someone else (`POST /api/admin/users/:id/delete`),
+  always with the caller's passphrase typed again (rate limited, 5 per 15 min with backoff).
+  The user row goes and everything hangs off it with `ON DELETE CASCADE` (chats, messages,
+  attachments, agents, plans, profile, keys, sessions, devices, push subscriptions); the
+  encrypted attachment files are removed after the transaction; open invites the person made
+  are deleted. The last active admin can't be deleted (409 `last_admin`). Audit:
+  `account_deleted_self` without a user, `user_deleted` with the admin's id; never the deleted
+  account's name. Relay push handles of the deleted devices expire there after 90 days unused.
 - Optional later: require the Tailscale identity header (`Tailscale-User-Login`, set by
   Tailscale serve) to match a login bound to the account, as a second factor.
 
@@ -225,8 +234,8 @@ sessions.token_hash         = SHA-256(token)
 ## Push notifications
 
 - Outbound requests besides Web Push are listed where they belong: web search and page
-  reading (below), cloud models, the relay (docs/public/RELAY.md) and the update check
-  (docs/public/SECURITY.md §6.5). For Web Push: subscriptions are accepted only for HTTPS endpoints on known push
+  reading (below), cloud models, the relay (docs/public/RELAY.md), the update check
+  (docs/public/SECURITY.md §6.5) and the model catalogue (§6.6). For Web Push: subscriptions are accepted only for HTTPS endpoints on known push
   hosts (Apple, Google, Mozilla, Microsoft; default port, no credentials), which prevents
   using the server to reach arbitrary or internal addresses. Requests don't follow redirects
   and time out after 10 s.

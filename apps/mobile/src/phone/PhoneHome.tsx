@@ -23,10 +23,13 @@ export function PhoneHome(props: {
   const shown =
     needle === '' ? props.chats : props.chats.filter((c) => c.title.toLowerCase().includes(needle));
   const date = (ms: number) =>
-    new Date(ms).toLocaleDateString(language === 'de' ? 'de-DE' : 'en-GB', {
-      day: 'numeric',
-      month: 'short',
-    });
+    new Date(ms).toLocaleDateString(
+      { en: 'en-GB', de: 'de-DE', fr: 'fr-CH', it: 'it-CH' }[language],
+      {
+        day: 'numeric',
+        month: 'short',
+      },
+    );
 
   const saveRename = () => {
     if (!renaming) return;

@@ -15,11 +15,25 @@ const NAMES: Record<Lang, Record<Platform, string>> = {
     macos: 'Mac (Hemmia zu Hause)',
     docker: 'Docker (Hemmia zu Hause)',
   },
+  fr: {
+    ios: 'iOS',
+    android: 'Android',
+    macos: 'Mac (Hemmia à la maison)',
+    docker: 'Docker (Hemmia à la maison)',
+  },
+  it: {
+    ios: 'iOS',
+    android: 'Android',
+    macos: 'Mac (Hemmia a casa)',
+    docker: 'Docker (Hemmia a casa)',
+  },
 };
 
 const T = {
   en: { download: 'Download', soon: 'Coming soon' },
   de: { download: 'Herunterladen', soon: 'Demnächst' },
+  fr: { download: 'Télécharger', soon: 'Bientôt' },
+  it: { download: 'Scarica', soon: 'In arrivo' },
 } as const;
 
 export function DownloadCards({ items, lang }: { items: Download[]; lang: Lang }) {

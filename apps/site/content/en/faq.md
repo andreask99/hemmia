@@ -37,7 +37,7 @@ So your phone can reach your hub, at home and away, without opening your router 
 
 ## Can my children use it?
 
-Yes. Each person has their own account and their own private chats. Admins can restrict accounts, for example to turn off web search.
+Yes, on a hub a parent runs. Each person has their own account and their own private chats, and an admin can create teen accounts that see only the models the admin allows, search the web with strict safe search or not at all, and can't create pictures. The app itself is for ages 13 and up; younger children use it with a parent.
 
 ## What happens if I lose my passphrase?
 

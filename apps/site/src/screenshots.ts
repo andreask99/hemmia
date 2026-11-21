@@ -27,9 +27,12 @@ export function parseShotFile(file: string): { name: string; lang: Lang } | null
   return { name, lang };
 }
 
+/** Languages with their own screenshots; the others show the English ones. */
+export const SHOT_LANGS: readonly Lang[] = ['en', 'de'];
+
 /** The image path a page uses for a screenshot. */
 export function shotPath(name: string, lang: Lang): string {
-  return `/img/${name}.${lang}.webp`;
+  return `/img/${name}.${SHOT_LANGS.includes(lang) ? lang : 'en'}.webp`;
 }
 
 /** Adds or replaces entries; the result is sorted by name. */

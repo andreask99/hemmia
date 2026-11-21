@@ -34,6 +34,8 @@ export interface LlmClient {
    * LlmError ('model_not_found' for an unknown name). Optional: test fakes leave it out.
    */
   pull?(model: string, signal: AbortSignal): AsyncIterable<PullProgress>;
+  /** Deletes a model from the engine's disk (Ollama /api/delete); a missing model is fine. */
+  remove?(model: string): Promise<void>;
 }
 
 export interface PullProgress {

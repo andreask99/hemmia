@@ -1,6 +1,7 @@
 /**
  * Sending a message (streamed reply) and cancelling a job. Owned by Claude.
  */
+import type { Language } from '@hemmia/shared';
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import {
@@ -93,7 +94,7 @@ export function registerMessageRoutes(app: FastifyInstance, deps: MessageRouteDe
 
   async function follow(
     reply: Parameters<typeof openSse>[0],
-    user: { userId: string; language: 'en' | 'de' },
+    user: { userId: string; language: Language },
     chatId: string,
     started: {
       jobId: string;

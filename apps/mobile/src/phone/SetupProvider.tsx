@@ -2,9 +2,11 @@
 import type { ShellLanguage } from '../shell/i18n.ts';
 import { usePhoneText } from './i18n.ts';
 
-export const API_KEY_GUIDE = {
+export const API_KEY_GUIDE: Record<ShellLanguage, string> = {
   en: 'https://hemmia.app/guides/api-keys/',
   de: 'https://hemmia.app/de/guides/api-keys/',
+  fr: 'https://hemmia.app/fr/guides/api-keys/',
+  it: 'https://hemmia.app/it/guides/api-keys/',
 };
 
 export function SetupProvider(props: {

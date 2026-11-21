@@ -10,7 +10,14 @@ export const Download = z
     /** Empty until release: the card then reads "Coming soon". */
     url: z.union([z.literal(''), z.string().regex(/^https:\/\/\S+$/)]),
     version: z.string().min(1).max(40).optional(),
-    note: z.object({ en: z.string().max(200), de: z.string().max(200) }).strict(),
+    note: z
+      .object({
+        en: z.string().max(200),
+        de: z.string().max(200),
+        fr: z.string().max(200),
+        it: z.string().max(200),
+      })
+      .strict(),
   })
   .strict();
 export type Download = z.infer<typeof Download>;

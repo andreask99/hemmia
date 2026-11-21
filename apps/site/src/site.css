@@ -188,6 +188,49 @@ main {
   gap: 0.75rem;
   padding: 0.75rem 0;
 }
+/* Language switch: a small menu (EN DE FR IT). */
+.langs {
+  position: relative;
+}
+.langs summary {
+  cursor: pointer;
+  list-style: none;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.25rem 0.75rem;
+}
+.langs summary::-webkit-details-marker {
+  display: none;
+}
+.langs summary:focus-visible {
+  outline: 2px solid var(--forest);
+  outline-offset: 2px;
+}
+.site-header .langs ul {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.5rem);
+  z-index: 10;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 9rem;
+  padding: 0.5rem;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  box-shadow: 0 6px 20px rgba(23, 35, 31, 0.12);
+}
+.site-header .langs a {
+  display: block;
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.5rem;
+}
+.site-header .langs a[aria-current='true'] {
+  font-weight: 700;
+  background: var(--paper);
+}
 @media (min-width: 640px) {
   .nav-wide {
     display: block;
@@ -859,4 +902,56 @@ section:not(.h-alt) .h-card {
   .prose a.link-card:hover .link-card-arrow {
     transform: none;
   }
+}
+
+/* Questions or feedback (Feedback.tsx) */
+.feedback {
+  margin-top: 3rem;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  padding: 1.25rem 1.25rem 0.5rem;
+}
+.feedback h2 {
+  margin-top: 0;
+}
+.feedback-form label {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin: 0.75rem 0 0.25rem;
+}
+.feedback-form textarea,
+.feedback-form input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  background: var(--paper);
+  color: var(--ink);
+  padding: 0.6rem 0.8rem;
+  font: inherit;
+}
+.feedback-form textarea:focus,
+.feedback-form input:focus {
+  outline: 2px solid var(--forest);
+  outline-offset: 1px;
+}
+.feedback-form button {
+  border: 0;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  font: inherit;
+  font-weight: 600;
+}
+.feedback-form button:disabled {
+  opacity: 0.5;
+}
+.feedback-trap {
+  position: absolute;
+  left: -9999px;
+}
+.feedback-small {
+  font-size: 0.85rem;
+  color: var(--muted);
 }

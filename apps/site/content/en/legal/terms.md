@@ -79,8 +79,8 @@ You agree:
 
 ## 7. Hemmia Connect
 
-- **What it is:** an optional way to reach your hub from anywhere. The admin switches it on in the hub's settings. Your hub gets an address of the form `<random-id>.h.hemmia.app`. The connection is encrypted from your phone to your hub; we don't read it and, without leaving a public trace, can't (see the Privacy Policy).
-- **Price:** free during the beta. If Connect becomes a paid service (currently planned: €29 a year or €2.99 a month per hub, with 30 days free), we will tell admins in the hub at least 30 days before, and Connect will only continue for a hub if its admin chooses to buy it. Purchases would go through a payment provider that sells in its own name, under its own terms, which we will link to before you buy. Access from anywhere with Tailscale, which you set up yourself, stays free.
+- **What it is:** an optional way to reach your hub from anywhere. The admin switches it on in the hub's settings. Your hub gets an address of the form `<random-id>.h.hemmia.app`. The connection is encrypted from your phone to your hub; we don't read it. To do so we would have to change the software we run or obtain a certificate for your hub's address, which would appear in public logs (see the Privacy Policy).
+- **Price:** free during the beta. If Connect becomes a paid service (currently planned: €29 a year or €2.99 a month per hub, with 30 days free), we will announce it on hemmia.app at least 30 days before (and in the hub, once it can show such notices), and Connect will only continue for a hub if its admin chooses to buy it. Purchases would go through a payment provider that sells in its own name, under its own terms, which we will link to before you buy. Access from anywhere with Tailscale, which you set up yourself, stays free.
 - **Limits:** each hub can pass up to 20 GB a month through the relay. When a hub reaches it, Connect pauses for that hub until the next month (counted in UTC). We may also pause Connect for everyone if the relay's own monthly traffic allowance is used up. Hubs remain reachable at home and over Tailscale.
 - **Versions:** to protect everyone, Connect may refuse hubs running a version with a known security problem. The hub then tells its admin to update.
 - **Unused hubs:** a hub's registration is deleted if it hasn't connected for 12 months. It gets a new address when Connect is switched on again.
@@ -96,7 +96,7 @@ Point of contact under the EU Digital Services Act (Art. 11 and 12 DSA) for auth
 - **No guarantee of availability.** We aim to keep Connect, notifications and the update service running, but cannot guarantee that they are always available or work on every network. Hemmia works at home without them.
 - **No entitlement to free services.** We may change or end free features for the future.
 - **Changes to the app and the hub.** We may improve and change Hemmia, for example to fix bugs, adapt to new operating systems, meet legal requirements or add features. Where a change would significantly affect something you have paid for, we will only make it for a valid reason, will tell you in good time, and will respect your statutory rights, including, in the EU, your right to end the contract under Art. 19 of Directive (EU) 2019/770.
-- **Ending Connect.** If we ever plan to shut down Connect, we will announce it in the hub at least 60 days in advance; paid periods not yet used would be refunded pro rata.
+- **Ending Connect.** If we ever plan to shut down Connect, we will announce it on hemmia.app at least 60 days in advance (and in the hub, once it can show such notices); paid periods not yet used would be refunded pro rata.
 - **Your choice.** You can stop using Hemmia at any time: switch Connect off or use **Forget this address**, and delete the app.
 - **Our choice.** If you seriously or repeatedly break these terms, we may block your hub on the relay. Where reasonable, we will warn you first, and we will tell you the reason (see section 8).
 
@@ -132,7 +132,7 @@ These provisions apply because the app is distributed through the App Store:
 
 ## 13. Changes to these terms
 
-We may change these terms for the future if there is a valid reason (such as new legal requirements, new features or changes to how Hemmia works) and the change is reasonable for you. We will tell you about changes in the hub or the app at least 30 days before they take effect. If you don't agree, you can stop using our services before that date. Changes never affect payments made before they take effect.
+We may change these terms for the future if there is a valid reason (such as new legal requirements, new features or changes to how Hemmia works) and the change is reasonable for you. We will announce changes on hemmia.app at least 30 days before they take effect, and also in the hub or the app where we can. If you don't agree, you can stop using our services before that date. Changes never affect payments made before they take effect.
 
 ## 14. Applicable law and courts
 
@@ -144,4 +144,4 @@ We would always rather sort things out directly, so please write to us first. We
 
 ## 15. Final provisions
 
-If any provision of these terms is or becomes invalid, the remaining provisions stay in effect, and the statutory provisions apply in place of the invalid one. These terms are written in English. A German translation is at hemmia.app/de/legal/terms/. If the two differ, the English version applies, unless mandatory consumer protection law provides otherwise.
+If any provision of these terms is or becomes invalid, the remaining provisions stay in effect, and the statutory provisions apply in place of the invalid one. These terms are written in English. Translations into German, French and Italian are at hemmia.app/de/legal/terms/, hemmia.app/fr/legal/terms/ and hemmia.app/it/legal/terms/. If a translation differs, the English version applies, unless mandatory consumer protection law provides otherwise.

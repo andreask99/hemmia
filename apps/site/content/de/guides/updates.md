@@ -3,7 +3,6 @@ title: Aktualisieren und deinstallieren
 description: Wie du von einer neuen Version erfährst, wie du sie installierst und wie du Hemmia entfernst, ohne deine Daten zu verlieren.
 nav: guides
 order: 85
-draft: true
 ---
 
 # Aktualisieren und deinstallieren
@@ -35,4 +34,4 @@ Deine Daten bleiben im Volume `hemmia-data`. Nimm dieselben Optionen wie beim St
 sudo "/Library/Application Support/Hemmia/current/packaging/uninstall.sh"
 ```
 
-Das entfernt das Programm und stoppt den Hub. Deine Chats und Einstellungen bleiben in `Library/Application Support/Hemmia` in deinem Benutzerordner. Lösche diesen Ordner selbst, wenn sie auch weg sollen.
+Das entfernt das Programm und stoppt den Hub und damit auch das Ollama, die Bilder und die Websuche, die Hemmia installiert hat. Deine Chats und Einstellungen bleiben in `Library/Application Support/Hemmia` in deinem Benutzerordner. Lösche diesen Ordner selbst, wenn sie auch weg sollen. Heruntergeladene Modelle liegen in `.ollama` in deinem Benutzerordner; lösch sie auch, wenn keine andere App Ollama nutzt.

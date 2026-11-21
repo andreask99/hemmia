@@ -16,7 +16,9 @@ import { Button } from '@hemmia/ui';
 import { LocalServers } from './LocalServers.tsx';
 import { SearchSetup } from './SearchSetup.tsx';
 import { PicturesSetup } from './PicturesSetup.tsx';
+import { InstalledModels } from './InstalledModels.tsx';
 import { ModelCatalog } from './ModelCatalog.tsx';
+import { ModelUpdates } from './ModelUpdates.tsx';
 
 const select =
   'mt-1.5 min-h-12 w-full rounded-xl border border-line bg-paper px-3.5 text-base text-ink focus:border-forest focus:outline-none';
@@ -46,6 +48,7 @@ function Editor({ data }: { data: AdminModelsResponse }) {
 
   return (
     <div className="flex flex-col gap-4">
+      <ModelUpdates />
       <ul className="divide-y divide-line">
         {available.map((m) => (
           <li key={m.id} className="flex min-h-12 items-center justify-between gap-3 py-1">
@@ -198,7 +201,11 @@ function Editor({ data }: { data: AdminModelsResponse }) {
       </div>
 
       <div className="border-t border-line pt-4">
-        <ModelCatalog />
+        <ModelCatalog showCheck />
+      </div>
+
+      <div className="border-t border-line pt-4">
+        <InstalledModels />
       </div>
 
       <PicturesSetup />
@@ -259,5 +266,7 @@ function Editor({ data }: { data: AdminModelsResponse }) {
 
 export function AdminModels() {
   const { data } = useAdminModels();
-  return data ? <Editor data={data} /> : null;
+  // The form starts over when the set of models changes (an update switched models, or one
+  // was added or deleted), so it never shows or saves a default that no longer exists.
+  return data ? <Editor key={data.models.map((m) => m.id).join(',')} data={data} /> : null;
 }

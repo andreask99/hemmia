@@ -3,7 +3,6 @@ title: Backups and recovery
 description: Keep your recovery code safe, back up the hub's data folder, move to a new computer and save the chats on your phone.
 nav: guides
 order: 80
-draft: true
 ---
 
 # Backups and recovery

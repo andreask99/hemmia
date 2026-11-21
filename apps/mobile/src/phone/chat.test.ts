@@ -76,8 +76,8 @@ function memoryFiles(): PhoneFiles {
 
 const MODEL: PhoneModel = {
   id: 'claude-sonnet',
-  label: { en: 'Claude', de: 'Claude' },
-  description: { en: '', de: '' },
+  label: { en: 'Claude', de: 'Claude', fr: 'Claude', it: 'Claude' },
+  description: { en: '', de: '', fr: '', it: '' },
   provider: 'anthropic',
   providerModel: 'claude-sonnet-5-5',
   historyBudgetTokens: 40000,

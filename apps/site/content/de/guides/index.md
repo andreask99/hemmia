@@ -7,7 +7,7 @@ order: 10
 
 # Anleitungen
 
-Schritt für Schritt, in einfachen Worten. Anleitungen für Hemmia zu Hause auf einem Mac oder mit Docker folgen mit der ersten öffentlichen Version.
+Schritt für Schritt, in einfachen Worten.
 
 ## Hemmia ausprobieren
 
@@ -20,6 +20,17 @@ Schritt für Schritt, in einfachen Worten. Anleitungen für Hemmia zu Hause auf 
 ## Hemmia zu Hause
 
 <!-- cards -->
+- house | [Hemmia auf einem Mac einrichten](/de/guides/mac/) | Den Hub installieren, deine KI wählen, Bilder und Websuche einschalten, dein Telefon hinzufügen.
+- pot | [Mit Docker einrichten](/de/guides/docker/) | Linux, Windows oder ein NAS: Ein Befehl startet Hemmia mit lokalen Modellen und Websuche.
 - book | [KI-Modelle auswählen](/de/guides/models/) | Lokale Modelle auf deinem Hub, LM Studio und Cloud-Modelle mit deinem eigenen Schlüssel.
-- house | [Familie einladen](/de/guides/family/) | Konten für alle, eingeschränkte Konten für Teenager, Geräte.
+- wave | [Familie einladen](/de/guides/family/) | Konten für alle, eingeschränkte Konten für Teenager, Geräte.
+- key | [Telefon verbinden](/de/guides/phone-to-hub/) | Die App per QR-Code koppeln, weitere Geräte anmelden, zwischen Hubs wechseln.
+- glass | [Unterwegs](/de/guides/remote/) | Deinen Hub mit Hemmia Connect oder Tailscale erreichen, und was das Relay nicht sieht.
+<!-- /cards -->
+
+## Damit es läuft
+
+<!-- cards -->
+- sleep | [Sicherung und Wiederherstellung](/de/guides/backup/) | Dein Wiederherstellungscode, den Hub sichern, auf einen neuen Computer umziehen.
+- brush | [Aktualisieren und deinstallieren](/de/guides/updates/) | Neue Versionen, aktualisieren auf dem Mac oder mit Docker, Hemmia entfernen.
 <!-- /cards -->

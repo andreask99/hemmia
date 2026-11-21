@@ -29,7 +29,7 @@ Wenn du Hemmia Connect einschaltest, erreichen Telefone deinen Hub unterwegs üb
 
 - Die Verbindung ist vom Telefon bis zum Hub verschlüsselt. Das Relay leitet sie weiter, hat aber keinen Schlüssel dafür. Es sieht nie deine Nachrichten, Passphrasen, Fotos oder welchen Chat du gerade öffnest.
 - Es weiss: die Adresse deines Hubs, wann er zuletzt verbunden war, wie viele Daten diesen Monat durchgingen und, solange eine Verbindung offen ist, die IP-Adresse des Telefons, die es auch an deinen Hub weitergibt, damit dieser das Erraten von Passwörtern bremsen kann. In den Protokollen stehen IP-Adressen nur gekürzt.
-- **Das eine, was es theoretisch könnte:** Wer das Relay betreibt, verwaltet die Adressen unter seiner Domain. Er könnte daher theoretisch ein Zertifikat für die Adresse deines Hubs bekommen und Verbindungen abfangen, solange er das tut. Das ist dasselbe Vertrauen, das du jeder Website und ihrer Verschlüsselung entgegenbringst. Jedes solche Zertifikat wird in öffentlichen Protokollen veröffentlicht und ist dort sichtbar. Wenn du dieses Vertrauen nicht geben möchtest, nutze stattdessen **Tailscale** oder nutze den Hub nur im Browser auf seinem eigenen Computer.
+- **Was es theoretisch könnte:** Wer das Relay betreibt, verwaltet die Adressen unter seiner Domain. Er könnte daher theoretisch ein Zertifikat für die Adresse deines Hubs bekommen und Verbindungen abfangen, solange er das tut. Jedes solche Zertifikat wird in öffentlichen Protokollen veröffentlicht und ist dort sichtbar. Er betreibt auch die Beitrittsseite, auf der sich geteilte Links öffnen; eine geänderte Beitrittsseite könnte also einen Einladungs- oder Anmeldelink lesen, ohne öffentliche Spur (Anmeldelinks funktionieren nur einmal und 10 Minuten lang). Wir tun beides nicht, und der Code ist öffentlich. Das ist dasselbe Vertrauen, das du jeder Website entgegenbringst. Wenn du dieses Vertrauen nicht geben möchtest, nutze stattdessen **Tailscale** oder nutze den Hub nur im Browser auf seinem eigenen Computer.
 
 ## Mitteilungen
 
@@ -38,6 +38,8 @@ Wenn eine Antwort oder ein Bild fertig ist, bekommt dein Telefon eine Mitteilung
 ## Update-Prüfung
 
 Einmal am Tag fragt ein Hub, der aus unserem Paket oder Docker-Image installiert wurde, unseren Server, ob es eine neuere Version gibt. Die Anfrage sagt nur, welche Version er hat, ob es die Mac- oder die Docker-Version ist und ob er normale oder Test-Versionen bekommt. Wir zählen diese Anfragen pro Tag und wissen so ungefähr, wie viele Hubs welche Version haben. Deine IP-Adresse speichern wir nicht, und über dich oder deine Familie wird nichts geschickt. Die Antwort ist signiert, damit dein Hub ihr nur vertraut, wenn sie wirklich von uns kommt. Mit Docker schaltest du die Prüfung aus, indem du `HEMMIA_UPDATE_CHECK=0` in `.env` setzt. Auf dem Mac ist ein Schalter in den Einstellungen geplant; bis dahin schreib uns, dann sagen wir dir, wie.
+
+Außerdem holt dein Hub einmal am Tag die Liste der Modelle, die Hemmia vorschlägt. Diese Anfrage enthält nichts über deinen Hub oder deine Familie; wir zählen sie nicht und speichern deine IP-Adresse nicht. Du schaltest das unter Einstellungen → Modelle aus.
 
 ## Diese Website
 

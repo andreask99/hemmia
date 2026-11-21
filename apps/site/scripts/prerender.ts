@@ -18,6 +18,8 @@ const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const DIST = join(ROOT, 'dist');
 const SITE_URL = process.env['SITE_URL'] ?? 'https://hemmia.app';
 
+type Lang = 'en' | 'de' | 'fr' | 'it';
+
 interface RenderModule {
   renderPage: (
     page: unknown,
@@ -41,8 +43,8 @@ interface RenderModule {
     header: { title: string; description: string; draft: string; date?: string };
     body: string;
   };
-  pagePath: (lang: 'en' | 'de', slug: string) => string;
-  LANGS: readonly ('en' | 'de')[];
+  pagePath: (lang: Lang, slug: string) => string;
+  LANGS: readonly Lang[];
 }
 
 const mod = (await import(join(ROOT, 'dist-ssr', 'render.js'))) as RenderModule;
@@ -67,7 +69,7 @@ const urls: string[] = [];
 const news: { lang: string; path: string; title: string; date: string }[] = [];
 // First collect every page, so the navigation can link only to pages that exist.
 const pages: {
-  lang: 'en' | 'de';
+  lang: Lang;
   slug: string;
   header: ReturnType<RenderModule['parseContent']>['header'];
   body: string;
@@ -130,7 +132,7 @@ writeFileSync(
 );
 writeFileSync(
   join(DIST, '_headers'),
-  `/*\n  Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'\n  Referrer-Policy: no-referrer\n  X-Content-Type-Options: nosniff\n  Permissions-Policy: camera=(), microphone=(), geolocation=()\n  Strict-Transport-Security: max-age=63072000; includeSubDomains\n`,
+  `/*\n  Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src https://api.hemmia.app; base-uri 'none'; form-action 'none'; frame-ancestors 'none'\n  Referrer-Policy: no-referrer\n  X-Content-Type-Options: nosniff\n  Permissions-Policy: camera=(), microphone=(), geolocation=()\n  Strict-Transport-Security: max-age=63072000; includeSubDomains\n`,
 );
 const icon = join(ROOT, '..', 'relay', 'static', 'join', 'icon.svg');
 if (existsSync(icon)) copyFileSync(icon, join(DIST, 'icon.svg'));

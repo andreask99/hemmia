@@ -3,7 +3,6 @@ title: Set up with Docker
 description: Run the Hemmia hub with Docker on Linux, Windows or a NAS, with local models and web search if you like.
 nav: guides
 order: 30
-draft: true
 ---
 
 # Set up with Docker
@@ -38,7 +37,7 @@ Without local models: `./start.sh --no-ollama`. Without web search: `./start.sh 
 
 ## A computer without a browser
 
-On a NAS or server you can't open `localhost` in a browser. Put `HEMMIA_CONNECT=1` into the file `.env` in `packaging/docker` and run `./start.sh`. It turns on Hemmia Connect right away, and the log also shows a `https://…/setup#…` link that works from any device. Treat that link like a password until the setup is done.
+On a NAS or server you can't open `localhost` in a browser. Put `HEMMIA_CONNECT=1` into the file `.env` in `packaging/docker` and run `./start.sh`. It turns on Hemmia Connect right away, and the log also shows a `https://…/setup#…` link that works from any device. Treat that link like a password until the setup is done. Hemmia Connect is a service of ours: by turning it on you agree to the [Terms of Use](/legal/terms/).
 
 ## Ollama that's already installed
 

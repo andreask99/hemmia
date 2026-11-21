@@ -1,0 +1,17 @@
+/* Notification texts (RELAY.md: title-loc-key / loc-key). */
+"push_reply_title" = "Hemmia";
+"push_reply_body" = "La tua risposta è pronta";
+"push_image_title" = "Hemmia";
+"push_image_body" = "La tua immagine è pronta";
+"push_daily_title" = "Hemmia";
+"push_daily_body" = "☀️ La tua giornata: obiettivi e appuntamenti";
+"push_week_title" = "Hemmia";
+"push_week_body" = "📋 Pianifica la settimana: 5 minuti per ciò che conta";
+"push_evening_title" = "Hemmia";
+"push_evening_body" = "🌙 Com’è andata oggi?";
+"push_maintenance_ok_title" = "Hemmia";
+"push_maintenance_ok_body" = "Manutenzione: aggiornamenti installati e testati";
+"push_maintenance_failed_title" = "Hemmia";
+"push_maintenance_failed_body" = "Manutenzione: un aggiornamento non è riuscito, è stata ripristinata la versione precedente";
+"push_models_title" = "Hemmia";
+"push_models_body" = "È disponibile una nuova versione di un vostro modello";

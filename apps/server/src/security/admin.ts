@@ -29,7 +29,7 @@ interface Row {
 }
 
 export function createAdmin(db: DB, now: () => number = Date.now) {
-  function audit(event: string, userId: string): void {
+  function audit(event: string, userId: string | null): void {
     db.prepare('INSERT INTO audit_log (user_id, event, created_at) VALUES (?, ?, ?)').run(
       userId,
       event,
@@ -120,6 +120,39 @@ export function createAdmin(db: DB, now: () => number = Date.now) {
         audit('user_disabled', id);
       })();
       return true;
+    },
+
+    /**
+     * Deletes an account and everything of it: chats, messages, attachments, agents, plans,
+     * profile, keys, sessions, devices, notification subscriptions (all ON DELETE CASCADE) and
+     * its open invites. Returns the attachment ids whose encrypted files the caller removes, or
+     * 'last_admin' (a hub keeps at least one admin), or null if there is no such user.
+     */
+    deleteUser(userId: string, by: string): { blobs: string[] } | 'last_admin' | null {
+      return db.transaction(() => {
+        const user = db
+          .prepare<[string], { role: Role }>('SELECT role FROM users WHERE id = ?')
+          .get(userId);
+        if (!user) return null;
+        if (user.role === 'admin') {
+          const others = db
+            .prepare<[string], { n: number }>(
+              "SELECT COUNT(*) AS n FROM users WHERE role = 'admin' AND disabled_at IS NULL AND id != ?",
+            )
+            .get(userId);
+          if ((others?.n ?? 0) === 0) return 'last_admin';
+        }
+        const blobs = db
+          .prepare<[string], { id: string }>('SELECT id FROM attachments WHERE user_id = ?')
+          .all(userId)
+          .map((r) => r.id);
+        db.prepare('DELETE FROM invites WHERE created_by = ? AND used_at IS NULL').run(userId);
+        db.prepare('DELETE FROM users WHERE id = ?').run(userId);
+        // The audit entry names the admin who deleted, never the deleted account (it's gone).
+        if (by === userId) audit('account_deleted_self', null);
+        else audit('user_deleted', by);
+        return { blobs };
+      })();
     },
 
     /** Re-enables an account. Returns false if no such user. */

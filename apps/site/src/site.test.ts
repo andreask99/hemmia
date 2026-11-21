@@ -114,11 +114,17 @@ describe('site checks', () => {
         html: '<a href="/guides/mac/">x</a><a href="/de/">y</a><img src="/img/a.webp">',
       },
       { path: '/de/index.html', html: '<a href="/">x</a>' },
+      { path: '/fr/index.html', html: '<a href="/">x</a>' },
+      { path: '/it/index.html', html: '<a href="/">x</a>' },
       { path: '/guides/mac/index.html', html: '<a href="#top">t</a>' },
     ];
     expect(brokenLinks(files, new Set())).toEqual(['/index.html → /img/a.webp']);
     expect(brokenLinks(files, new Set(['/img/a.webp']))).toEqual([]);
-    expect(missingTranslations(files)).toEqual(['de missing: /guides/mac/index.html']);
+    expect(missingTranslations(files)).toEqual([
+      'de missing: /guides/mac/index.html',
+      'fr missing: /guides/mac/index.html',
+      'it missing: /guides/mac/index.html',
+    ]);
   });
 });
 

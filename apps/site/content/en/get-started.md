@@ -3,7 +3,6 @@ title: Get started
 description: Hemmia on your phone with your own key, or at home for the whole family. Which one is right for you?
 nav: start
 order: 5
-draft: true
 ---
 
 # Get started
@@ -20,7 +19,7 @@ Install the app, paste your own key from Anthropic or OpenAI, and start chatting
 
 Set up a hub on a computer that stays on. It runs local models, gives everyone in the family their own account, and works on every device.
 
-1. [Set up on a Mac](/guides/mac/)
+1. [Set up on a Mac](/guides/mac/) or [with Docker](/guides/docker/)
 2. [Choosing AI models](/guides/models/)
 3. [Invite your family](/guides/family/)
 

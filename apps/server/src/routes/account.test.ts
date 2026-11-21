@@ -95,7 +95,7 @@ describe('preferences', () => {
     expect(MeResponse.parse(res.json())).toMatchObject({ language: 'de', defaultModelId: 'quick' });
     const me = MeResponse.parse((await send('GET', '/api/me', anna)).json());
     expect(me.language).toBe('de');
-    expect((await send('PATCH', '/api/me', anna, { language: 'fr' })).statusCode).toBe(400);
+    expect((await send('PATCH', '/api/me', anna, { language: 'xx' })).statusCode).toBe(400);
   });
 });
 
@@ -172,5 +172,63 @@ describe('admin', () => {
     expect(
       (await send('PATCH', `/api/admin/users/${me.id}`, boss, { disabled: true })).statusCode,
     ).toBe(400);
+  });
+});
+
+describe('deleting an account (App Store 5.1.1(v), GDPR Art. 17)', () => {
+  const PASS = 'blue tractor sings loudly';
+  const userCount = () =>
+    (built.db.prepare('SELECT COUNT(*) AS n FROM users').get() as { n: number }).n;
+
+  it("deletes one's own account with the passphrase, and its sessions stop working", async () => {
+    await signUp('boss', 'admin');
+    const kid = await signUp('kid');
+    const before = userCount();
+    expect(
+      (await send('POST', '/api/me/delete', kid, { password: 'wrong one here' })).statusCode,
+    ).toBe(401);
+    expect((await send('POST', '/api/me/delete', kid, {})).statusCode).toBe(400);
+    expect((await send('POST', '/api/me/delete', kid, { password: PASS })).statusCode).toBe(204);
+    expect(userCount()).toBe(before - 1);
+    expect((await send('GET', '/api/me', kid)).statusCode).toBe(401);
+    // The name is free again.
+    expect(await signUp('kid')).not.toBe('');
+  });
+
+  it('keeps the last admin', async () => {
+    const boss = await signUp('boss', 'admin');
+    const res = await send('POST', '/api/me/delete', boss, { password: PASS });
+    expect(res.statusCode).toBe(409);
+    expect(res.json()).toMatchObject({ error: { code: 'last_admin' } });
+  });
+
+  it("lets an admin delete someone else with the admin's passphrase, not members", async () => {
+    const boss = await signUp('boss', 'admin');
+    const kid = await signUp('kid');
+    const other = await signUp('other');
+    const kidId = MeResponse.parse((await send('GET', '/api/me', kid)).json()).id;
+    const bossId = MeResponse.parse((await send('GET', '/api/me', boss)).json()).id;
+    expect(
+      (await send('POST', `/api/admin/users/${kidId}/delete`, other, { password: PASS }))
+        .statusCode,
+    ).toBe(403);
+    expect(
+      (await send('POST', `/api/admin/users/${bossId}/delete`, boss, { password: PASS }))
+        .statusCode,
+    ).toBe(400);
+    expect(
+      (await send('POST', `/api/admin/users/${kidId}/delete`, boss, { password: 'nope nope' }))
+        .statusCode,
+    ).toBe(401);
+    expect(
+      (await send('POST', `/api/admin/users/${kidId}/delete`, boss, { password: PASS })).statusCode,
+    ).toBe(204);
+    const users = AdminUserListResponse.parse(
+      (await send('GET', '/api/admin/users', boss)).json(),
+    ).users;
+    expect(users.map((u) => u.username).sort()).toEqual(['boss', 'other']);
+    expect(
+      (await send('POST', `/api/admin/users/${kidId}/delete`, boss, { password: PASS })).statusCode,
+    ).toBe(404);
   });
 });

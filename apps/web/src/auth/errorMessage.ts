@@ -23,6 +23,8 @@ export function errorMessage(err: unknown, t: TFunction, context?: 'recover'): s
       return t('error.rate_limited', {
         minutes: Math.max(1, Math.ceil((err.retryAfterSeconds ?? 60) / 60)),
       });
+    case 'last_admin':
+      return t('error.last_admin');
     case 'bad_request':
       return context === 'recover' ? t('error.invalid_recovery') : t('error.generic');
     default:

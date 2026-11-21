@@ -127,7 +127,10 @@ export function createPush(options: PushOptions) {
     const native = options.native;
     const client = native?.client();
     // Native push goes through the relay, which is what a 'connect' notice may be about.
-    if (!native || !client || !handle || payload.kind === 'connect') return;
+    // 'models' needs its text in the apps, which ships with the next app release (P11.7).
+    if (!native || !client || !handle || payload.kind === 'connect' || payload.kind === 'models') {
+      return;
+    }
     const kind =
       payload.kind === 'maintenance'
         ? payload.ok === false

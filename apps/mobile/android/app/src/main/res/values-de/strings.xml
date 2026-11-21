@@ -14,5 +14,7 @@
     <string name="push_maintenance_ok_body">Wartung: Updates installiert und getestet</string>
     <string name="push_maintenance_failed_title">Hemmia</string>
     <string name="push_maintenance_failed_body">Wartung: Ein Update ist fehlgeschlagen, die vorherige Version wurde wiederhergestellt</string>
+    <string name="push_models_title">Hemmia</string>
+    <string name="push_models_body">Eine neue Version eines eurer Modelle ist da</string>
     <string name="channel_replies">Antworten</string>
 </resources>

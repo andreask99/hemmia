@@ -1,6 +1,6 @@
 /**
  * Checks for the built site (WEBSITE.md §2, site:check): every internal link and image exists,
- * every page exists in both languages, and no page loads anything from another site.
+ * every page exists in every language, and no page loads anything from another site.
  */
 
 export interface SiteFile {
@@ -51,15 +51,23 @@ export function brokenLinks(files: SiteFile[], assets: Set<string>): string[] {
   return [...new Set(out)];
 }
 
-/** Pages that exist in one language only. The demo (/demo/) follows the visitor's language. */
+/** Pages missing in a language. The demo (/demo/) follows the visitor's language. */
 export function missingTranslations(files: SiteFile[]): string[] {
+  const OTHER = ['de', 'fr', 'it'] as const;
   const pages = files
     .map((f) => f.path)
     .filter((p) => p.endsWith('index.html') && !p.startsWith('/demo/'));
-  const en = new Set(pages.filter((p) => !p.startsWith('/de/')));
-  const de = new Set(pages.filter((p) => p.startsWith('/de/')).map((p) => p.slice(3)));
-  return [
-    ...[...en].filter((p) => !de.has(p)).map((p) => `de missing: ${p}`),
-    ...[...de].filter((p) => !en.has(p)).map((p) => `en missing: ${p}`),
-  ];
+  const langOf = (p: string) => OTHER.find((l) => p.startsWith(`/${l}/`)) ?? 'en';
+  const slugOf = (p: string) => (langOf(p) === 'en' ? p : p.slice(3));
+  const byLang = new Map<string, Set<string>>();
+  for (const p of pages) {
+    const l = langOf(p);
+    byLang.set(l, (byLang.get(l) ?? new Set()).add(slugOf(p)));
+  }
+  const all = new Set(pages.map(slugOf));
+  const out: string[] = [];
+  for (const l of ['en', ...OTHER]) {
+    for (const slug of all) if (!byLang.get(l)?.has(slug)) out.push(`${l} missing: ${slug}`);
+  }
+  return out;
 }

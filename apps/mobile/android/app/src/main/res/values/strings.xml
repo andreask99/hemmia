@@ -18,5 +18,7 @@
     <string name="push_maintenance_ok_body">Maintenance: updates installed and tested</string>
     <string name="push_maintenance_failed_title">Hemmia</string>
     <string name="push_maintenance_failed_body">Maintenance: an update failed, the previous version was restored</string>
+    <string name="push_models_title">Hemmia</string>
+    <string name="push_models_body">A new version of a model you use is ready to download</string>
     <string name="channel_replies">Replies</string>
 </resources>

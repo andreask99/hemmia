@@ -5,15 +5,21 @@
       "id": "claude-sonnet",
       "label": {
         "en": "Claude Sonnet 5.5",
-        "de": "Claude Sonnet 5.5"
+        "de": "Claude Sonnet 5.5",
+        "fr": "Claude Sonnet 5.5",
+        "it": "Claude Sonnet 5.5"
       },
       "description": {
         "en": "Fast and capable, in the cloud (Anthropic)",
-        "de": "Schnell und stark, in der Cloud (Anthropic)"
+        "de": "Schnell und stark, in der Cloud (Anthropic)",
+        "fr": "Rapide et compétent, dans le cloud (Anthropic)",
+        "it": "Veloce e capace, nel cloud (Anthropic)"
       },
       "details": {
         "en": "Your Anthropic key · ~$2 / $10 per million tokens in / out",
-        "de": "Dein Anthropic-Schlüssel · ~2 $ / 10 $ pro Million Tokens rein / raus"
+        "de": "Dein Anthropic-Schlüssel · ~2 $ / 10 $ pro Million Tokens rein / raus",
+        "fr": "Ta clé Anthropic · ~2 $ / 10 $ par million de jetons en entrée / sortie",
+        "it": "La tua chiave Anthropic · ~$2 / $10 per milione di token in entrata / uscita"
       },
       "provider": "anthropic",
       "providerModel": "claude-sonnet-5-5",
@@ -30,15 +36,21 @@
       "id": "claude-opus",
       "label": {
         "en": "Claude Opus 5.5",
-        "de": "Claude Opus 5.5"
+        "de": "Claude Opus 5.5",
+        "fr": "Claude Opus 5.5",
+        "it": "Claude Opus 5.5"
       },
       "description": {
         "en": "Anthropic's strongest everyday model, in the cloud",
-        "de": "Anthropics stärkstes Alltagsmodell, in der Cloud"
+        "de": "Anthropics stärkstes Alltagsmodell, in der Cloud",
+        "fr": "Le modèle quotidien le plus puissant d’Anthropic, dans le cloud",
+        "it": "Il modello quotidiano più potente di Anthropic, nel cloud"
       },
       "details": {
         "en": "Your Anthropic key · ~$4 / $20 per million tokens in / out",
-        "de": "Dein Anthropic-Schlüssel · ~4 $ / 20 $ pro Million Tokens rein / raus"
+        "de": "Dein Anthropic-Schlüssel · ~4 $ / 20 $ pro Million Tokens rein / raus",
+        "fr": "Ta clé Anthropic · ~4 $ / 20 $ par million de jetons en entrée / sortie",
+        "it": "La tua chiave Anthropic · ~$4 / $20 per milione di token in entrata / uscita"
       },
       "provider": "anthropic",
       "providerModel": "claude-opus-5-5",
@@ -55,15 +67,21 @@
       "id": "gpt-sol",
       "label": {
         "en": "GPT-6.1 Sol",
-        "de": "GPT-6.1 Sol"
+        "de": "GPT-6.1 Sol",
+        "fr": "GPT-6.1 Sol",
+        "it": "GPT-6.1 Sol"
       },
       "description": {
         "en": "OpenAI's balanced model, in the cloud",
-        "de": "OpenAIs ausgewogenes Modell, in der Cloud"
+        "de": "OpenAIs ausgewogenes Modell, in der Cloud",
+        "fr": "Le modèle équilibré d’OpenAI, dans le cloud",
+        "it": "Il modello equilibrato di OpenAI, nel cloud"
       },
       "details": {
         "en": "Your OpenAI key · ~$2 / $10 per million tokens in / out",
-        "de": "Dein OpenAI-Schlüssel · ~2 $ / 10 $ pro Million Tokens rein / raus"
+        "de": "Dein OpenAI-Schlüssel · ~2 $ / 10 $ pro Million Tokens rein / raus",
+        "fr": "Ta clé OpenAI · ~2 $ / 10 $ par million de jetons en entrée / sortie",
+        "it": "La tua chiave OpenAI · ~$2 / $10 per milione di token in entrata / uscita"
       },
       "provider": "openai",
       "providerModel": "gpt-6.1-sol",
@@ -79,15 +97,21 @@
       "id": "gpt-astra",
       "label": {
         "en": "GPT-6 Astra",
-        "de": "GPT-6 Astra"
+        "de": "GPT-6 Astra",
+        "fr": "GPT-6 Astra",
+        "it": "GPT-6 Astra"
       },
       "description": {
         "en": "OpenAI's strongest model for hard questions, in the cloud",
-        "de": "OpenAIs stärkstes Modell für schwierige Fragen, in der Cloud"
+        "de": "OpenAIs stärkstes Modell für schwierige Fragen, in der Cloud",
+        "fr": "Le modèle le plus puissant d’OpenAI pour les questions difficiles, dans le cloud",
+        "it": "Il modello più potente di OpenAI per le domande difficili, nel cloud"
       },
       "details": {
         "en": "Your OpenAI key · ~$10 / $50 per million tokens in / out",
-        "de": "Dein OpenAI-Schlüssel · ~10 $ / 50 $ pro Million Tokens rein / raus"
+        "de": "Dein OpenAI-Schlüssel · ~10 $ / 50 $ pro Million Tokens rein / raus",
+        "fr": "Ta clé OpenAI · ~10 $ / 50 $ par million de jetons en entrée / sortie",
+        "it": "La tua chiave OpenAI · ~$10 / $50 per milione di token in entrata / uscita"
       },
       "provider": "openai",
       "providerModel": "gpt-6-astra",
@@ -103,15 +127,21 @@
       "id": "openrouter-auto",
       "label": {
         "en": "OpenRouter Auto",
-        "de": "OpenRouter Auto"
+        "de": "OpenRouter Auto",
+        "fr": "OpenRouter Auto",
+        "it": "OpenRouter Auto"
       },
       "description": {
         "en": "OpenRouter picks a model for each message, in the cloud",
-        "de": "OpenRouter wählt für jede Nachricht ein Modell, in der Cloud"
+        "de": "OpenRouter wählt für jede Nachricht ein Modell, in der Cloud",
+        "fr": "OpenRouter choisit un modèle pour chaque message, dans le cloud",
+        "it": "OpenRouter sceglie un modello per ogni messaggio, nel cloud"
       },
       "details": {
         "en": "Your OpenRouter key · price depends on the model it picks",
-        "de": "Dein OpenRouter-Schlüssel · Preis hängt vom gewählten Modell ab"
+        "de": "Dein OpenRouter-Schlüssel · Preis hängt vom gewählten Modell ab",
+        "fr": "Ta clé OpenRouter · le prix dépend du modèle choisi",
+        "it": "La tua chiave OpenRouter · il prezzo dipende dal modello scelto"
       },
       "provider": "openrouter",
       "providerModel": "openrouter/auto",
@@ -127,15 +157,21 @@
       "id": "or-gemma4-26b",
       "label": {
         "en": "Gemma 4 26B (OpenRouter)",
-        "de": "Gemma 4 26B (OpenRouter)"
+        "de": "Gemma 4 26B (OpenRouter)",
+        "fr": "Gemma 4 26B (OpenRouter)",
+        "it": "Gemma 4 26B (OpenRouter)"
       },
       "description": {
         "en": "The open Gemma model, run in the cloud",
-        "de": "Das offene Gemma-Modell, in der Cloud ausgeführt"
+        "de": "Das offene Gemma-Modell, in der Cloud ausgeführt",
+        "fr": "Le modèle ouvert Gemma, exécuté dans le cloud",
+        "it": "Il modello aperto Gemma, eseguito nel cloud"
       },
       "details": {
         "en": "Your OpenRouter key · ~$0.09 / $0.30 per million tokens in / out",
-        "de": "Dein OpenRouter-Schlüssel · ~0,09 $ / 0,30 $ pro Million Tokens rein / raus"
+        "de": "Dein OpenRouter-Schlüssel · ~0,09 $ / 0,30 $ pro Million Tokens rein / raus",
+        "fr": "Ta clé OpenRouter · ~0,09 $ / 0,30 $ par million de jetons en entrée / sortie",
+        "it": "La tua chiave OpenRouter · ~$0,09 / $0,30 per milione di token in entrata / uscita"
       },
       "provider": "openrouter",
       "providerModel": "google/gemma-4-26b-a4b-it",
@@ -151,15 +187,21 @@
       "id": "or-qwen3-8-27b",
       "label": {
         "en": "Qwen3.8 27B (OpenRouter)",
-        "de": "Qwen3.8 27B (OpenRouter)"
+        "de": "Qwen3.8 27B (OpenRouter)",
+        "fr": "Qwen3.8 27B (OpenRouter)",
+        "it": "Qwen3.8 27B (OpenRouter)"
       },
       "description": {
         "en": "The open Qwen model, run in the cloud",
-        "de": "Das offene Qwen-Modell, in der Cloud ausgeführt"
+        "de": "Das offene Qwen-Modell, in der Cloud ausgeführt",
+        "fr": "Le modèle ouvert Qwen, exécuté dans le cloud",
+        "it": "Il modello aperto Qwen, eseguito nel cloud"
       },
       "details": {
         "en": "Your OpenRouter key · ~$0.20 / $2.50 per million tokens in / out",
-        "de": "Dein OpenRouter-Schlüssel · ~0,20 $ / 2,50 $ pro Million Tokens rein / raus"
+        "de": "Dein OpenRouter-Schlüssel · ~0,20 $ / 2,50 $ pro Million Tokens rein / raus",
+        "fr": "Ta clé OpenRouter · ~0,20 $ / 2,50 $ par million de jetons en entrée / sortie",
+        "it": "La tua chiave OpenRouter · ~$0,20 / $2,50 per milione di token in entrata / uscita"
       },
       "provider": "openrouter",
       "providerModel": "qwen/qwen3.8-27b",
@@ -177,7 +219,9 @@
       "id": "image",
       "label": {
         "en": "Pictures",
-        "de": "Bilder"
+        "de": "Bilder",
+        "fr": "Images",
+        "it": "Immagini"
       },
       "mfluxModel": "flux2-klein-4b",
       "steps": 4,
@@ -187,7 +231,9 @@
       "id": "image-text",
       "label": {
         "en": "Pictures with text",
-        "de": "Bilder mit Text"
+        "de": "Bilder mit Text",
+        "fr": "Images avec du texte",
+        "it": "Immagini con testo"
       },
       "mfluxModel": "z-image-turbo",
       "steps": 9,

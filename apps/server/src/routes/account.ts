@@ -16,6 +16,7 @@ import {
   type AdminUserListResponse,
   CreateInviteRequest,
   type CreateInviteResponse,
+  DeleteAccountRequest,
   type MeResponse,
   type SessionListResponse,
   UpdateMeRequest,
@@ -33,6 +34,8 @@ import { toMe } from './auth.ts';
 export interface AccountRouteDeps {
   auth: Auth;
   admin: Admin;
+  /** Removes the encrypted files of deleted attachments (account deletion). */
+  deleteBlobs?: (ids: readonly string[]) => Promise<void>;
   /** Optional: validates defaultModelId against the models this user may use. */
   registry?: ModelRegistry;
   /** Base URL for invite links, e.g. https://kchat.tail1234.ts.net */
@@ -65,6 +68,37 @@ export function registerAccountRoutes(app: FastifyInstance, deps: AccountRouteDe
     windowMs: 15 * 60_000,
     backoff: true,
     ...(deps.now ? { now: deps.now } : {}),
+  });
+
+  /** The passphrase again, rate limited per account (irreversible actions). */
+  async function confirmPassword(userId: string, password: string, purpose: string) {
+    const key = `${purpose}:${userId}`;
+    const r = passwordTries.hit(key);
+    if (!r.allowed) {
+      throw new HttpError(429, 'rate_limited', Math.max(1, Math.ceil(r.retryAfterMs / 1000)));
+    }
+    if (!(await auth.verifyPassword(userId, password))) {
+      throw new HttpError(401, 'invalid_credentials');
+    }
+    passwordTries.reset(key);
+  }
+
+  /** Deletes an account and its files; the passphrase is the caller's own. */
+  async function deleteAccount(userId: string, by: string): Promise<void> {
+    const res = admin.deleteUser(userId, by);
+    if (res === null) throw new HttpError(404, 'not_found');
+    if (res === 'last_admin') throw new HttpError(409, 'last_admin');
+    await deps.deleteBlobs?.(res.blobs);
+  }
+
+  // Deleting one's own account (App Store guideline 5.1.1(v), GDPR Art. 17): everything of it
+  // on this hub, with the passphrase typed again.
+  app.post('/api/me/delete', { preHandler: requireUser }, async (req, reply) => {
+    const user = currentUser(req);
+    const body = DeleteAccountRequest.parse(req.body);
+    await confirmPassword(user.userId, body.password, 'delete-account');
+    await deleteAccount(user.userId, user.userId);
+    return reply.code(204).send();
   });
 
   app.get(
@@ -183,6 +217,17 @@ export function registerAccountRoutes(app: FastifyInstance, deps: AccountRouteDe
     if (body.disabled === true) admin.disableUser(target.username);
     if (body.disabled === false) admin.enableUser(target.username);
     if (body.restricted !== undefined) admin.setRestricted(target.username, body.restricted);
+    return reply.code(204).send();
+  });
+
+  // An admin deletes someone else's account (their own goes through /api/me/delete).
+  app.post('/api/admin/users/:userId/delete', { preHandler: requireAdmin }, async (req, reply) => {
+    const user = currentUser(req);
+    const { userId } = UserParams.parse(req.params);
+    const body = DeleteAccountRequest.parse(req.body);
+    if (userId === user.userId) throw new HttpError(400, 'bad_request');
+    await confirmPassword(user.userId, body.password, 'delete-user');
+    await deleteAccount(userId, user.userId);
     return reply.code(204).send();
   });
 
@@ -310,6 +355,7 @@ export function registerAccountRoutes(app: FastifyInstance, deps: AccountRouteDe
               engine: body.engine,
               vision: custom && body.vision,
               tools: custom && body.tools,
+              adultOnly: false,
             },
           ],
         });

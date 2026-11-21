@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { Language } from './auth.ts';
 
 const B64Url = z.string().regex(/^[A-Za-z0-9_-]+={0,2}$/);
 
@@ -24,12 +25,13 @@ export type PushUnsubscribeRequest = z.infer<typeof PushUnsubscribeRequest>;
 export const PushPayload = z.object({
   /**
    * 'maintenance': the monthly update job finished (admins only). 'connect': Hemmia Connect
-   * has been down for a while or is back (admins only, web push only).
+   * has been down for a while or is back (admins only, web push only). 'models': a new version
+   * of a model the family uses (admins only, P11.7).
    */
-  kind: z.enum(['reply', 'image', 'maintenance', 'daily', 'week', 'evening', 'connect']),
+  kind: z.enum(['reply', 'image', 'maintenance', 'daily', 'week', 'evening', 'connect', 'models']),
   /** The chat to open; '' for maintenance. */
   chatId: z.string(),
-  lang: z.enum(['en', 'de']),
+  lang: Language,
   /** Maintenance: installed (true) or rolled back (false). Connect: back (true) or down (false). */
   ok: z.boolean().optional(),
 });

@@ -392,6 +392,9 @@ describe('Welcome legal links', () => {
     expect(screen.getByRole('link', { name: 'Nutzungsbedingungen' }).getAttribute('href')).toBe(
       'https://hemmia.app/de/legal/terms/',
     );
+    expect(screen.getByText(/Wenn du fortfährst, stimmst du den/).textContent).toContain(
+      'Nutzungsbedingungen zu.',
+    );
   });
 });
 

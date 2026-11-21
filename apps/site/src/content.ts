@@ -9,7 +9,7 @@
  */
 import { z } from 'zod';
 
-export const LANGS = ['en', 'de'] as const;
+export const LANGS = ['en', 'de', 'fr', 'it'] as const;
 export type Lang = (typeof LANGS)[number];
 
 export const Header = z
@@ -70,11 +70,11 @@ export interface Page {
   body: string;
 }
 
-/** The URL path of a page: /…/ for English, /de/…/ for German. */
 /** The site's address, for canonical, alternate and social links. */
 export const SITE_URL = 'https://hemmia.app';
 
+/** The URL path of a page: /…/ for English, /de/…/, /fr/…/ and /it/…/ for the others. */
 export function pagePath(lang: Lang, slug: string): string {
-  const base = lang === 'en' ? '/' : '/de/';
+  const base = lang === 'en' ? '/' : `/${lang}/`;
   return slug === '' ? base : `${base}${slug}/`;
 }

@@ -15,7 +15,7 @@ describe('screenshots', () => {
 
   it('refuses other names', () => {
     expect(parseShotFile('m4-connected.png')).toBeNull();
-    expect(parseShotFile('m4-connected.fr.png')).toBeNull();
+    expect(parseShotFile('m4-connected.es.png')).toBeNull();
     expect(parseShotFile('M4 Connected.en.png')).toBeNull();
     expect(parseShotFile('../x.en.gif')).toBeNull();
   });

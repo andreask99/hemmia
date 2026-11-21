@@ -17,6 +17,8 @@ import {
   useChangePassword,
   useCreateInvite,
   useAdminInvites,
+  useDeleteMe,
+  useDeleteUser,
   useRevokeInvite,
   useEndSession,
   useLogoutAll,
@@ -26,6 +28,7 @@ import {
   useUpdateUser,
 } from '../settings/hooks.ts';
 import { SystemPanel } from '../components/SystemPanel.tsx';
+import { FeedbackBox } from '../components/FeedbackBox.tsx';
 import { CloudSection } from '../components/CloudSection.tsx';
 import { native } from '../native/bridge.ts';
 import { ApiError } from '../api/client.ts';
@@ -184,6 +187,114 @@ function Sessions() {
   );
 }
 
+/** Asks for the passphrase before an account is deleted for good. */
+function DeleteConfirm({
+  id,
+  explain,
+  action,
+  pending,
+  onDelete,
+  onCancel,
+}: {
+  id: string;
+  explain: string;
+  action: string;
+  pending: boolean;
+  onDelete: (password: string) => Promise<unknown>;
+  onCancel: () => void;
+}) {
+  const { t } = useI18n();
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  return (
+    <form
+      className="mt-2 w-full space-y-3 rounded-xl bg-danger-soft p-4"
+      onSubmit={(e: SubmitEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setError(null);
+        onDelete(password).catch((err: unknown) => {
+          setError(errorMessage(err, t));
+        });
+      }}
+    >
+      <p className="text-sm">{explain}</p>
+      <div>
+        <label htmlFor={id} className="mb-1.5 block text-sm font-medium text-muted">
+          {t('account.deletePassword')}
+        </label>
+        <input
+          id={id}
+          type="password"
+          autoComplete="current-password"
+          required
+          value={password}
+          onChange={(e) => {
+            setPassword(e.target.value);
+          }}
+          className={input}
+        />
+      </div>
+      {error && (
+        <p role="alert" className="text-sm font-medium text-danger">
+          {error}
+        </p>
+      )}
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="submit"
+          disabled={pending || password === ''}
+          className="min-h-11 rounded-xl border border-danger bg-card px-4 font-semibold text-danger disabled:opacity-45"
+        >
+          {action}
+        </button>
+        <button type="button" className={smallButton} onClick={onCancel}>
+          {t('account.cancel')}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function DeleteMyAccount({ isAdmin }: { isAdmin: boolean }) {
+  const { t } = useI18n();
+  const navigate = useNavigate();
+  const del = useDeleteMe();
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <p className="mb-3 text-sm text-muted">
+        {t('account.deleteIntro')}
+        {isAdmin && ` ${t('account.deleteLastAdmin')}`}
+      </p>
+      {open ? (
+        <DeleteConfirm
+          id="delete-me-password"
+          explain={t('account.deleteConfirm')}
+          action={t('account.deleteFinal')}
+          pending={del.isPending}
+          onCancel={() => {
+            setOpen(false);
+          }}
+          onDelete={async (password) => {
+            await del.mutateAsync(password);
+            void navigate('/login', { replace: true });
+          }}
+        />
+      ) : (
+        <button
+          type="button"
+          className="min-h-11 rounded-xl border border-line bg-card px-4 font-semibold text-danger hover:bg-danger-soft"
+          onClick={() => {
+            setOpen(true);
+          }}
+        >
+          {t('account.delete')}
+        </button>
+      )}
+    </>
+  );
+}
+
 function Admin({ myId }: { myId: string }) {
   const { t, language } = useI18n();
   const users = useAdminUsers();
@@ -191,7 +302,9 @@ function Admin({ myId }: { myId: string }) {
   const invites = useAdminInvites();
   const revokeInvite = useRevokeInvite();
   const updateUser = useUpdateUser();
+  const deleteUser = useDeleteUser();
   const [devicesOf, setDevicesOf] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
   const [asAdmin, setAsAdmin] = useState(false);
   const [restricted, setRestricted] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -413,7 +526,34 @@ function Admin({ myId }: { myId: string }) {
               >
                 {t('devices.title')}
               </button>
+              {u.id !== myId && (
+                <button
+                  type="button"
+                  className={`${smallButton} text-danger`}
+                  aria-expanded={deleting === u.id}
+                  onClick={() => {
+                    setDeleting(deleting === u.id ? null : u.id);
+                  }}
+                >
+                  {t('admin.deleteUser')}
+                </button>
+              )}
             </span>
+            {deleting === u.id && (
+              <DeleteConfirm
+                id={`delete-${u.id}`}
+                explain={t('admin.deleteUserConfirm', { name: u.username })}
+                action={t('admin.deleteUserFinal', { name: u.username })}
+                pending={deleteUser.isPending}
+                onCancel={() => {
+                  setDeleting(null);
+                }}
+                onDelete={async (password) => {
+                  await deleteUser.mutateAsync({ id: u.id, password });
+                  setDeleting(null);
+                }}
+              />
+            )}
             {devicesOf === u.id && (
               <div className="w-full pt-2">
                 <DevicesSection userId={u.id} userName={u.username} />
@@ -636,6 +776,9 @@ export function SettingsPage() {
               <Section title={t('settings.sessions')}>
                 <Sessions />
               </Section>
+              <Section title={t('account.deleteTitle')}>
+                <DeleteMyAccount isAdmin={me.role === 'admin'} />
+              </Section>
             </>
           )}
           {tab === 'family' && <Admin myId={me.id} />}
@@ -647,6 +790,9 @@ export function SettingsPage() {
               <Section title={t('admin.pause')}>
                 <PauseSwitch />
               </Section>
+              <div className="flex flex-col px-1">
+                <FeedbackBox page="settings/system" />
+              </div>
             </>
           )}
           {tab === 'models' && (
@@ -690,6 +836,11 @@ export function SettingsPage() {
               <Section title={t('cloud.title')}>
                 <CloudSection />
               </Section>
+              {isAdmin && (
+                <div className="flex flex-col px-1">
+                  <FeedbackBox page="settings/models" />
+                </div>
+              )}
             </>
           )}
         </div>

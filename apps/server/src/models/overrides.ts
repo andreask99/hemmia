@@ -19,6 +19,8 @@ export const ModelOverrides = z.object({
   cloud: WebSearchMode.default('all'),
   /** An admin paused kchat: no model loads, own models are freed (Mac free for other work). */
   paused: z.boolean().default(false),
+  /** Look for new models: fetch the signed model catalogue from the relay daily (P11.4). */
+  catalogCheck: z.boolean().default(true),
   /** Models installed in Ollama that an admin added to the offer. */
   extraModels: z
     .array(
@@ -32,6 +34,8 @@ export const ModelOverrides = z.object({
         /** Custom engines only (Ollama reports its own). */
         vision: z.boolean().default(false),
         tools: z.boolean().default(false),
+        /** Kept from the model it replaced (P11.6): teen accounts don't see it. */
+        adultOnly: z.boolean().default(false),
       }),
     )
     .default([]),

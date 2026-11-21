@@ -35,6 +35,7 @@ const TEXT = {
     maintained: 'Maintenance: updates installed and tested',
     connectDown: 'Hemmia Connect is down: phones away from home can’t reach Hemmia',
     connectUp: 'Hemmia Connect works again',
+    models: 'A new version of a model you use is ready to download',
     rolledBack: 'Maintenance: an update failed, the previous version was restored',
   },
   de: {
@@ -46,8 +47,35 @@ const TEXT = {
     maintained: 'Wartung: Updates installiert und getestet',
     connectDown: 'Hemmia Connect ist ausgefallen: Unterwegs ist Hemmia nicht erreichbar',
     connectUp: 'Hemmia Connect funktioniert wieder',
+    models: 'Eine neue Version eines eurer Modelle ist da',
     rolledBack:
       'Wartung: Ein Update ist fehlgeschlagen, die vorherige Version wurde wiederhergestellt',
+  },
+  fr: {
+    reply: 'Ta réponse est prête',
+    image: 'Ton image est prête',
+    daily: '☀️ Ta journée : objectifs et rendez-vous',
+    week: '📋 Planifie ta semaine : 5 minutes pour l’essentiel',
+    evening: '🌙 Comment s’est passée ta journée ?',
+    maintained: 'Maintenance : mises à jour installées et testées',
+    connectDown:
+      'Hemmia Connect est en panne : hors de la maison, les téléphones ne peuvent pas joindre Hemmia',
+    connectUp: 'Hemmia Connect fonctionne à nouveau',
+    models: 'Une nouvelle version d’un de vos modèles est disponible',
+    rolledBack: 'Maintenance : une mise à jour a échoué, la version précédente a été restaurée',
+  },
+  it: {
+    reply: 'La tua risposta è pronta',
+    image: 'La tua immagine è pronta',
+    daily: '☀️ La tua giornata: obiettivi e appuntamenti',
+    week: '📋 Pianifica la settimana: 5 minuti per ciò che conta',
+    evening: '🌙 Com’è andata oggi?',
+    maintained: 'Manutenzione: aggiornamenti installati e testati',
+    connectDown: 'Hemmia Connect non funziona: fuori casa i telefoni non raggiungono Hemmia',
+    connectUp: 'Hemmia Connect funziona di nuovo',
+    models: 'È disponibile una nuova versione di un vostro modello',
+    rolledBack:
+      'Manutenzione: un aggiornamento non è riuscito, è stata ripristinata la versione precedente',
   },
 };
 
@@ -135,11 +163,13 @@ self.addEventListener('push', (event) => {
         ? data.ok
           ? text.connectUp
           : text.connectDown
-        : data.kind === 'daily' || data.kind === 'week' || data.kind === 'evening'
-          ? text[data.kind]
-          : data.kind === 'image'
-            ? text.image
-            : text.reply;
+        : data.kind === 'models'
+          ? text.models
+          : data.kind === 'daily' || data.kind === 'week' || data.kind === 'evening'
+            ? text[data.kind]
+            : data.kind === 'image'
+              ? text.image
+              : text.reply;
   const plannerUrl =
     typeof data.kind === 'string' && Object.hasOwn(PLANNER, data.kind) ? PLANNER[data.kind] : null;
   const chatId =
@@ -155,18 +185,23 @@ self.addEventListener('push', (event) => {
         body,
         icon: '/icons/icon-192.png',
         tag:
-          plannerUrl || data.kind === 'maintenance' || data.kind === 'connect'
+          plannerUrl ||
+          data.kind === 'maintenance' ||
+          data.kind === 'connect' ||
+          data.kind === 'models'
             ? data.kind
             : (chatId ?? 'kchat'),
         data: {
           url:
-            data.kind === 'maintenance' || data.kind === 'connect'
-              ? '/settings?tab=system'
-              : plannerUrl
-                ? plannerUrl
-                : chatId
-                  ? `/chats/${chatId}`
-                  : '/',
+            data.kind === 'models'
+              ? '/settings?tab=models'
+              : data.kind === 'maintenance' || data.kind === 'connect'
+                ? '/settings?tab=system'
+                : plannerUrl
+                  ? plannerUrl
+                  : chatId
+                    ? `/chats/${chatId}`
+                    : '/',
         },
       }),
     ]),

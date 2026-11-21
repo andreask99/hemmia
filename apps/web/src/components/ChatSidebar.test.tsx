@@ -28,7 +28,7 @@ const MODELS = {
   chatModels: [
     {
       id: 'quick',
-      label: { en: 'Quick', de: 'Schnell' },
+      label: { en: 'Quick', de: 'Schnell', fr: 'Quick', it: 'Quick' },
       description: null,
       engineModel: 'm:1b',
       details: null,
@@ -37,7 +37,7 @@ const MODELS = {
     },
     {
       id: 'smart',
-      label: { en: 'Smart', de: 'Gründlich' },
+      label: { en: 'Smart', de: 'Gründlich', fr: 'Smart', it: 'Smart' },
       description: null,
       engineModel: 'm:1b',
       details: null,
@@ -152,7 +152,7 @@ describe('ModelSheet', () => {
     const onThink = vi.fn();
     const models = MODELS.chatModels.map((m) => ({
       ...m,
-      details: { en: '26B', de: '26B' },
+      details: { en: '26B', de: '26B', fr: '26B', it: '26B' },
       maxMessageChars: 65_000,
       cloud: false,
       provider: null,
@@ -227,6 +227,8 @@ describe('helpers', () => {
     const t = (k: string) => (k === 'chat.untitled' ? 'New chat' : k);
     expect(chatTitle({ title: null }, t)).toBe('New chat');
     expect(chatTitle({ title: 'X' }, t)).toBe('X');
-    expect(modelLabel({ label: { en: 'Smart', de: 'Gründlich' } }, 'de')).toBe('Gründlich');
+    expect(
+      modelLabel({ label: { en: 'Smart', de: 'Gründlich', fr: 'Smart', it: 'Smart' } }, 'de'),
+    ).toBe('Gründlich');
   });
 });

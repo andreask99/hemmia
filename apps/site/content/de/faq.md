@@ -37,7 +37,7 @@ Damit dein Telefon deinen Hub erreicht, zu Hause und unterwegs, ohne dass du dei
 
 ## Können meine Kinder Hemmia nutzen?
 
-Ja. Jede Person hat ihr eigenes Konto und ihre eigenen privaten Chats. Admins können Konten einschränken, zum Beispiel die Websuche abschalten.
+Ja, auf einem Hub, den ein Elternteil betreibt. Jede Person hat ihr eigenes Konto und ihre eigenen privaten Chats, und ein Admin kann Konten für Jugendliche anlegen, die nur die freigegebenen Modelle sehen, mit strenger Safe Search oder gar nicht im Web suchen und keine Bilder erstellen können. Die App selbst ist ab 13 Jahren; jüngere Kinder nutzen sie gemeinsam mit einem Elternteil.
 
 ## Was passiert, wenn ich meine Passphrase verliere?
 

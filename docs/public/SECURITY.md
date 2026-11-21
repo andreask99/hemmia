@@ -219,6 +219,38 @@ Turning the update check off stops both. The signing key is on the owner's Mac
 (`~/.config/hemmia/manifest-signing-key.pem`, 0600) until CI signs releases (P8.4); losing it
 means hubs need a release with a new public key, so it is backed up offline by the owner.
 
+### 6.6 Model catalogue (P11, 2026-11-21)
+
+Every hub with a relay domain, packaged or not: once a day (first one minute after start)
+`GET https://api.<relay-domain>/v1/catalog` with no query and no identifier (no redirects, 10 s,
+reading stops past 512 KiB). The relay serves the stored envelope and neither counts nor logs
+the request. The catalogue is signed with Ed25519 over `"hemmia-catalog-v1\n"` + the payload
+bytes (`relay-protocol/src/catalog.ts`) with its **own key**, separate from the release
+manifest key, because an unattended nightly job on the owner's Mac uses it
+(`~/.config/hemmia/catalog-signing-key.pem`, 0600; public key built into hubs). A catalogue not
+newer than the stored one is ignored. Admin switch "Look for new models" (default on) stops the
+request.
+
+What a stolen catalogue key could do, and why that is limited: entries can only name Ollama
+**library** models (`name:tag`, no `user/model`, no registry host, no cloud tags; checked on
+signing and again when verifying), so nothing points at an attacker's model repository; a
+download still needs an admin's tap, with size and memory shown; and the hub's own download
+route accepts library names only. At worst it could suggest a real library model as a "new
+version" of one in use. Recovery: a hub release with a new public key.
+
+The nightly job (`scripts/catalog/`, `ops/catalog-job.sh`) reads ollama.com and Ollama's
+registry, sends fixed test prompts (no personal data) to models it downloads into this Mac's
+Ollama while the family hub is paused, deletes them again, and publishes over SSH like the
+manifest. Guards refuse to publish when the parse looks broken (too few models, too many
+removed or new at once).
+
+Model updates (P11.5-P11.7): admin-only routes. Replacing a model moves the references
+(`users.default_model_id`, `chats.model_id`, `agents.model_id`, family default, switched-off
+list) in one transaction and keeps **adults-only**, so a teen account never gains a model
+through an update. Deleting a model is refused while any job runs or waits, and for the
+family's last local model. The push for a new version (`kind: models`) goes to admins only and
+carries no content; native push for it waits for the next app release (the apps need its text).
+
 ## 7. Native app
 
 - The web view never navigates to another site: it shows either the bundled shell or one

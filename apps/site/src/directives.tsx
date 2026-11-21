@@ -138,7 +138,9 @@ export function Blocks({
             if (!size)
               return (
                 <figure key={i} className="screenshot screenshot-preview">
-                  <figcaption>{lang === 'de' ? 'Vorschau' : 'Preview'}</figcaption>
+                  <figcaption>
+                    {{ en: 'Preview', de: 'Vorschau', fr: 'Aperçu', it: 'Anteprima' }[lang]}
+                  </figcaption>
                 </figure>
               );
             return (

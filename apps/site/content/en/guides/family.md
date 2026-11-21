@@ -39,3 +39,7 @@ Each person can see their devices under **Settings → Account → Devices**, ad
 ## Disabling an account
 
 **Disable** stops an account from signing in, without deleting anything. **Enable** brings it back.
+
+## Deleting an account
+
+Anyone can delete their own account with everything in it under **Settings → Account → Delete account**, with their passphrase. An admin can delete someone else's account under **Settings → Family → Delete**, with the admin's own passphrase. Deleting can't be undone. A hub always keeps at least one admin.

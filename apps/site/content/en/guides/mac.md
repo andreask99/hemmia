@@ -3,7 +3,6 @@ title: Set up Hemmia on a Mac
 description: Install the hub on a Mac with Apple silicon, set it up in your browser and connect your phone.
 nav: guides
 order: 20
-draft: true
 ---
 
 # Set up Hemmia on a Mac
@@ -13,8 +12,8 @@ The hub is the computer at home that runs Hemmia for your family. A Mac works we
 ## What you need
 
 - A Mac with Apple silicon (M1 or newer) and macOS 14 or later.
-- 16 GB of memory or more if you want local models; 8 GB is enough for cloud models only.
-- About 20 GB of free disk space for a local model.
+- 8 GB of memory runs a small local model; 16 GB or more is better, and pictures need 24 GB. Cloud models work with any Mac.
+- About 10 GB of free disk space for a local model, and 6 GB more for pictures.
 - The Mac should stay on. Hemmia keeps it from sleeping while phones need to reach it.
 
 <!-- steps -->
@@ -28,7 +27,7 @@ When the installer finishes, your browser opens the Hemmia setup. Give your fami
 
 
 ## Choose your AI
-Pick a recommended local model to download, add a cloud key, or both. You can change this later in Settings → Models.
+Hemmia recommends a local model that fits this Mac: download it, add a cloud key, or both. If Ollama isn't installed yet, **Install Ollama** does it for you. Here you can also **Turn on pictures** and **Turn on web search**. You can change all of this later in Settings → Models.
 
 <!-- screenshot name="mac-setup-models" alt="The model list in setup: recommended local models with their download size, some already downloaded" -->
 

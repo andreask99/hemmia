@@ -80,6 +80,16 @@ Unchanged at its core. Additions (task ids in brackets):
   llama.cpp, vLLM: admin-configured base URL on loopback or the private LAN, no key). Model
   pulls from the admin UI with progress [P1.8]; a recommendation catalogue by memory size
   [P1.9].
+- **Model management** [P11]: families never touch Ollama. A signed model catalogue (popular
+  and new Ollama library models, tested on the owner's Mac by a nightly job,
+  `scripts/catalog/`) is fetched daily from the relay (`models/catalog.ts`) and merged with the
+  bundled `config/catalog.json`. Settings → Models browses it (recommended for this computer,
+  new, popular, search, filters, any library model by name), lists downloaded models with
+  Delete, and shows updates: a newer version of a model in use (same family by name, higher
+  version, closest size that fits; `models/updates.ts`) or re-published weights (the
+  catalogue digest moved from the one first seen). "Update" downloads, then moves every
+  reference in one transaction (`models/lifecycle.ts`) and offers to delete the old model.
+  New updates are announced once: a web push to admins and a dot on Settings.
 - **First-run setup** [P3.1–P3.4]: a hub without users is in setup mode. A setup code
   (printed to the console and written to `<dataDir>/setup-code.txt`; the macOS installer opens
   `http://localhost:8787/setup#<code>`) unlocks the wizard H1–H6, which creates the admin.

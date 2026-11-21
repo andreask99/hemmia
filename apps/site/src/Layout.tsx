@@ -1,6 +1,7 @@
 /** The page frame: header with navigation and language switch, main content, footer. */
 import type { ReactNode } from 'react';
-import { type Lang, pagePath, SITE_URL } from './content.ts';
+import { LANGS, type Lang, pagePath, SITE_URL } from './content.ts';
+import { Feedback, showsFeedback } from './Feedback.tsx';
 import { GhostPose } from './ghosts.tsx';
 import { FOOTER_NAV, HEADER_NAV, type ResolvedNavItem, resolveNav } from './nav.ts';
 
@@ -8,8 +9,6 @@ export interface LayoutProps {
   lang: Lang;
   title: string;
   description: string;
-  /** Path of the same page in the other language. */
-  otherPath: string;
   /** This page's slug ('' is home). */
   slug: string;
   /** Slugs of all pages in this build (links to other pages appear only when they exist). */
@@ -28,23 +27,49 @@ export interface LayoutProps {
 const T = {
   en: {
     skip: 'Skip to content',
-    other: 'Deutsch',
     home: 'Hemmia home',
     main: 'Main navigation',
     menu: 'Menu',
     footer: 'Footer',
+    languages: 'Language',
     locale: 'en_US',
   },
   de: {
     skip: 'Zum Inhalt',
-    other: 'English',
     home: 'Hemmia Startseite',
     main: 'Hauptnavigation',
     menu: 'Menü',
     footer: 'Fußzeile',
+    languages: 'Sprache',
     locale: 'de_DE',
   },
+  fr: {
+    skip: 'Aller au contenu',
+    home: 'Accueil Hemmia',
+    main: 'Navigation principale',
+    menu: 'Menu',
+    footer: 'Pied de page',
+    languages: 'Langue',
+    locale: 'fr_FR',
+  },
+  it: {
+    skip: 'Vai al contenuto',
+    home: 'Home page di Hemmia',
+    main: 'Navigazione principale',
+    menu: 'Menu',
+    footer: 'Piè di pagina',
+    languages: 'Lingua',
+    locale: 'it_IT',
+  },
 } as const;
+
+/** Each language in its own name, for the language switch. */
+const NATIVE: Record<Lang, string> = {
+  en: 'English',
+  de: 'Deutsch',
+  fr: 'Français',
+  it: 'Italiano',
+};
 
 function NavList({ items }: { items: ResolvedNavItem[] }) {
   return (
@@ -64,10 +89,10 @@ export function Layout(p: LayoutProps) {
   const t = T[p.lang];
   const header = resolveNav(HEADER_NAV, p.lang, p.slug, p.existing);
   const footer = resolveNav(FOOTER_NAV, p.lang, p.slug, p.existing);
-  const other: Lang = p.lang === 'en' ? 'de' : 'en';
   const self = `${SITE_URL}${pagePath(p.lang, p.slug)}`;
-  const enUrl = `${SITE_URL}${pagePath('en', p.slug)}`;
-  const deUrl = `${SITE_URL}${pagePath('de', p.slug)}`;
+  const urlOf = (l: Lang) => `${SITE_URL}${pagePath(l, p.slug)}`;
+  // The 404 page has no language twins; its switch goes to each home page.
+  const switchPath = (l: Lang) => pagePath(l, p.notFound ? '' : p.slug);
   const title = p.fullTitle ?? `${p.title} · Hemmia`;
   return (
     <html lang={p.lang}>
@@ -83,9 +108,10 @@ export function Layout(p: LayoutProps) {
         ) : (
           <>
             <link rel="canonical" href={self} />
-            <link rel="alternate" hrefLang="en" href={enUrl} />
-            <link rel="alternate" hrefLang="de" href={deUrl} />
-            <link rel="alternate" hrefLang="x-default" href={enUrl} />
+            {LANGS.map((l) => (
+              <link key={l} rel="alternate" hrefLang={l} href={urlOf(l)} />
+            ))}
+            <link rel="alternate" hrefLang="x-default" href={urlOf('en')} />
             <meta property="og:type" content="website" />
             <meta property="og:site_name" content="Hemmia" />
             <meta property="og:title" content={title} />
@@ -117,12 +143,27 @@ export function Layout(p: LayoutProps) {
             <summary>{t.menu}</summary>
             <NavList items={header} />
           </details>
-          <a href={p.otherPath} hrefLang={other} lang={other} className="lang">
-            {t.other}
-          </a>
+          <details className="langs">
+            <summary aria-label={t.languages}>{p.lang.toUpperCase()}</summary>
+            <ul>
+              {LANGS.map((l) => (
+                <li key={l}>
+                  <a
+                    href={switchPath(l)}
+                    hrefLang={l}
+                    lang={l}
+                    aria-current={l === p.lang ? 'true' : undefined}
+                  >
+                    {NATIVE[l]}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </details>
         </header>
         <main id="main" className={p.wide ? 'main-wide' : undefined}>
           {p.children}
+          {!p.notFound && showsFeedback(p.slug) && <Feedback lang={p.lang} slug={p.slug} />}
         </main>
         <footer className="site-footer">
           <nav aria-label={t.footer}>

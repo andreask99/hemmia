@@ -52,6 +52,14 @@ export function blockHub(db: RelayDb, id: string, reason: string, now = Date.now
   );
 }
 
+/**
+ * Lets a hub get its first certificate although its network had its new hubs this week
+ * (operator only, for hubs of ours such as the App Review hub). False when unknown.
+ */
+export function allowNewHub(db: RelayDb, id: string): boolean {
+  return db.prepare('UPDATE hubs SET network_exempt = 1 WHERE id = ?').run(id).changes === 1;
+}
+
 export function unblockHub(db: RelayDb, id: string): boolean {
   return (
     db.prepare('UPDATE hubs SET blocked_at = NULL, blocked_reason = NULL WHERE id = ?').run(id)

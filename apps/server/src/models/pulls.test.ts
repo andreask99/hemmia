@@ -56,7 +56,7 @@ function manager(over: Partial<PullDeps> = {}, pull = controlledPull()) {
     llm: { pull: pull.pull },
     paused: () => false,
     diskFreeGiB: () => Promise.resolve(100),
-    catalog: [ENTRY],
+    catalog: () => [ENTRY],
     offer: (model) => {
       offered.push(model);
       return 'x-gemma4-e2b';

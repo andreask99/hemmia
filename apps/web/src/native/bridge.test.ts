@@ -1,9 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { detectNative, shellLevel } from './bridge.ts';
 
-type Fn = (data: { value?: string; error?: string }) => void;
+type Fn = (data: { value?: string; error?: string; notification?: { data?: unknown } }) => void;
 
-function fakeCapacitor(opts: { permission?: string; token?: string | null } = {}) {
+function fakeCapacitor(
+  opts: { permission?: string; token?: string | null; directListener?: boolean } = {},
+) {
+  const remove = vi.fn(() => Promise.resolve());
   const listeners: Record<string, Fn> = {};
   const push = {
     checkPermissions: vi.fn(() => Promise.resolve({ receive: opts.permission ?? 'prompt' })),
@@ -15,12 +18,15 @@ function fakeCapacitor(opts: { permission?: string; token?: string | null } = {}
     }),
     addListener: vi.fn((event: string, fn: Fn) => {
       listeners[event] = fn;
-      return Promise.resolve({ remove: () => Promise.resolve() });
+      // The bridge injected into a hub page returns the listener itself.
+      return opts.directListener ? { remove } : Promise.resolve({ remove });
     }),
   };
   const share = { share: vi.fn(() => Promise.resolve()) };
   const hub = { showShell: vi.fn(() => Promise.resolve()) };
   return {
+    listeners,
+    remove,
     push,
     share,
     hub,
@@ -70,6 +76,32 @@ describe('detectNative', () => {
     bridge?.switchHub();
     expect(f.share.share).toHaveBeenCalledWith({ url: 'https://join.relay.example/j#1' });
     expect(f.hub.showShell).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('notification taps', () => {
+  const data = { r: 'ref1', h: 'abc.h.hemmia.app' };
+
+  it('works with the listener Capacitor injects into a hub page (returned directly)', async () => {
+    const f = fakeCapacitor({ directListener: true });
+    const seen: unknown[] = [];
+    const stop = detectNative(f.win)?.onPushTap((t) => seen.push(t));
+    f.listeners['pushNotificationActionPerformed']?.({ notification: { data } });
+    expect(seen).toEqual([{ hubHost: data.h, ref: data.r }]);
+    await Promise.resolve();
+    stop?.();
+    expect(f.remove).toHaveBeenCalled();
+  });
+
+  it('works with the promise from @capacitor/core, and without a push plugin', async () => {
+    const f = fakeCapacitor();
+    const stop = detectNative(f.win)?.onPushTap(() => undefined);
+    await Promise.resolve();
+    expect(() => stop?.()).not.toThrow();
+    const bare = detectNative({
+      Capacitor: { isNativePlatform: () => true, getPlatform: () => 'ios', Plugins: {} },
+    });
+    expect(() => bare?.onPushTap(() => undefined)()).not.toThrow();
   });
 });
 

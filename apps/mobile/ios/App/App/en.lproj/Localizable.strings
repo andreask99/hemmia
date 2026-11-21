@@ -13,3 +13,5 @@
 "push_maintenance_ok_body" = "Maintenance: updates installed and tested";
 "push_maintenance_failed_title" = "Hemmia";
 "push_maintenance_failed_body" = "Maintenance: an update failed, the previous version was restored";
+"push_models_title" = "Hemmia";
+"push_models_body" = "A new version of a model you use is ready to download";

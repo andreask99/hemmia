@@ -12,8 +12,8 @@ export interface PhoneSettingsProps {
   onRemoveKey: (provider: Provider) => void;
   aboutMe: string;
   onSaveAboutMe: (text: string) => void;
-  phoneLanguage: 'en' | 'de';
-  onLanguage: (language: 'en' | 'de') => void;
+  phoneLanguage: ShellLanguage;
+  onLanguage: (language: ShellLanguage) => void;
   onExport: () => void;
   onImport: (file: File) => void;
   onMoveToHub: () => void;
@@ -136,12 +136,15 @@ export function PhoneSettings(props: PhoneSettingsProps) {
           id="phone-language"
           value={props.phoneLanguage}
           onChange={(e) => {
-            props.onLanguage(e.target.value === 'de' ? 'de' : 'en');
+            const v = e.target.value;
+            props.onLanguage(v === 'de' || v === 'fr' || v === 'it' ? v : 'en');
           }}
           className="min-h-11 rounded-xl border border-line bg-paper px-3"
         >
           <option value="en">English</option>
           <option value="de">Deutsch</option>
+          <option value="fr">Français</option>
+          <option value="it">Italiano</option>
         </select>
       </div>
 

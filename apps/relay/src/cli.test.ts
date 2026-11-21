@@ -106,6 +106,23 @@ describe('cli', () => {
     expect(err).toEqual(['unknown hub']);
   });
 
+  test('allow-new-hub exempts a known hub from the network limit', () => {
+    const out: string[] = [];
+    const err: string[] = [];
+    const io = { out: (l: string) => void out.push(l), err: (l: string) => void err.push(l) };
+    expect(run(['allow-new-hub', 'bbbbbbbbbbbb'], io, db)).toBe(0);
+    expect(
+      db
+        .prepare<[], { e: number }>(
+          "SELECT network_exempt AS e FROM hubs WHERE id = 'bbbbbbbbbbbb'",
+        )
+        .get()?.e,
+    ).toBe(1);
+    expect(run(['allow-new-hub', 'zzzzzzzzzzzz'], io, db)).toBe(1);
+    expect(err).toEqual(['unknown hub']);
+    expect(run(['allow-new-hub'], io, db)).toBe(2);
+  });
+
   test('unblock-hub unblocks a hub', () => {
     const out: string[] = [];
     const err: string[] = [];
@@ -195,28 +212,28 @@ describe('cli', () => {
     const code1 = run([], io, db);
     expect(code1).toBe(2);
     expect(err[0]).toBe(
-      'usage: node src/cli.ts list-hubs [--blocked] | block-hub <id> <reason...> | unblock-hub <id> | stats | min-hub-version [<x.y.z> | none] | install-stats [days]',
+      'usage: node src/cli.ts list-hubs [--blocked] | block-hub <id> <reason...> | unblock-hub <id> | allow-new-hub <id> | stats | min-hub-version [<x.y.z> | none] | install-stats [days] | feedback [--after <id>]',
     );
 
     // Unknown command
     const code2 = run(['nope'], io, db);
     expect(code2).toBe(2);
     expect(err[1]).toBe(
-      'usage: node src/cli.ts list-hubs [--blocked] | block-hub <id> <reason...> | unblock-hub <id> | stats | min-hub-version [<x.y.z> | none] | install-stats [days]',
+      'usage: node src/cli.ts list-hubs [--blocked] | block-hub <id> <reason...> | unblock-hub <id> | allow-new-hub <id> | stats | min-hub-version [<x.y.z> | none] | install-stats [days] | feedback [--after <id>]',
     );
 
     // Missing arguments for block-hub
     const code3 = run(['block-hub', 'aaaaaaaaaaaa'], io, db);
     expect(code3).toBe(2);
     expect(err[2]).toBe(
-      'usage: node src/cli.ts list-hubs [--blocked] | block-hub <id> <reason...> | unblock-hub <id> | stats | min-hub-version [<x.y.z> | none] | install-stats [days]',
+      'usage: node src/cli.ts list-hubs [--blocked] | block-hub <id> <reason...> | unblock-hub <id> | allow-new-hub <id> | stats | min-hub-version [<x.y.z> | none] | install-stats [days] | feedback [--after <id>]',
     );
 
     // Missing arguments for unblock-hub
     const code4 = run(['unblock-hub'], io, db);
     expect(code4).toBe(2);
     expect(err[3]).toBe(
-      'usage: node src/cli.ts list-hubs [--blocked] | block-hub <id> <reason...> | unblock-hub <id> | stats | min-hub-version [<x.y.z> | none] | install-stats [days]',
+      'usage: node src/cli.ts list-hubs [--blocked] | block-hub <id> <reason...> | unblock-hub <id> | allow-new-hub <id> | stats | min-hub-version [<x.y.z> | none] | install-stats [days] | feedback [--after <id>]',
     );
   });
 });

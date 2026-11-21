@@ -157,6 +157,7 @@ describe('model registry', () => {
       defaultImageModel: null,
       imagesOff: false,
       paused: false,
+      catalogCheck: true,
       webSearch: 'all' as const,
       extraModels: [],
       cloud: 'all' as const,

@@ -14,3 +14,4 @@ export * from './setup.ts';
 export * from './devices.ts';
 export * from './links.ts';
 export * from './phoneExport.ts';
+export * from './feedback.ts';

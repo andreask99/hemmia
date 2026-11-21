@@ -13,7 +13,7 @@ export function Welcome(props: {
   language?: ShellLanguage;
 }) {
   const { t, language } = useShellText(props.language);
-  const site = language === 'de' ? 'https://hemmia.app/de' : 'https://hemmia.app';
+  const site = language === 'en' ? 'https://hemmia.app' : `https://hemmia.app/${language}`;
   const [link, setLink] = useState('');
   const trimmedLink = link.trim();
   const canContinue = trimmedLink.length > 0;
@@ -111,13 +111,27 @@ export function Welcome(props: {
           {t('welcome.getHub.button')}
         </button>
 
-        <p className="mt-4 flex justify-center gap-4 text-xs text-muted">
-          <a href={`${site}/legal/privacy/`} target="_blank" rel="noopener noreferrer">
-            {t('legal.privacy')}
-          </a>
-          <a href={`${site}/legal/terms/`} target="_blank" rel="noopener noreferrer">
+        {/* Including the terms (§ 305(2) BGB, legal review 2026-11-08 S7): said before any start. */}
+        <p className="mt-4 text-center text-xs text-muted">
+          {t('legal.agreeBefore')}
+          <a
+            href={`${site}/legal/terms/`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline"
+          >
             {t('legal.terms')}
           </a>
+          {t('legal.agreeAfter')}
+          <a
+            href={`${site}/legal/privacy/`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline"
+          >
+            {t('legal.privacy')}
+          </a>
+          .
         </p>
       </div>
     </div>

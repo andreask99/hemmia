@@ -79,6 +79,12 @@ function setup(me: object = ME) {
       });
     }
     if (url.startsWith('/api/admin/invites/')) return new Response(null, { status: 204 });
+    if (url === '/api/me/delete' || url.endsWith('/delete')) {
+      const { password } = JSON.parse(init?.body as string) as { password: string };
+      return password === 'right one'
+        ? new Response(null, { status: 204 })
+        : json({ error: { code: 'invalid_credentials' } }, 401);
+    }
     return undefined;
   });
 }
@@ -186,6 +192,38 @@ describe('SettingsPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Send invite link' }));
     expect(share).toHaveBeenCalledWith({ url: direct });
     Reflect.deleteProperty(navigator, 'share');
+  });
+});
+
+describe('deleting accounts', () => {
+  it('deletes my own account only after the passphrase', async () => {
+    const calls = setup();
+    renderRoute('/settings');
+    fireEvent.click(await screen.findByRole('button', { name: 'Delete my account…' }));
+    fireEvent.change(screen.getByLabelText('Your passphrase'), { target: { value: 'wrong' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Delete my account for good' }));
+    expect((await screen.findByRole('alert')).textContent).not.toBe('');
+    fireEvent.change(screen.getByLabelText('Your passphrase'), { target: { value: 'right one' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Delete my account for good' }));
+    await vi.waitFor(() => {
+      expect(calls.filter((c) => c.url === '/api/me/delete')).toHaveLength(2);
+    });
+  });
+
+  it('lets an admin delete someone else, but offers no delete for themselves', async () => {
+    const calls = setup({ ...ME, id: 'u1', role: 'admin' });
+    renderRoute('/settings?tab=family');
+    expect(await screen.findByText('ben')).toBeDefined();
+    const buttons = screen.getAllByRole('button', { name: 'Delete' });
+    expect(buttons).toHaveLength(1);
+    fireEvent.click(buttons[0] as HTMLElement);
+    fireEvent.change(screen.getByLabelText('Your passphrase'), { target: { value: 'right one' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Delete ben for good' }));
+    await vi.waitFor(() => {
+      expect(
+        calls.some((c) => c.url === '/api/admin/users/u2/delete' && c.init?.method === 'POST'),
+      ).toBe(true);
+    });
   });
 });
 

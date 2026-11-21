@@ -17,6 +17,12 @@ const entry = (model: string, over: Record<string, unknown> = {}) => ({
   fits: true,
   recommended: false,
   installed: false,
+  think: false,
+  contextTokens: 131072,
+  isNew: false,
+  popularRank: null,
+  releasedAt: null,
+  inUse: false,
   ...over,
 });
 const CATALOG = {
@@ -49,20 +55,76 @@ afterEach(() => {
 });
 
 describe('ModelCatalog', () => {
-  it('lists the recommended model first and greys out what does not fit', async () => {
+  it('lists the recommended model first and hides what does not fit until asked', async () => {
     stubFetch((url) => (url === '/api/admin/catalog' ? json(CATALOG) : undefined));
     renderIt();
     await screen.findByText('Add a model');
     const rows = screen.getAllByRole('listitem');
     expect(rows[0]?.textContent).toContain('gemma4:12b');
     expect(rows[0]?.textContent).toContain('Recommended');
-    const tooBig = rows.find((r) => r.textContent.includes('gemma4:26b'));
+    expect(rows.some((r) => r.textContent.includes('gemma4:26b'))).toBe(false);
+    const installed = rows.find((r) => r.textContent.includes('qwen3-coder:30b'));
+    expect(installed?.textContent).toContain('Downloaded');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Runs on this computer' }));
+    const tooBig = screen
+      .getAllByRole('listitem')
+      .find((r) => r.textContent.includes('gemma4:26b'));
     if (!tooBig) throw new Error('missing row');
     expect(tooBig.className).toContain('opacity-60');
     expect(within(tooBig).getByText('Needs more memory')).toBeDefined();
     expect(within(tooBig).queryByRole('button', { name: 'Download' })).toBeNull();
-    const installed = rows.find((r) => r.textContent.includes('qwen3-coder:30b'));
-    expect(installed?.textContent).toContain('Downloaded');
+  });
+
+  it('groups new and popular models and searches by name', async () => {
+    stubFetch((url) =>
+      url === '/api/admin/catalog'
+        ? json({
+            ...CATALOG,
+            entries: [
+              ...CATALOG.entries,
+              entry('qwen3.9:27b', { isNew: true, popularRank: 2, releasedAt: '2026-11-01' }),
+              entry('gpt-oss:20b', { popularRank: 1, think: true }),
+            ],
+          })
+        : undefined,
+    );
+    renderIt();
+    await screen.findByText('Add a model');
+    const heading = (name: string) => screen.getByRole('heading', { name, level: 4 });
+    expect(heading('New').nextElementSibling?.textContent).toContain('qwen3.9:27b');
+    expect(heading('Popular').nextElementSibling?.textContent).toContain('gpt-oss:20b');
+    expect(heading('Popular').nextElementSibling?.textContent).not.toContain('qwen3.9:27b');
+    fireEvent.change(screen.getByRole('searchbox', { name: 'Search models' }), {
+      target: { value: 'oss' },
+    });
+    expect(screen.getAllByRole('listitem').map((r) => r.textContent)).toEqual([
+      expect.stringContaining('gpt-oss:20b'),
+    ]);
+  });
+
+  it('downloads another library model by name', async () => {
+    const calls = stubFetch((url, init) => {
+      if (url === '/api/admin/catalog') return json(CATALOG);
+      if (url === '/api/admin/models/pulls' && init?.method === 'POST')
+        return json({ pullId: 'p2' }, 202);
+      return undefined;
+    });
+    renderIt();
+    await screen.findByText('Add a model');
+    const input = screen.getByRole('textbox', { name: 'Another model from Ollama’s library' });
+    const button = within(input.closest('form') as HTMLElement).getByRole('button', {
+      name: 'Download',
+    });
+    fireEvent.change(input, { target: { value: 'someone/model' } });
+    expect((button as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.change(input, { target: { value: 'qwen3:8b' } });
+    fireEvent.click(button);
+    await waitFor(() => {
+      expect(calls.some((c) => c.init?.method === 'POST')).toBe(true);
+    });
+    const post = calls.find((c) => c.init?.method === 'POST');
+    expect(JSON.parse(post?.init?.body as string)).toEqual({ model: 'qwen3:8b' });
   });
 
   it('starts a download and follows its progress', async () => {

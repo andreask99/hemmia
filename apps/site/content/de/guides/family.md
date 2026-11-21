@@ -39,3 +39,7 @@ Unter **Einstellungen → Konto → Geräte** sieht jede Person ihre Geräte, f�
 ## Konto deaktivieren
 
 **Deaktivieren** verhindert, dass sich ein Konto anmeldet, ohne etwas zu löschen. **Aktivieren** macht es wieder nutzbar.
+
+## Konto löschen
+
+Jede Person kann ihr eigenes Konto mit allem darin unter **Einstellungen → Konto → Konto löschen** löschen, mit ihrer Passphrase. Ein Admin kann das Konto einer anderen Person unter **Einstellungen → Familie → Löschen** löschen, mit der eigenen Passphrase. Das lässt sich nicht rückgängig machen. Ein Hub behält immer mindestens einen Admin.

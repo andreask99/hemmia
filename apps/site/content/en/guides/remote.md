@@ -3,7 +3,6 @@ title: Away from home
 description: Reach your hub from your phones with Hemmia Connect or Tailscale. What the relay can and can't see.
 nav: guides
 order: 75
-draft: true
 ---
 
 # Away from home

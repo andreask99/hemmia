@@ -69,7 +69,7 @@ export type ChatEntry = z.infer<typeof ChatEntry>;
 export const PhoneIndex = z.object({
   chats: z.array(ChatEntry).max(LIMITS.chats),
   aboutMe: z.string().max(4000),
-  language: z.enum(['en', 'de']),
+  language: z.enum(['en', 'de', 'fr', 'it']),
 });
 export type PhoneIndex = z.infer<typeof PhoneIndex>;
 

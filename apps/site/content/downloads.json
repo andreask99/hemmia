@@ -4,7 +4,9 @@
     "url": "",
     "note": {
       "en": "iPhone and iPad, iOS 15 or later",
-      "de": "iPhone und iPad, ab iOS 15"
+      "de": "iPhone und iPad, ab iOS 15",
+      "fr": "iPhone et iPad, iOS 15 ou plus récent",
+      "it": "iPhone e iPad, iOS 15 o successivo"
     }
   },
   {
@@ -12,23 +14,31 @@
     "url": "",
     "note": {
       "en": "Planned, not available yet",
-      "de": "Geplant, noch nicht verfügbar"
+      "de": "Geplant, noch nicht verfügbar",
+      "fr": "Prévu, pas encore disponible",
+      "it": "Previsto, non ancora disponibile"
     }
   },
   {
     "platform": "macos",
-    "url": "",
+    "url": "https://github.com/andreask99/hemmia/releases/download/v0.1.0/hemmia-hub-0.1.0.pkg",
     "note": {
-      "en": "Installs Hemmia at home on a Mac with Apple silicon (16 GB memory or more recommended). You use it in the browser and the iPhone app; there is no separate Mac app.",
-      "de": "Installiert Hemmia zu Hause auf einem Mac mit Apple-Chip (16 GB Arbeitsspeicher oder mehr empfohlen). Du nutzt es im Browser und in der iPhone-App; eine eigene Mac-App gibt es nicht."
-    }
+      "en": "Hemmia at home on a Mac with Apple silicon, macOS 14 or later. 8 GB runs a small model, 16 GB or more recommended, 24 GB for pictures. Signed and notarized.",
+      "de": "Hemmia zu Hause auf einem Mac mit Apple-Chip, ab macOS 14. Mit 8 GB läuft ein kleines Modell, 16 GB oder mehr empfohlen, 24 GB für Bilder. Signiert und von Apple geprüft.",
+      "fr": "Hemmia à la maison sur un Mac avec puce Apple, macOS 14 ou plus. 8 Go font tourner un petit modèle, 16 Go ou plus recommandés, 24 Go pour les images. Signé et notarié.",
+      "it": "Hemmia a casa su un Mac con chip Apple, macOS 14 o successivo. Con 8 GB gira un modello piccolo, 16 GB o più consigliati, 24 GB per le immagini. Firmato e notarizzato."
+    },
+    "version": "0.1.0"
   },
   {
     "platform": "docker",
-    "url": "",
+    "url": "https://hemmia.app/guides/docker/",
     "note": {
-      "en": "Linux, Windows with Docker Desktop, or a NAS",
-      "de": "Linux, Windows mit Docker Desktop oder ein NAS"
-    }
+      "en": "Linux, Windows with Docker Desktop, or a NAS: one command starts Hemmia with local models and web search.",
+      "de": "Linux, Windows mit Docker Desktop oder ein NAS: Ein Befehl startet Hemmia mit lokalen Modellen und Websuche.",
+      "fr": "Linux, Windows avec Docker Desktop ou un NAS : une commande lance Hemmia avec des modèles locaux et la recherche web.",
+      "it": "Linux, Windows con Docker Desktop o un NAS: un comando avvia Hemmia con modelli locali e ricerca web."
+    },
+    "version": "0.1.0"
   }
 ]

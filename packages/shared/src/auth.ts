@@ -1,6 +1,13 @@
 import { z } from 'zod';
 
-export const Language = z.enum(['en', 'de']);
+export const Language = z.enum(['en', 'de', 'fr', 'it']);
+/** The language's English name, for instructions to models ("Answer in French"). */
+export const LANGUAGE_NAMES = {
+  en: 'English',
+  de: 'German',
+  fr: 'French',
+  it: 'Italian',
+} as const satisfies Record<z.infer<typeof Language>, string>;
 export type Language = z.infer<typeof Language>;
 
 export const Role = z.enum(['admin', 'member']);
@@ -107,6 +114,16 @@ export const ErrorCode = z.enum([
   'too_many_devices',
   /** A link or code that doesn't work: unknown, used, expired or malformed (all the same). */
   'link_invalid',
+  /** The hub's last admin can't be deleted (another admin first). */
+  'last_admin',
+  /** Not an Ollama library model name (P11.5). */
+  'bad_model',
+  /** The model isn't downloaded (P11.6). */
+  'not_installed',
+  /** The family isn't offered this model, so there is nothing to replace (P11.6). */
+  'not_offered',
+  /** The family's last local model can't be deleted (P11.6). */
+  'last_model',
   'internal',
 ]);
 export type ErrorCode = z.infer<typeof ErrorCode>;
@@ -194,3 +211,7 @@ export const AdminUpdateUserRequest = z
   .object({ disabled: z.boolean().optional(), restricted: z.boolean().optional() })
   .refine((v) => v.disabled !== undefined || v.restricted !== undefined, 'nothing to update');
 export type AdminUpdateUserRequest = z.infer<typeof AdminUpdateUserRequest>;
+
+/** Deleting an account (one's own, or an admin deleting someone's) always needs the passphrase. */
+export const DeleteAccountRequest = z.object({ password: z.string().min(1).max(256) });
+export type DeleteAccountRequest = z.infer<typeof DeleteAccountRequest>;

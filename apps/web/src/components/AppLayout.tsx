@@ -2,8 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router';
 import type { Language } from '@hemmia/shared';
 import { useLogout, useMe } from '../auth/hooks.ts';
-import { useUpdateMe } from '../settings/hooks.ts';
-import { useI18n } from '../i18n/index.tsx';
+import { useModelUpdates, useUpdateMe } from '../settings/hooks.ts';
+import { LANGUAGES, useI18n } from '../i18n/index.tsx';
 import { ChatSidebar } from './ChatSidebar.tsx';
 import { CloseIcon, LogoutIcon, SettingsIcon } from '@hemmia/ui';
 import { DrawerContext } from './layout.tsx';
@@ -77,7 +77,7 @@ function AccountMenu() {
               aria-label={t('settings.language')}
               className="flex rounded-full bg-paper p-0.5"
             >
-              {(['en', 'de'] as const).map((lang) => (
+              {LANGUAGES.map((lang) => (
                 <button
                   key={lang}
                   type="button"
@@ -86,7 +86,7 @@ function AccountMenu() {
                   onClick={() => {
                     choose(lang);
                   }}
-                  className={`min-h-9 rounded-full px-3 text-sm font-semibold uppercase ${
+                  className={`min-h-9 rounded-full px-2.5 text-sm font-semibold uppercase ${
                     language === lang ? 'bg-forest text-on-forest' : 'text-muted hover:text-ink'
                   }`}
                 >
@@ -120,6 +120,9 @@ function AccountMenu() {
 
 function SidebarFooter({ onNavigate }: { onNavigate: () => void }) {
   const { t } = useI18n();
+  const isAdmin = useMe().data?.role === 'admin';
+  // A dot on Settings when a new version of a model the family uses came out (P11.7).
+  const updatesUnseen = useModelUpdates(isAdmin).data?.unseen === true;
   return (
     <div className="flex items-center gap-2 border-t border-line px-3 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
       <AccountMenu />
@@ -132,6 +135,13 @@ function SidebarFooter({ onNavigate }: { onNavigate: () => void }) {
       >
         <SettingsIcon size={19} />
         {t('nav.settings')}
+        {isAdmin && updatesUnseen && (
+          <span
+            className="size-2 rounded-full bg-danger"
+            role="img"
+            aria-label={t('updates.title')}
+          />
+        )}
       </NavLink>
     </div>
   );

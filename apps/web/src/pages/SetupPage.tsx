@@ -12,6 +12,7 @@ import { StepAccount } from '../setup/StepAccount.tsx';
 import { StepRecovery } from '../setup/StepRecovery.tsx';
 import { StepWelcome } from '../setup/StepWelcome.tsx';
 import { StepAI } from '../setup/StepAI.tsx';
+import { FeedbackBox } from '../components/FeedbackBox.tsx';
 import { StepRemote } from '../setup/StepRemote.tsx';
 import { StepPhone } from '../setup/StepPhone.tsx';
 
@@ -121,5 +122,12 @@ export function SetupPage() {
       <StepPhone username={username} onDone={() => void navigate('/', { replace: true })} />
     );
   }
-  return <SetupLayout step={step}>{content}</SetupLayout>;
+  return (
+    <SetupLayout step={step}>
+      {content}
+      <div className="mt-8 flex flex-col">
+        <FeedbackBox page={`setup/${String(step)}`} signedIn={step >= 4} />
+      </div>
+    </SetupLayout>
+  );
 }

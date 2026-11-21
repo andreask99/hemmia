@@ -7,7 +7,7 @@ import { DownloadCards } from './DownloadCards.tsx';
 import { type Download, parseDownloads } from './downloads.ts';
 
 const real = readFileSync(join(import.meta.dirname, '..', 'content', 'downloads.json'), 'utf8');
-const note = { en: 'n', de: 'n' };
+const note = { en: 'n', de: 'n', fr: 'n', it: 'n' };
 const four: Download[] = [
   { platform: 'ios', url: '', note },
   { platform: 'android', url: '', note },

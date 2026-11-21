@@ -3,7 +3,6 @@ title: Telefon verbinden
 description: Die Hemmia-App per QR-Code mit deinem Hub verbinden, weitere Geräte anmelden und zwischen Hubs wechseln.
 nav: guides
 order: 60
-draft: true
 ---
 
 # Telefon verbinden

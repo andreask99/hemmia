@@ -4,6 +4,7 @@
  * reply cut off (stop button, app in the background, an error mid-way) is saved as far as it
  * got, marked as stopped. Never logs content or keys.
  */
+import type { ShellLanguage } from '../shell/i18n.ts';
 import { type ChatTurn, type CloudClient, LlmError } from '@hemmia/providers';
 import { toBase64 } from './crypto.ts';
 import type { Keys } from './keys.ts';
@@ -29,7 +30,7 @@ export interface TurnInput {
   model: PhoneModel;
   think: boolean;
   aboutMe: string;
-  language: 'en' | 'de';
+  language: ShellLanguage;
   signal: AbortSignal;
   /** The reply so far, after each piece. */
   onReply: (text: string) => void;
@@ -54,8 +55,8 @@ export function titleFrom(text: string): string {
   return `${(space > 20 ? cut.slice(0, space) : cut).trimEnd()}…`;
 }
 
-export function systemPrompt(aboutMe: string, language: 'en' | 'de'): string {
-  const lang = language === 'de' ? 'German' : 'English';
+export function systemPrompt(aboutMe: string, language: ShellLanguage): string {
+  const lang = { en: 'English', de: 'German', fr: 'French', it: 'Italian' }[language];
   const base = `You are Hemmia, a helpful assistant in a private app on the user's phone. Answer in ${lang} unless the user writes in another language.`;
   const about = aboutMe.trim();
   return about ? `${base}\n\nWhat the user tells you about themselves:\n${about}` : base;

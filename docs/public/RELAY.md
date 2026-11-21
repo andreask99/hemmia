@@ -254,6 +254,18 @@ The relay doesn't need to parse the CSR: it creates the ACME order for exactly
 (`csr_rejected`). The hub builds the CSR itself (P2.10): ECDSA P-256 key, subject
 `CN=<hostname>`, `subjectAltName` = that DNS name only, signed with SHA-256.
 
+### 5.4 Questions and feedback (2026-11-08)
+
+`POST /v1/feedback` (unsigned): `{message (1–4000), email?, source: site|hub, lang: en|de, page?,
+version?, website?}` (`relay-protocol` `FeedbackRequest`). From the website's install pages (a
+cross-origin form sent as `text/plain`, so no preflight; only `https://<relay-domain>` and
+`https://www.<relay-domain>` get `Access-Control-Allow-Origin`, other Origins 403) and forwarded
+by hubs from their setup screens (no Origin; the hub adds its version, never its id or the
+account). Limits in memory: 5 per address per hour, 500 per day for everyone; no address is
+stored. A filled-in `website` (honeypot) is answered 204 and dropped. Kept 12 months. The owner
+reads it with the CLI `feedback [--after <id>]` (JSON lines) through `ops/feedback-digest.sh`, a
+daily email from the owner's Mac; not in AI sessions (legal review 2026-11-08 S5).
+
 ## 6. ACME and DNS (relay)
 
 RFC 8555 client in `apps/relay/src/acme/`, built on `fetch` and `node:crypto` only.
@@ -405,7 +417,7 @@ systemd journal (Docker `journald` driver), kept at most 14 days (journald `MaxR
 syslog rotated daily, 14 kept). SQLite holds no traffic metadata beyond the monthly byte count.
 Deletion (`retention.ts`, hourly): byte counts after 3 months, hubs not connected for 12 months
 (not blocked ones) with their orders and push handles, idle push handles after 90 days, the push
-rate log after a day, certificate orders after 7 days.
+rate log after a day, certificate orders after 7 days, questions and feedback after 12 months.
 
 ## 11. Configuration (relay environment)
 
@@ -431,8 +443,10 @@ disable only that feature (with one warning line), never the tunnel.
 
 - `docker compose up -d` on the VPS (`apps/relay/deploy/compose.yaml`); the image is built in
   CI or on the Mac (`docker buildx build --platform linux/amd64`).
-- Admin CLI inside the container: `docker compose exec relay node src/cli.ts <command>` with
-  `list-hubs [--blocked]`, `block-hub <id> <reason>`, `unblock-hub <id>`, `stats` (hubs,
+- Admin CLI inside the container: `sudo docker compose -f /srv/relay/compose.yaml exec relay node src/cli.ts <command>` with
+  `list-hubs [--blocked]`, `block-hub <id> <reason>`, `unblock-hub <id>`, `allow-new-hub <id>` (lets one hub of ours, such as the App Review hub,
+  get its first certificate although its network had its 2 new hubs this week; the weekly total
+  of 40 still applies), `stats` (hubs,
   connected tunnels, bytes this month, orders and pushes in 24 h), `min-hub-version
   [<x.y.z> | none]` (show, set or clear the minimum hub version, P2.17).
 - Backups: nightly `sqlite3 .backup` into the backup volume (7 kept). Keys in

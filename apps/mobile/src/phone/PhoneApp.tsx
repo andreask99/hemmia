@@ -3,6 +3,7 @@
  * export/import, moving to a home hub and deleting everything. Keys are read from SecureStore
  * when needed and never kept in state, except masked for the settings screen.
  */
+import { phoneLanguage, type ShellLanguage } from '../shell/i18n.ts';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { App as CapApp } from '@capacitor/app';
 import { Directory, Encoding, Filesystem } from '@capacitor/filesystem';
@@ -44,11 +45,10 @@ export interface PhoneAppProps {
 }
 
 const newId = () => crypto.randomUUID().replace(/-/g, '');
-const PRIVACY = {
-  en: 'https://hemmia.app/legal/privacy/',
-  de: 'https://hemmia.app/de/legal/privacy/',
-};
-const TERMS = { en: 'https://hemmia.app/legal/terms/', de: 'https://hemmia.app/de/legal/terms/' };
+const site = (language: ShellLanguage) =>
+  language === 'en' ? 'https://hemmia.app' : `https://hemmia.app/${language}`;
+const PRIVACY = (language: ShellLanguage) => `${site(language)}/legal/privacy/`;
+const TERMS = (language: ShellLanguage) => `${site(language)}/legal/terms/`;
 
 /** Links leave the app: with no allowNavigation they open in the system browser. */
 const openOutside = (url: string) => {
@@ -57,9 +57,7 @@ const openOutside = (url: string) => {
 
 export function PhoneApp(props: PhoneAppProps) {
   const keys = useMemo(() => createKeys(secureStore), []);
-  const [language, setLanguage] = useState<'en' | 'de'>(() =>
-    navigator.languages[0]?.toLowerCase().startsWith('de') ? 'de' : 'en',
-  );
+  const [language, setLanguage] = useState<ShellLanguage>(() => phoneLanguage(navigator.languages));
   const store = useMemo(
     () => createPhoneStore(capacitorFiles, () => keys.dataKey(), { language }),
     [keys, language],
@@ -230,10 +228,10 @@ export function PhoneApp(props: PhoneAppProps) {
             setScreen({ name: 'move' });
           }}
           onPrivacy={() => {
-            openOutside(PRIVACY[language]);
+            openOutside(PRIVACY(language));
           }}
           onTerms={() => {
-            openOutside(TERMS[language]);
+            openOutside(TERMS(language));
           }}
           onDeleteEverything={() => {
             void deleteEverything(store, keys).then(props.onLeave);

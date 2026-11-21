@@ -9,8 +9,10 @@ import type { Logger } from 'pino';
 import type { RelayConfig } from './config.ts';
 import { openDb, type RelayDb } from './db.ts';
 import { createApiHandler, type Route } from './api/server.ts';
+import { feedbackRoutes } from './api/feedback.ts';
 import { hubRoutes } from './api/hubs.ts';
 import { pruneRelay } from './retention.ts';
+import { catalogRoutes } from './api/catalog.ts';
 import { manifestRoutes } from './api/manifest.ts';
 import { certificateRoutes } from './api/certificates.ts';
 import { pushRoutes } from './api/push.ts';
@@ -77,6 +79,8 @@ export async function startRelay(config: RelayConfig, deps: RelayDeps): Promise<
     },
     ...certificateRoutes({ db, relayDomain: config.domain, queue: orders, now }),
     ...manifestRoutes({ db, dataDir: config.dataDir, now }),
+    ...catalogRoutes({ dataDir: config.dataDir }),
+    ...feedbackRoutes({ db, relayDomain: config.domain, now }),
     ...pushRoutes({
       db,
       relayDomain: config.domain,

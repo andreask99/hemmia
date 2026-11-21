@@ -33,7 +33,11 @@ interface PushPlugin {
   checkPermissions: () => Promise<{ receive: string }>;
   requestPermissions: () => Promise<{ receive: string }>;
   register: () => Promise<void>;
-  addListener: (event: string, fn: (data: PushEventData) => void) => Promise<Listener>;
+  /**
+   * A promise with @capacitor/core, but the bridge Capacitor injects into a hub's page (no core
+   * bundled, see above) returns the listener itself; both are handled.
+   */
+  addListener: (event: string, fn: (data: PushEventData) => void) => Listener | Promise<Listener>;
 }
 interface ScannerPlugin {
   scanBarcode: (o: {
@@ -179,15 +183,23 @@ export function detectNative(
     onPushTap: (fn) => {
       let listener: Listener | null = null;
       let stopped = false;
-      void (plugin(plugins, 'PushNotifications') as PushPlugin)
-        .addListener('pushNotificationActionPerformed', (d) => {
-          const tap = readPushTap(d.notification?.data);
-          if (tap) fn(tap);
-        })
-        .then((l) => {
-          if (stopped) void l.remove();
-          else listener = l;
-        });
+      try {
+        const added = (plugin(plugins, 'PushNotifications') as PushPlugin).addListener(
+          'pushNotificationActionPerformed',
+          (d) => {
+            const tap = readPushTap(d.notification?.data);
+            if (tap) fn(tap);
+          },
+        );
+        void Promise.resolve(added)
+          .then((l) => {
+            if (stopped) void l.remove();
+            else listener = l;
+          })
+          .catch(() => undefined);
+      } catch {
+        // No push plugin in this shell: taps simply don't open chats.
+      }
       return () => {
         stopped = true;
         void listener?.remove();

@@ -6,7 +6,10 @@ import { z } from 'zod';
 import config from '../../../../config/models.json';
 import type { Provider } from './keys.ts';
 
-const Text = z.object({ en: z.string(), de: z.string() });
+/** Labels per language; French and Italian fall back to English when config/models.json lacks them. */
+const Text = z
+  .object({ en: z.string(), de: z.string(), fr: z.string().optional(), it: z.string().optional() })
+  .transform((t) => ({ en: t.en, de: t.de, fr: t.fr ?? t.en, it: t.it ?? t.en }));
 
 export const PhoneModel = z.object({
   id: z.string(),

@@ -41,9 +41,10 @@ export function certificateRoutes(o: {
     { status: 'pending' | 'ready' | 'failed'; chain_pem: string | null; failure: string | null }
   >('SELECT status, chain_pem, failure FROM cert_orders WHERE id = ? AND hub_id = ?');
   const prune = o.db.prepare('DELETE FROM cert_orders WHERE created_at < ?');
-  const hubRow = o.db.prepare<[string], { created_at: number; created_ip: string }>(
-    'SELECT created_at, created_ip FROM hubs WHERE id = ?',
-  );
+  const hubRow = o.db.prepare<
+    [string],
+    { created_at: number; created_ip: string; network_exempt: number }
+  >('SELECT created_at, created_ip, network_exempt FROM hubs WHERE id = ?');
   /** Other hubs registered within the last week that ordered a certificate this week. */
   const newHubsOrdering = o.db.prepare<[number, number, string], { n: number }>(
     `SELECT COUNT(DISTINCT c.hub_id) AS n FROM cert_orders c JOIN hubs h ON h.id = c.hub_id
@@ -78,9 +79,12 @@ export function certificateRoutes(o: {
           const since = now() - WEEK;
           if ((newHubsOrdering.get(since, since, ctx.hubId)?.n ?? 0) >= NEW_HUBS_PER_WEEK)
             throw new ApiHttpError(429, 'rate_limited');
+          // The operator can exempt a hub of ours from the per-network limit (allow-new-hub);
+          // the weekly total above still applies to it.
           if (
+            hub.network_exempt !== 1 &&
             (newHubsOrderingFrom.get(since, since, ctx.hubId, hub.created_ip)?.n ?? 0) >=
-            NEW_HUBS_PER_NETWORK_WEEK
+              NEW_HUBS_PER_NETWORK_WEEK
           )
             throw new ApiHttpError(429, 'rate_limited');
         }

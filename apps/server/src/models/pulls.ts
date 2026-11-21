@@ -37,7 +37,8 @@ export interface PullDeps {
   paused: () => boolean;
   /** Free GiB on the disk Ollama writes to (the data dir's volume as an estimate), or null. */
   diskFreeGiB: () => Promise<number | null>;
-  catalog: readonly CatalogEntry[];
+  /** The current catalogue (bundled plus the signed one from the relay). */
+  catalog: () => readonly CatalogEntry[];
   /** Offers the downloaded model; returns its model id. */
   offer: (model: string, entry: CatalogEntry | undefined) => Promise<string> | string;
   now?: () => number;
@@ -98,7 +99,7 @@ export function createPullManager(deps: PullDeps) {
       if (active) throw new PullRefusedError('busy');
       if (deps.paused()) throw new PullRefusedError('paused');
       if (!deps.llm.pull) throw new PullRefusedError('unavailable');
-      const entry = deps.catalog.find((e) => e.ollamaModel === model);
+      const entry = deps.catalog().find((e) => e.ollamaModel === model);
       const free = await deps.diskFreeGiB().catch(() => null);
       if (free !== null && free < (entry?.downloadGiB ?? 0) + DISK_RESERVE_GIB) {
         throw new PullRefusedError('disk_full');

@@ -6,6 +6,7 @@ import { buildCsr, CertificateStatus, signRequest } from '@hemmia/relay-protocol
 import { createAcmeClient } from '../acme/client.ts';
 import { startFakeAcme } from '../acme/fake-server.ts';
 import { createOrderQueue, type Issuer } from '../acme/queue.ts';
+import { allowNewHub } from '../admin.ts';
 import { openDb, type RelayDb } from '../db.ts';
 import { createFakeDns } from '../dns/fake.ts';
 import { createTestCa, hasOpenssl, type TestCa } from '../../test/ca.ts';
@@ -172,6 +173,13 @@ run('certificate orders', () => {
     addNewHub('aaaaaaaaaaaa', '127.0.0.0/24');
     addNewHub('bbbbbbbbbbbb', '127.0.0.0/24');
     const body = JSON.stringify({ csr });
+    expect(await s.call('POST', '/v1/hubs/self/certificate', body)).toMatchObject({ status: 429 });
+    // An exempted hub (allow-new-hub) may order from that network; the total still applies.
+    expect(allowNewHub(s.db, s.h.hubId)).toBe(true);
+    expect(await s.call('POST', '/v1/hubs/self/certificate', body)).toMatchObject({ status: 202 });
+    await s.queue?.idle();
+    s.db.prepare('UPDATE hubs SET network_exempt = 0 WHERE id = ?').run(s.h.hubId);
+    s.db.prepare('DELETE FROM cert_orders WHERE hub_id = ?').run(s.h.hubId);
     expect(await s.call('POST', '/v1/hubs/self/certificate', body)).toMatchObject({ status: 429 });
     // From other networks it may order, until 40 new hubs have this week.
     s.db.prepare("UPDATE hubs SET created_ip = '198.51.100.0/24' WHERE id = 'bbbbbbbbbbbb'").run();

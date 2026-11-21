@@ -2,13 +2,15 @@ import { UiTextProvider } from '@hemmia/ui';
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
 import { en, type MessageKey, type Messages } from './en.ts';
 import { de } from './de.ts';
+import { fr } from './fr.ts';
+import { it } from './it.ts';
 
 export type { MessageKey } from './en.ts';
 
-export const LANGUAGES = ['en', 'de'] as const;
+export const LANGUAGES = ['en', 'de', 'fr', 'it'] as const;
 export type Language = (typeof LANGUAGES)[number];
 
-const catalogues: Record<Language, Messages> = { en, de };
+const catalogues: Record<Language, Messages> = { en, de, fr, it };
 const STORAGE_KEY = 'kchat.language';
 
 export type TFunction = (key: MessageKey, params?: Record<string, string | number>) => string;
@@ -25,8 +27,8 @@ export function isLanguage(value: unknown): value is Language {
   return typeof value === 'string' && (LANGUAGES as readonly string[]).includes(value);
 }
 
-/** English by default (owner decision); a stored choice wins. The server-side user
- *  preference will override this once /me exists. */
+/** A stored choice wins, then the browser's language if Hemmia speaks it, else English. The
+ *  account's preference overrides this once signed in. */
 function initialLanguage(): Language {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
@@ -34,7 +36,9 @@ function initialLanguage(): Language {
   } catch {
     // storage unavailable (private mode); fall through
   }
-  return 'en';
+  const browser =
+    typeof navigator === 'undefined' ? '' : (navigator.language || '').slice(0, 2).toLowerCase();
+  return isLanguage(browser) ? browser : 'en';
 }
 
 export function translate(

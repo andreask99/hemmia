@@ -8,7 +8,7 @@ export default defineConfig({
           name: 'scripts',
           root: './scripts',
           environment: 'node',
-          include: ['*.test.ts', 'package/*.test.ts'],
+          include: ['*.test.ts', 'package/*.test.ts', 'catalog/*.test.ts'],
         },
       },
       {

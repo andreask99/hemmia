@@ -3,7 +3,6 @@ title: Sicherung und Wiederherstellung
 description: Den Wiederherstellungscode sicher aufbewahren, den Datenordner des Hubs sichern, auf einen neuen Computer umziehen und die Chats auf dem Telefon sichern.
 nav: guides
 order: 80
-draft: true
 ---
 
 # Sicherung und Wiederherstellung

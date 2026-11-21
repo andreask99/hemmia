@@ -7,7 +7,7 @@ import { ModelChip, ModelSheet } from './ModelSheet.tsx';
 
 const model = (id: string, extra: Partial<ChatModelInfo> = {}): ChatModelInfo => ({
   id,
-  label: { en: id, de: id },
+  label: { en: id, de: id, fr: id, it: id },
   description: null,
   engineModel: `${id}:1b`,
   details: null,

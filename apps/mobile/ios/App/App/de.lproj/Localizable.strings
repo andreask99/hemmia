@@ -13,3 +13,5 @@
 "push_maintenance_ok_body" = "Wartung: Updates installiert und getestet";
 "push_maintenance_failed_title" = "Hemmia";
 "push_maintenance_failed_body" = "Wartung: Ein Update ist fehlgeschlagen, die vorherige Version wurde wiederhergestellt";
+"push_models_title" = "Hemmia";
+"push_models_body" = "Eine neue Version eines eurer Modelle ist da";

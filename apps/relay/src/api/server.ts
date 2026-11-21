@@ -23,6 +23,8 @@ export interface RouteContext {
 export interface RouteResult {
   status: number;
   body?: unknown;
+  /** Extra response headers (CORS for the website's feedback form). */
+  headers?: Record<string, string>;
 }
 
 export interface Route {
@@ -130,6 +132,7 @@ export function createApiHandler(deps: ApiDeps) {
       },
     };
     const result = await matched.route.handle(ctx);
+    for (const [k, v] of Object.entries(result.headers ?? {})) res.setHeader(k, v);
     if (result.status === 204) {
       res.writeHead(204, { 'cache-control': 'no-store' });
       res.end();

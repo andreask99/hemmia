@@ -11,6 +11,7 @@
  *    (done, cancelled or error).
  * The job keeps its own copy of the user's data key and wipes it when it ends.
  */
+import type { Language } from '@hemmia/shared';
 import type { ChatCompletionsRequest } from '@hemmia/providers';
 import { randomInt } from 'node:crypto';
 import { z } from 'zod';
@@ -295,7 +296,7 @@ export interface ReplyDeps {
 }
 
 export interface ReplyInput {
-  user: UserKey & { restricted: boolean; language: 'en' | 'de' };
+  user: UserKey & { restricted: boolean; language: Language };
   chatId: string;
   model: ResolvedChatModel;
   /** The chat's "think harder" switch (only honoured for models that can think). */

@@ -309,6 +309,17 @@ export function createOllamaClient(baseUrl: string): LlmClient {
       return parsed.data.models.map((m) => ({ model: m.name, memoryGiB: m.size / 1024 ** 3 }));
     },
 
+    async remove(model: string) {
+      const res = await request('/api/delete', {
+        method: 'DELETE',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ model }),
+      });
+      await res.body?.cancel().catch(() => undefined);
+      if (res.status === 404) return;
+      if (!res.ok) throw new LlmError('bad_response');
+    },
+
     async unload(model: string) {
       const res = await postJson('/api/generate', { model, keep_alive: 0 });
       await res.body?.cancel().catch(() => undefined);

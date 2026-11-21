@@ -13,6 +13,8 @@ import type {
   AttachmentRef,
   BriefingKind,
   CatalogResponse,
+  InstalledModelsResponse,
+  ModelUpdatesResponse,
   ChatSummary,
   CloudSettingsResponse,
   DailySettings,
@@ -308,7 +310,11 @@ const WORDS = new Set([
 const BRIEFING_TITLES: Record<Language, Record<BriefingKind, string>> = {
   en: { day: 'Your day', week: 'Planning the week', evening: 'Evening check-in' },
   de: { day: 'Dein Tag', week: 'Wochenplanung', evening: 'Rückblick am Abend' },
+  fr: { day: 'Ta journée', week: 'Planifier la semaine', evening: 'Bilan du soir' },
+  it: { day: 'La tua giornata', week: 'Pianificare la settimana', evening: 'Bilancio serale' },
 };
+
+const PICTURES_LABEL = { en: 'Pictures', de: 'Bilder', fr: 'Images', it: 'Immagini' };
 
 // ---------------------------------------------------------------------------
 
@@ -330,9 +336,7 @@ export function createDemoServer(lang: Language, options: DemoServerOptions): De
 
   const models = (): ModelsResponse => ({
     chatModels: CHAT_MODELS.filter((m) => !state.disabled.includes(m.id)),
-    imageModels: state.defaultImage
-      ? [{ id: 'image', label: { en: 'Pictures', de: 'Bilder' } }]
-      : [],
+    imageModels: state.defaultImage ? [{ id: 'image', label: PICTURES_LABEL }] : [],
     defaultChatModel: state.defaultChat,
     defaultImageModel: state.defaultImage,
     paused: state.paused,
@@ -354,7 +358,7 @@ export function createDemoServer(lang: Language, options: DemoServerOptions): De
       })),
       {
         id: 'image',
-        label: { en: 'Pictures', de: 'Bilder' },
+        label: PICTURES_LABEL,
         kind: 'image' as const,
         available: true,
         enabled: state.defaultImage !== null,
@@ -934,7 +938,7 @@ export function createDemoServer(lang: Language, options: DemoServerOptions): De
           entries: CHAT_MODELS.map((m) => ({
             ollamaModel: m.engineModel,
             label: m.label,
-            description: m.description ?? { en: '', de: '' },
+            description: m.description ?? { en: '', de: '', fr: '', it: '' },
             downloadGiB: m.id === 'gemma4-12b' ? 8 : 18,
             memoryGiB: m.id === 'gemma4-12b' ? 9 : 19,
             minTotalMemoryGiB: m.id === 'gemma4-12b' ? 16 : 32,
@@ -943,8 +947,29 @@ export function createDemoServer(lang: Language, options: DemoServerOptions): De
             fits: true,
             recommended: m.id === DEFAULT_MODEL,
             installed: true,
+            think: true,
+            contextTokens: 131072,
+            isNew: false,
+            popularRank: null,
+            releasedAt: null,
+            inUse: true,
           })),
         } satisfies CatalogResponse);
+      case 'GET /admin/models/updates':
+        return json({
+          updates: [],
+          unseen: false,
+          catalogCheck: true,
+        } satisfies ModelUpdatesResponse);
+      case 'GET /admin/models/installed':
+        return json({
+          diskFreeGiB: 240,
+          models: CHAT_MODELS.map((m) => ({
+            model: m.engineModel,
+            sizeGiB: m.id === 'gemma4-12b' ? 7.5 : 17.4,
+            offeredId: m.id,
+          })),
+        } satisfies InstalledModelsResponse);
       case 'GET /admin/remote':
         return json({
           relayConfigured: true,

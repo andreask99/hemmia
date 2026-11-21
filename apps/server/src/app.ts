@@ -1,3 +1,4 @@
+import type { Language } from '@hemmia/shared';
 import { fileURLToPath } from 'node:url';
 import Fastify, { type FastifyInstance } from 'fastify';
 import {
@@ -10,7 +11,7 @@ import {
   type SystemCapabilities,
   type SystemStatus,
 } from '@hemmia/shared';
-import type { Config } from './config/schema.ts';
+import type { CatalogEntry, Config } from './config/schema.ts';
 import { publicBaseUrl, publicHost } from './config/urls.ts';
 import { linksFor, registerLinkRoutes } from './routes/linkcodes.ts';
 import { createLinkCodes } from './security/linkcodes.ts';
@@ -43,7 +44,10 @@ import { createPullManager } from './models/pulls.ts';
 import { createLocalEngineFetch } from './security/localengine.ts';
 import { createCloudRepo } from './db/cloud.ts';
 import { registerCloudRoutes } from './routes/cloud.ts';
+import { createCatalogStore, createCatalogSync, mergeCatalog } from './models/catalog.ts';
+import { createModelLifecycle } from './models/lifecycle.ts';
 import { createOverrideStore, type OverrideStore } from './models/overrides.ts';
+import { createUpdateNotices, createUpdateStateStore, withTag } from './models/updates.ts';
 import type { ModelRegistry } from './models/types.ts';
 import { createLoggerOptions } from './logger.ts';
 import { registerPushRoutes } from './routes/push.ts';
@@ -71,6 +75,7 @@ import type { readLinkedPage } from './tools/readpage.ts';
 import { createPush } from './security/push.ts';
 import { createPushRefs } from './security/pushref.ts';
 import { registerAccountRoutes } from './routes/account.ts';
+import { registerFeedbackRoutes } from './routes/feedback.ts';
 import { registerAttachmentRoutes } from './routes/attachments.ts';
 import { registerAuthRoutes, userAgentLabel } from './routes/auth.ts';
 import { registerChatRoutes } from './routes/chats.ts';
@@ -132,6 +137,11 @@ export interface AppOverrides {
   capabilities?: Capabilities;
   /** Pictures set up by Hemmia (main.ts); absent in tests unless given. */
   pictures?: PicturesManager;
+  /** Tests: the relay call that forwards feedback (routes/feedback.ts). */
+  feedbackFetch?: typeof fetch;
+  /** Tests: the daily model catalogue request (models/catalog.ts) and its signing key. */
+  catalogFetch?: typeof fetch;
+  catalogPublicKey?: string;
   /** Side effects of the web search installer (tests). */
   searchDeps?: Partial<SearchDeps>;
   /** Side effects of the Ollama installer (tests). */
@@ -341,6 +351,38 @@ export async function buildApp(config: Config, overrides: AppOverrides = {}): Pr
   const agents = createAgentRepo(db, overrides.now);
   const imageEngine = overrides.imageEngine;
   const modelOverrides = createOverrideStore(db, overrides.now);
+  // The download catalogue: bundled config/catalog.json plus the signed one from the relay
+  // (P11.4), merged again only when a newer catalogue arrives.
+  const catalogStore = createCatalogStore(db, overrides.now);
+  let mergedAt = -1;
+  let merged = config.catalog;
+  const catalog = () => {
+    const remote = catalogStore.get();
+    const at = remote?.signedAt ?? 0;
+    if (at !== mergedAt) {
+      merged = mergeCatalog(config.catalog, remote?.entries ?? null);
+      mergedAt = at;
+    }
+    return merged;
+  };
+  // Set below, once the update notices exist.
+  let catalogChanged: () => Promise<void> = () => Promise.resolve();
+  const catalogSync = createCatalogSync({
+    relayDomain: config.relayDomain,
+    store: catalogStore,
+    onChange: () => catalogChanged(),
+    enabled: () => modelOverrides.get().catalogCheck,
+    ...(overrides.catalogFetch ? { fetch: overrides.catalogFetch } : {}),
+    ...(overrides.catalogPublicKey ? { publicKey: overrides.catalogPublicKey } : {}),
+  });
+  if (config.relayDomain && config.env !== 'test') {
+    app.addHook('onReady', async () => {
+      catalogSync.start();
+    });
+    app.addHook('onClose', async () => {
+      catalogSync.stop();
+    });
+  }
   // Cloud models: each user's own keys (encrypted), spending, and the provider clients.
   const cloudRepo = createCloudRepo(db, overrides.now);
   const cloudFetch = overrides.cloudFetch ? { fetch: overrides.cloudFetch } : {};
@@ -376,47 +418,114 @@ export async function buildApp(config: Config, overrides: AppOverrides = {}): Pr
     ollamaUrl: config.ollamaUrl,
     localFetch,
   });
+  // Late-bound: the scheduler is created below (model deletion waits until it is idle).
+  let schedulerIdle: () => boolean = () => true;
+  // Ollama models the family is offered now (config models switched on, and added ones).
+  const offeredOllama = (): string[] => {
+    const o = modelOverrides.get();
+    return [
+      ...config.models.chatModels
+        .filter((m) => m.enabled && !o.disabled.includes(m.id))
+        .map((m) => m.ollamaModel),
+      ...o.extraModels.filter((m) => m.engine === 'ollama').map((m) => m.engineModel),
+    ];
+  };
+  const updateState = createUpdateStateStore(db, overrides.now);
+  const notices = createUpdateNotices({
+    catalog,
+    offered: offeredOllama,
+    installed: async () => (llm ? (await llm.installed()).map((m) => m.model) : null),
+    memoryGiB: () => capabilities.current().memoryGiB,
+    state: updateState,
+    notifyAdmins: async () => {
+      const admins = db
+        .prepare<[], { id: string; language: Language }>(
+          "SELECT id, language FROM users WHERE role = 'admin' AND disabled_at IS NULL",
+        )
+        .all();
+      for (const a of admins) {
+        await push.notify(a.id, { kind: 'models', chatId: '', lang: a.language });
+      }
+    },
+  });
+  catalogChanged = async () => {
+    await notices.refresh(true);
+  };
+  if (config.env !== 'test') {
+    // Also after a restart: models offered since the last catalogue may have newer versions.
+    const firstNotice = setTimeout(() => {
+      void notices.refresh(true).catch(() => undefined);
+    }, 120_000);
+    firstNotice.unref();
+  }
   if (llm) {
+    /** Offers a downloaded Ollama model to the family; returns its model id. */
+    const offerModel = async (model: string, entry: CatalogEntry | undefined): Promise<string> => {
+      // Already offered by the config file or an earlier download: nothing to add.
+      const known =
+        config.models.chatModels.find((m) => m.ollamaModel === model) ??
+        modelOverrides
+          .get()
+          .extraModels.find((m) => m.engine === 'ollama' && m.engineModel === model);
+      if (known) return known.id;
+      const sizeGiB =
+        (await llm.installed().catch(() => [])).find((m) => m.model === model)?.sizeGiB ?? 0;
+      const slug = model
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '');
+      const id = `x-${slug}`.slice(0, 32);
+      const current = modelOverrides.get();
+      modelOverrides.set({
+        ...current,
+        extraModels: [
+          ...current.extraModels.filter((m) => m.id !== id),
+          {
+            id,
+            engineModel: model,
+            label: entry?.label.en ?? model,
+            memoryGiB: entry?.memoryGiB ?? Math.ceil(sizeGiB * 1.15 + 1),
+            engine: 'ollama',
+            vision: false,
+            tools: false,
+            adultOnly: false,
+          },
+        ],
+      });
+      return id;
+    };
     const pulls = createPullManager({
       llm,
       paused: () => modelOverrides.get().paused,
       diskFreeGiB: async () => (await capabilities.refresh()).diskFreeGiB,
-      catalog: config.catalog,
-      offer: async (model, entry) => {
-        // Already offered by the config file or an earlier download: nothing to add.
-        const known =
-          config.models.chatModels.find((m) => m.ollamaModel === model) ??
-          modelOverrides
-            .get()
-            .extraModels.find((m) => m.engine === 'ollama' && m.engineModel === model);
-        if (known) return known.id;
-        const sizeGiB =
-          (await llm.installed().catch(() => [])).find((m) => m.model === model)?.sizeGiB ?? 0;
-        const slug = model
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, '-')
-          .replace(/^-|-$/g, '');
-        const id = `x-${slug}`.slice(0, 32);
-        const current = modelOverrides.get();
-        modelOverrides.set({
-          ...current,
-          extraModels: [
-            ...current.extraModels.filter((m) => m.id !== id),
-            {
-              id,
-              engineModel: model,
-              label: entry?.label.en ?? model,
-              memoryGiB: entry?.memoryGiB ?? Math.ceil(sizeGiB * 1.15 + 1),
-              engine: 'ollama',
-              vision: false,
-              tools: false,
-            },
-          ],
-        });
-        return id;
-      },
+      catalog,
+      offer: offerModel,
     });
-    registerAdminModelRoutes(app, { catalog: config.catalog, capabilities, llm, pulls });
+    const lifecycle = createModelLifecycle({
+      db,
+      overrides: modelOverrides,
+      configModels: config.models.chatModels,
+      llm,
+      offer: async (model) => {
+        const entry = catalog().find((e) => withTag(e.ollamaModel) === withTag(model));
+        return offerModel(model, entry);
+      },
+      idle: () => schedulerIdle(),
+      updateState,
+      catalogDigest: (model) =>
+        catalog().find((e) => withTag(e.ollamaModel) === withTag(model))?.remote?.digest ?? null,
+    });
+    registerAdminModelRoutes(app, {
+      catalog,
+      capabilities,
+      llm,
+      pulls,
+      lifecycle,
+      notices,
+      overrides: modelOverrides,
+      offered: offeredOllama,
+      ...(overrides.now ? { now: overrides.now } : {}),
+    });
   }
   const registry =
     overrides.registry ??
@@ -446,6 +555,7 @@ export async function buildApp(config: Config, overrides: AppOverrides = {}): Pr
       app.log.error({ err, jobId: job.id, kind: job.kind }, 'job failed');
     },
   });
+  schedulerIdle = () => scheduler.idle();
   if (registry) {
     registerModelRoutes(app, { registry, ...(llm ? { llm } : {}) });
     registerChatRoutes(app, {
@@ -614,6 +724,12 @@ export async function buildApp(config: Config, overrides: AppOverrides = {}): Pr
       updates.stop();
     });
   }
+  registerFeedbackRoutes(app, {
+    relayDomain: config.relayDomain,
+    version: APP_VERSION,
+    ...(overrides.feedbackFetch ? { fetch: overrides.feedbackFetch } : {}),
+    ...(overrides.now ? { now: overrides.now } : {}),
+  });
   app.get('/api/admin/system', { preHandler: requireAdmin }, async (): Promise<SystemStatus> => {
     return { ...(await system.get()), keepAwake: keepAwake.active(), update: updates.latest() };
   });
@@ -765,6 +881,7 @@ export async function buildApp(config: Config, overrides: AppOverrides = {}): Pr
 
   registerAccountRoutes(app, {
     auth,
+    deleteBlobs: (ids) => attachments.deleteBlobs(ids),
     ...(overrides.now ? { now: overrides.now } : {}),
     admin: createAdmin(db, overrides.now),
     ...(registry ? { registry } : {}),
@@ -843,7 +960,7 @@ export async function buildApp(config: Config, overrides: AppOverrides = {}): Pr
         status: () => remote.status(),
         notify: async (up) => {
           const admins = db
-            .prepare<[], { id: string; language: 'en' | 'de' }>(
+            .prepare<[], { id: string; language: Language }>(
               "SELECT id, language FROM users WHERE role = 'admin' AND disabled_at IS NULL",
             )
             .all();

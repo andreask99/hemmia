@@ -2,7 +2,13 @@ import { z } from 'zod';
 import { ErrorCode, type Language } from './auth.ts';
 
 /** Text in every UI language. */
-export const LocalizedText = z.object({ en: z.string(), de: z.string() });
+/**
+ * Text per UI language. French and Italian fall back to English when a sender (an older hub,
+ * a local config file) doesn't have them yet.
+ */
+export const LocalizedText = z
+  .object({ en: z.string(), de: z.string(), fr: z.string().optional(), it: z.string().optional() })
+  .transform((t) => ({ en: t.en, de: t.de, fr: t.fr ?? t.en, it: t.it ?? t.en }));
 export type LocalizedText = z.infer<typeof LocalizedText>;
 
 export const Id = z.string().regex(/^[A-Za-z0-9_-]{1,64}$/);
@@ -110,6 +116,16 @@ export const BRIEFING_PROMPTS: Record<Language, Record<BriefingKind, string>> = 
     day: 'Guten Morgen! Wie sieht mein Tag aus?',
     week: 'Lass uns meine Woche planen.',
     evening: 'Rückblick am Abend',
+  },
+  fr: {
+    day: 'Bonjour ! À quoi ressemble ma journée ?',
+    week: 'Planifions ma semaine.',
+    evening: 'Bilan du soir',
+  },
+  it: {
+    day: 'Buongiorno! Com’è la mia giornata?',
+    week: 'Pianifichiamo la mia settimana.',
+    evening: 'Bilancio serale',
   },
 };
 

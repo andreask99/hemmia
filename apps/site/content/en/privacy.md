@@ -29,7 +29,7 @@ If you turn on Hemmia Connect, phones reach your hub through our relay when they
 
 - The connection is encrypted from your phone to your hub. The relay passes it on, but it does not have the keys to open it. It never sees your messages, passphrases, photos or which chat you're in.
 - It does know: your hub's address, when it was last connected, how much data passed through it this month, and, while a connection is open, the connecting phone's IP address, which it also passes to your hub so the hub can block password guessing. Logs keep IP addresses only shortened.
-- **The one thing it could do in theory:** whoever runs the relay controls the addresses under its domain, so they could in theory get a certificate for your hub's address and intercept connections while they do so. That is the same trust you place in any website's security. Every such certificate is published in public logs, where it can be seen. If you'd rather not extend that trust, use **Tailscale** instead, or use the hub only in a browser on its own computer.
+- **What it could do in theory:** whoever runs the relay controls the addresses under its domain, so they could in theory get a certificate for your hub's address and intercept connections while they do so. Every such certificate is published in public logs, where it can be seen. They also run the join page that shared links open on, so a changed join page could read an invite or sign-in link, and that would leave no public trace (sign-in links work only once, for 10 minutes). We do neither, and the code is public. That is the same trust you place in any website you use. If you'd rather not extend that trust, use **Tailscale** instead, or use the hub only in a browser on its own computer.
 
 ## Notifications
 
@@ -38,6 +38,8 @@ When a reply or a picture is ready, your phone gets a notification. It carries n
 ## Update check
 
 Once a day, a hub installed from our package or Docker image asks our server whether a newer version exists. That request says only which version it runs, whether it's the Mac or the Docker version, and whether it follows normal or test releases. We count these requests per day, so we know roughly how many hubs run which version. We don't store your IP address, and nothing about you or your family is sent. The answer is signed, so your hub only trusts it if it really comes from us. With Docker, you turn the check off by setting `HEMMIA_UPDATE_CHECK=0` in `.env`. On a Mac, a switch in the settings is planned; until then, write to us and we'll tell you how.
+
+Separately, your hub fetches the list of models Hemmia suggests once a day. That request carries nothing about your hub or family; we don't count it or keep your IP address. You turn it off in Settings → Models.
 
 ## This website
 

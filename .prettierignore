@@ -9,3 +9,4 @@ apps/mobile/ios
 apps/mobile/android
 dist-package
 apps/mobile/public/demo
+scripts/catalog/fixtures/

@@ -1,6 +1,7 @@
 /**
  * Model registry: config/models.json merged with live capabilities from the engine.
  */
+import { fullText } from '../config/schema.ts';
 import {
   type AdminModelsResponse,
   type ChatModelInfo,
@@ -54,6 +55,7 @@ const NO_OVERRIDES: ModelOverrides = {
   defaultImageModel: null,
   imagesOff: false,
   paused: false,
+  catalogCheck: true,
   webSearch: 'all',
   extraModels: [],
   cloud: 'all',
@@ -92,13 +94,13 @@ function extraAsConfig(m: ModelOverrides['extraModels'][number]): ChatEntry {
     customVision: m.vision,
     customTools: m.tools,
     id: m.id,
-    label: { en: m.label, de: m.label },
+    label: { en: m.label, de: m.label, fr: m.label, it: m.label },
     details: custom
-      ? { en: m.engineModel, de: m.engineModel }
-      : {
-          en: `${m.engineModel} · ${m.memoryGiB.toFixed(0)} GB`,
-          de: `${m.engineModel} · ${m.memoryGiB.toFixed(0)} GB`,
-        },
+      ? { en: m.engineModel, de: m.engineModel, fr: m.engineModel, it: m.engineModel }
+      : (() => {
+          const d = `${m.engineModel} · ${m.memoryGiB.toFixed(0)} GB`;
+          return { en: d, de: d, fr: d, it: d };
+        })(),
     ollamaModel: m.engineModel,
     contextTokens: 16384,
     historyBudgetTokens: 12000,
@@ -106,7 +108,7 @@ function extraAsConfig(m: ModelOverrides['extraModels'][number]): ChatEntry {
     unloadAfterUse: false,
     memoryGiB: custom ? 0 : m.memoryGiB,
     enabled: true,
-    adultOnly: false,
+    adultOnly: m.adultOnly,
   };
 }
 
@@ -225,10 +227,10 @@ export function createModelRegistry(options: RegistryOptions): ModelRegistry {
         .concat(cloudFor(viewer).map(cloudAsResolved))
         .map((m) => ({
           id: m.id,
-          label: m.label,
-          description: m.description ?? null,
+          label: fullText(m.label),
+          description: m.description ? fullText(m.description) : null,
           engineModel: m.ollamaModel,
-          details: m.details ?? null,
+          details: m.details ? fullText(m.details) : null,
           vision: m.vision,
           thinking: m.thinking,
           maxMessageChars: maxMessageChars(m.contextTokens),
@@ -238,7 +240,9 @@ export function createModelRegistry(options: RegistryOptions): ModelRegistry {
       const imageModels =
         viewer.restricted || imagesOff()
           ? []
-          : models.imageModels.filter((m) => imageOn(m)).map((m) => ({ id: m.id, label: m.label }));
+          : models.imageModels
+              .filter((m) => imageOn(m))
+              .map((m) => ({ id: m.id, label: fullText(m.label) }));
       const wanted = familyDefaultChat();
       // The family default is always a local model; a cloud model only when there is no
       // local one this user may use.
@@ -341,7 +345,7 @@ export function createModelRegistry(options: RegistryOptions): ModelRegistry {
         }
       }
       return {
-        models: [...chat, ...cloud, ...image],
+        models: [...chat, ...cloud, ...image].map((m) => ({ ...m, label: fullText(m.label) })),
         installedNotOffered,
         defaultChatModel: familyDefaultChat(),
         defaultImageModel: familyDefaultImage(),

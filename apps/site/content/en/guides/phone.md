@@ -44,7 +44,7 @@ Tap **Settings** on the chat list.
 
 - **AI providers:** add a key for the second provider, **Replace** a key or **Remove** it.
 - **About me:** a few lines the AI should know about you (your name, your language, what you do). They are sent with every chat.
-- **Language:** English or German.
+- **Language:** English, German, French or Italian.
 - **Privacy policy** and **Terms of use** open the [privacy policy](/legal/privacy/) and the [terms](/legal/terms/).
 
 ## Export, import and delete

@@ -43,10 +43,9 @@ export function Home({
 }) {
   const t = HOME[lang];
   const link = (slug: string) => (existing.has(slug) ? pagePath(lang, slug) : null);
-  // Until the downloads exist, "Get started" leads to how it works (get-started and download
-  // only say "coming soon"); the second button then isn't needed.
+  // "Get started" leads to the page that helps choose phone or home (falls back to how it works).
   const how = link('how-it-works');
-  const start = how ?? pagePath(lang, '');
+  const start = link('get-started') ?? how ?? pagePath(lang, '');
   const faq = link('faq');
   return (
     <div className="home">

@@ -77,6 +77,14 @@ const { app, setup, remote } = await buildApp(config, {
 const setupCode = setup.ensureCode();
 await app.listen({ host: config.host, port: config.port });
 
+// HEMMIA_CONNECT=1 switches Connect on without the settings page that shows its terms, so the
+// log says it (legal review 2026-11-08 S7).
+if (remote && config.connectOnStart) {
+  process.stderr.write(
+    'Hemmia Connect is on (HEMMIA_CONNECT=1). It is a service of ours: by using it you agree to the Terms of Use, https://hemmia.app/legal/terms/ (privacy: https://hemmia.app/legal/privacy/).\n',
+  );
+}
+
 // The one place a secret is printed, on stderr, by design.
 if (setupCode) {
   process.stderr.write(

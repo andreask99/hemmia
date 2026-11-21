@@ -1,4 +1,5 @@
 import './site.css';
-import { enhance } from './enhance.ts';
+import { enhance, enhanceFeedback } from './enhance.ts';
 
 enhance(document);
+enhanceFeedback(document);

@@ -82,6 +82,8 @@ export const PushKind = z.enum([
   'evening',
   'maintenance_ok',
   'maintenance_failed',
+  // A new version of a model the family uses (P11.7); apps from 0.6 carry its text.
+  'models',
 ]);
 export type PushKind = z.infer<typeof PushKind>;
 

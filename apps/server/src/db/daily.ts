@@ -6,6 +6,7 @@
  * Notification times and switches stay in clear: the server needs them to send the
  * content-free notifications. A goal's week is in clear too, for lookups.
  */
+import type { Language } from '@hemmia/shared';
 import { randomUUID } from 'node:crypto';
 import type { z } from 'zod';
 import {
@@ -67,7 +68,7 @@ export type NotificationKind = 'daily' | 'week' | 'evening';
 /** A planner notification that is due (no key needed: only clear columns). */
 export interface DueNotification {
   userId: string;
-  language: 'en' | 'de';
+  language: Language;
   restricted: boolean;
   defaultModelId: string | null;
   kind: NotificationKind;
@@ -260,7 +261,7 @@ export function createDailyRepo(db: DB, now: () => number = Date.now) {
           [],
           {
             userId: string;
-            language: 'en' | 'de';
+            language: Language;
             restricted: 0 | 1;
             defaultModelId: string | null;
             time: string;

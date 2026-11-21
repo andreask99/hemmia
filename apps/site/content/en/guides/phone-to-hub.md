@@ -3,7 +3,6 @@ title: Connect your phone
 description: Connect the Hemmia app to your hub with a QR code, sign in more devices, and switch between hubs.
 nav: guides
 order: 60
-draft: true
 ---
 
 # Connect your phone

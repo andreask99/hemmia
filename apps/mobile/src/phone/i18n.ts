@@ -1,6 +1,6 @@
 /**
- * Phone-mode strings in English and German (same structure as src/shell/i18n.ts). Add every
- * key to both catalogues (the `de` type enforces it).
+ * Phone-mode strings in English, German, French and Italian (same structure as
+ * src/shell/i18n.ts). Add every key to all catalogues (their types enforce it).
  */
 import { useMemo } from 'react';
 import { phoneLanguage, type ShellLanguage } from '../shell/i18n.ts';
@@ -206,12 +206,218 @@ export const de: Record<PhoneKey, string> = {
   'setup.key.busy': 'Der Anbieter ist ausgelastet, versuch es noch einmal.',
 };
 
+export const fr: Record<PhoneKey, string> = {
+  'chat.back': 'Retour',
+  'home.title': 'Sur ce téléphone',
+  'home.settings': 'Réglages',
+  'home.search': 'Rechercher dans les discussions',
+  'home.newChat': '+ Nouvelle discussion',
+  'home.empty': 'Pas encore de discussions.',
+  'home.noChats': 'Aucune discussion ne correspond.',
+  'home.untitled': 'Discussion sans titre',
+  'home.more': 'Plus pour {title}',
+  'home.rename': 'Renommer',
+  'home.newTitle': 'Nouveau titre',
+  'home.save': 'Enregistrer',
+  'home.cancel': 'Annuler',
+  'home.delete': 'Supprimer',
+  'home.deleteConfirm': 'Supprimer cette discussion ? Impossible de revenir en arrière.',
+  'home.setUp': 'Installer Hemmia à la maison',
+  'home.setUpIntro':
+    'Pour ta famille, des modèles locaux et plus encore. Tes discussions peuvent suivre.',
+  'settings.back': 'Discussions',
+  'move.title': 'Passer à Hemmia à la maison',
+  'move.intro':
+    'Tes discussions vont dans ton compte sur le hub que tu choisis. La clé reste ici ; le hub a la sienne.',
+  'move.pairFirst': 'Connecte d’abord Hemmia à la maison',
+  'move.importFailed': 'Ce fichier n’a pas pu être importé. Choisis un fichier d’export Hemmia.',
+  'home.unreadable': '{count} discussions n’ont pas pu être lues.',
+  'settings.title': 'Réglages',
+  'settings.providers': 'Fournisseurs d’IA',
+  'settings.noKey': 'Pas encore de clé',
+  'settings.addKey': 'Ajouter une clé',
+  'settings.replace': 'Remplacer',
+  'settings.remove': 'Retirer',
+  'settings.you': 'Toi',
+  'settings.aboutMe': 'À propos de moi',
+  'settings.aboutMeHint':
+    'Quelques lignes que l’IA doit savoir sur toi, envoyées avec chaque discussion.',
+  'settings.save': 'Enregistrer',
+  'settings.language': 'Langue',
+  'settings.chats': 'Tes discussions',
+  'settings.export': 'Exporter les discussions',
+  'settings.exportNote': 'Le fichier d’export n’est pas protégé. Garde-le en lieu sûr.',
+  'settings.import': 'Importer des discussions',
+  'settings.moveToHub': 'Passer à Hemmia à la maison',
+  'settings.privacy': 'Politique de confidentialité',
+  'settings.terms': 'Conditions d’utilisation',
+  'settings.deleteAll': 'Tout supprimer sur ce téléphone',
+  'settings.deleteWarning':
+    'Cela supprime tes discussions, photos et clés sur ce téléphone. Exporte d’abord tes discussions si tu veux les garder.',
+  'settings.deleteConfirm': 'Tout supprimer',
+  'settings.cancel': 'Annuler',
+  'chat.model': 'Modèle',
+  'chat.placeholder': 'Message',
+  'chat.send': 'Envoyer',
+  'chat.stop': 'Arrêter',
+  'chat.think': 'Réfléchir davantage',
+  'chat.addPhoto': 'Ajouter une photo',
+  'chat.removePhoto': 'Retirer la photo',
+  'chat.photoLimit': 'Jusqu’à 4 photos par message.',
+  'chat.photo': 'Photo',
+  'chat.stopped': 'Arrêté',
+  'chat.empty': 'Pose n’importe quelle question. Ta discussion reste sur ce téléphone.',
+  'chat.error.auth': 'Le fournisseur a refusé ta clé. Vérifie-la dans les Réglages.',
+  'chat.error.rate_limited': 'Ta clé a atteint sa limite pour l’instant. Réessaie plus tard.',
+  'chat.error.overloaded': 'Le fournisseur est occupé, réessaie.',
+  'chat.error.unavailable':
+    'Pas de réponse du fournisseur. Vérifie ta connexion internet et réessaie.',
+  'chat.error.refused': 'Le modèle a refusé de répondre.',
+  'chat.error.no_key': 'Ajoute d’abord une clé pour ce fournisseur dans les Réglages.',
+  'chat.error.limit':
+    'Ce téléphone a atteint sa limite de stockage. Supprime d’abord quelques anciennes discussions.',
+  'setup.back': 'Retour',
+  'setup.providerTitle': 'Quelle IA veux-tu utiliser ?',
+  'setup.providerIntro':
+    'Il te faut une clé API du fournisseur. Tu le paies directement pour ce que tu utilises. Hemmia n’ajoute rien et ne voit rien.',
+  'setup.anthropic': 'Anthropic',
+  'setup.anthropicModels': 'Modèles Claude',
+  'setup.anthropicText': 'Des réponses réfléchies, à l’aise avec les longs textes et les photos.',
+  'setup.openai': 'OpenAI',
+  'setup.openaiModels': 'Modèles GPT',
+  'setup.openaiText': 'Les modèles derrière ChatGPT, avec ta propre clé.',
+  'setup.otherLater': 'Tu pourras ajouter l’autre plus tard dans les Réglages.',
+  'setup.direct':
+    'Tes messages vont directement de ce téléphone au fournisseur. Tes discussions et ta clé restent sur ce téléphone.',
+  'setup.whatIsKey': 'C’est quoi une clé API ?',
+  'setup.keyTitle': 'Colle ta clé API',
+  'setup.keyIntro':
+    'Crée une clé dans ton compte {provider}, puis copie-la ici. Astuce : fixe aussi une limite de dépenses mensuelle là-bas.',
+  'setup.getKey': 'Obtenir une clé chez {provider} ↗',
+  'setup.keyLabel': 'Clé API',
+  'setup.paste': 'Coller',
+  'setup.show': 'Afficher',
+  'setup.hide': 'Masquer',
+  'setup.keyNote': 'Stockée dans le trousseau sécurisé de ce téléphone. Jamais envoyée chez nous.',
+  'setup.consent':
+    'J’accepte que ce que j’écris et les photos que j’ajoute soient envoyés à {provider} pour obtenir des réponses, selon les conditions de {provider}.',
+  'setup.save': 'Vérifier et enregistrer',
+  'setup.checking': 'Vérification…',
+  'setup.key.refused': 'Cette clé a été refusée. Vérifie que tu l’as copiée en entier.',
+  'setup.key.offline': 'Pas d’internet. Vérifie ta connexion et réessaie.',
+  'setup.key.busy': 'Le fournisseur est occupé, réessaie.',
+};
+
+export const it: Record<PhoneKey, string> = {
+  'chat.back': 'Indietro',
+  'home.title': 'Su questo telefono',
+  'home.settings': 'Impostazioni',
+  'home.search': 'Cerca nelle chat',
+  'home.newChat': '+ Nuova chat',
+  'home.empty': 'Ancora nessuna chat.',
+  'home.noChats': 'Nessuna chat corrisponde.',
+  'home.untitled': 'Chat senza titolo',
+  'home.more': 'Altro per {title}',
+  'home.rename': 'Rinomina',
+  'home.newTitle': 'Nuovo titolo',
+  'home.save': 'Salva',
+  'home.cancel': 'Annulla',
+  'home.delete': 'Elimina',
+  'home.deleteConfirm': 'Eliminare questa chat? Non si può annullare.',
+  'home.setUp': 'Configura Hemmia a casa',
+  'home.setUpIntro':
+    'Per la tua famiglia, modelli locali e altro. Le tue chat possono venire con te.',
+  'settings.back': 'Chat',
+  'move.title': 'Passa a Hemmia a casa',
+  'move.intro':
+    'Le tue chat vanno nel tuo account sull’hub che scegli. La chiave resta qui; l’hub ha la sua.',
+  'move.pairFirst': 'Collega prima Hemmia a casa',
+  'move.importFailed':
+    'Questo file non può essere importato. Scegli un file di esportazione di Hemmia.',
+  'home.unreadable': '{count} chat non hanno potuto essere lette.',
+  'settings.title': 'Impostazioni',
+  'settings.providers': 'Fornitori di IA',
+  'settings.noKey': 'Ancora nessuna chiave',
+  'settings.addKey': 'Aggiungi chiave',
+  'settings.replace': 'Sostituisci',
+  'settings.remove': 'Rimuovi',
+  'settings.you': 'Tu',
+  'settings.aboutMe': 'Su di me',
+  'settings.aboutMeHint': 'Qualche riga che l’IA deve sapere di te, inviata con ogni chat.',
+  'settings.save': 'Salva',
+  'settings.language': 'Lingua',
+  'settings.chats': 'Le tue chat',
+  'settings.export': 'Esporta chat',
+  'settings.exportNote': 'Il file esportato non è protetto. Conservalo in un posto sicuro.',
+  'settings.import': 'Importa chat',
+  'settings.moveToHub': 'Passa a Hemmia a casa',
+  'settings.privacy': 'Informativa sulla privacy',
+  'settings.terms': 'Condizioni d’uso',
+  'settings.deleteAll': 'Elimina tutto da questo telefono',
+  'settings.deleteWarning':
+    'Elimina le tue chat, foto e chiavi da questo telefono. Esporta prima le chat se vuoi tenerle.',
+  'settings.deleteConfirm': 'Elimina tutto',
+  'settings.cancel': 'Annulla',
+  'chat.model': 'Modello',
+  'chat.placeholder': 'Messaggio',
+  'chat.send': 'Invia',
+  'chat.stop': 'Ferma',
+  'chat.think': 'Pensa di più',
+  'chat.addPhoto': 'Aggiungi foto',
+  'chat.removePhoto': 'Rimuovi foto',
+  'chat.photoLimit': 'Fino a 4 foto per messaggio.',
+  'chat.photo': 'Foto',
+  'chat.stopped': 'Fermato',
+  'chat.empty': 'Chiedi qualsiasi cosa. La tua chat resta su questo telefono.',
+  'chat.error.auth': 'Il fornitore ha rifiutato la tua chiave. Controllala nelle Impostazioni.',
+  'chat.error.rate_limited': 'La tua chiave ha raggiunto il limite per ora. Riprova più tardi.',
+  'chat.error.overloaded': 'Il fornitore è occupato, riprova.',
+  'chat.error.unavailable':
+    'Nessuna risposta dal fornitore. Controlla la connessione internet e riprova.',
+  'chat.error.refused': 'Il modello si è rifiutato di rispondere.',
+  'chat.error.no_key': 'Aggiungi prima una chiave per questo fornitore nelle Impostazioni.',
+  'chat.error.limit':
+    'Questo telefono ha raggiunto il limite di spazio. Elimina prima qualche vecchia chat.',
+  'setup.back': 'Indietro',
+  'setup.providerTitle': 'Quale IA vuoi usare?',
+  'setup.providerIntro':
+    'Ti serve una chiave API del fornitore. Lo paghi direttamente per ciò che usi. Hemmia non aggiunge nulla e non vede nulla.',
+  'setup.anthropic': 'Anthropic',
+  'setup.anthropicModels': 'Modelli Claude',
+  'setup.anthropicText': 'Risposte ponderate, bravi con testi lunghi e foto.',
+  'setup.openai': 'OpenAI',
+  'setup.openaiModels': 'Modelli GPT',
+  'setup.openaiText': 'I modelli dietro ChatGPT, con la tua chiave.',
+  'setup.otherLater': 'Puoi aggiungere l’altro più tardi nelle Impostazioni.',
+  'setup.direct':
+    'I tuoi messaggi vanno direttamente da questo telefono al fornitore. Le tue chat e la tua chiave restano su questo telefono.',
+  'setup.whatIsKey': 'Cos’è una chiave API?',
+  'setup.keyTitle': 'Incolla la tua chiave API',
+  'setup.keyIntro':
+    'Crea una chiave nel tuo account {provider}, poi copiala qui. Consiglio: imposta lì anche un limite di spesa mensile.',
+  'setup.getKey': 'Ottieni una chiave da {provider} ↗',
+  'setup.keyLabel': 'Chiave API',
+  'setup.paste': 'Incolla',
+  'setup.show': 'Mostra',
+  'setup.hide': 'Nascondi',
+  'setup.keyNote': 'Salvata nel portachiavi sicuro di questo telefono. Mai inviata a noi.',
+  'setup.consent':
+    'Accetto che ciò che scrivo e le foto che aggiungo vengano inviati a {provider} per ottenere risposte, secondo le condizioni di {provider}.',
+  'setup.save': 'Verifica e salva',
+  'setup.checking': 'Verifica…',
+  'setup.key.refused': 'Questa chiave è stata rifiutata. Controlla di averla copiata tutta.',
+  'setup.key.offline': 'Niente internet. Controlla la connessione e riprova.',
+  'setup.key.busy': 'Il fornitore è occupato, riprova.',
+};
+
+const CATALOGUES: Record<ShellLanguage, Record<PhoneKey, string>> = { en, de, fr, it };
+
 export type PhoneT = (key: PhoneKey, params?: Record<string, string>) => string;
 
 export function usePhoneText(language?: ShellLanguage): { t: PhoneT; language: ShellLanguage } {
   const lang = language ?? phoneLanguage(navigator.languages);
   return useMemo(() => {
-    const cat = lang === 'de' ? de : en;
+    const cat = CATALOGUES[lang];
     const t: PhoneT = (key, params) => {
       const text: string = cat[key];
       return params ? text.replace(/\{(\w+)\}/g, (m, name: string) => params[name] ?? m) : text;

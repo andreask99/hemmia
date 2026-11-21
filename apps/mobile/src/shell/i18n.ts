@@ -1,6 +1,6 @@
 /**
- * Shell strings in English and German. The shell has no account yet, so the language comes
- * from the phone's settings. Add every key to both catalogues (the `de` type enforces it).
+ * Shell strings in English, German, French and Italian. The shell has no account yet, so the
+ * language comes from the phone's settings. Add every key to all catalogues (their types enforce it).
  */
 import { useMemo } from 'react';
 
@@ -53,7 +53,9 @@ export const en = {
   'confirm.add.button': 'Add and open',
   'confirm.cancel.button': 'Cancel',
   'legal.privacy': 'Privacy policy',
-  'legal.terms': 'Terms of use',
+  'legal.terms': 'Terms of Use',
+  'legal.agreeBefore': 'By continuing you agree to the ',
+  'legal.agreeAfter': '. How we handle data: ',
   'getHub.shareText': 'Install Hemmia on this computer',
   'hubList.empty': 'No hub saved on this phone yet.',
   ghost: 'The Hemmia ghost',
@@ -127,6 +129,8 @@ export const de: Record<ShellKey, string> = {
   'confirm.cancel.button': 'Abbrechen',
   'legal.privacy': 'Datenschutzerklärung',
   'legal.terms': 'Nutzungsbedingungen',
+  'legal.agreeBefore': 'Wenn du fortfährst, stimmst du den ',
+  'legal.agreeAfter': ' zu. Wie wir mit Daten umgehen: ',
   'getHub.shareText': 'Hemmia auf diesem Computer installieren',
   'hubList.empty': 'Auf diesem Telefon ist noch kein Hub gespeichert.',
   ghost: 'Das Hemmia-Gespenst',
@@ -143,10 +147,155 @@ export const de: Record<ShellKey, string> = {
   'outdated.retry.button': 'Erneut versuchen',
 };
 
-export type ShellLanguage = 'en' | 'de';
+export const fr: Record<ShellKey, string> = {
+  'app.name': 'Hemmia',
+  'welcome.title': 'Bienvenue dans Hemmia',
+  'welcome.intro':
+    'Ton IA, à la maison. Privée pour toi et ta famille, avec les modèles que tu choisis.',
+  'welcome.scan.button': 'Scanner le code',
+  'welcome.paste.label': 'Ou colle le lien',
+  'welcome.paste.placeholder': 'https://hub.example.com/j#1234567890',
+  'welcome.paste.continue': 'Continuer',
+  'welcome.getHub.button': 'Je n’ai pas encore Hemmia à la maison',
+  'welcome.demo.title': 'Jeter un œil d’abord',
+  'welcome.demo.text':
+    'Essaie Hemmia avec une famille inventée : discussions, images et planificateur.',
+  'getHub.title': 'Hemmia vit sur un ordinateur à la maison',
+  'getHub.intro':
+    'Installe le hub Hemmia sur un ordinateur qui reste allumé : un Mac avec puce Apple, ou un PC, un NAS ou un Raspberry Pi avec Docker. Tes discussions y sont stockées, chiffrées.',
+  'getHub.step1': 'Sur l’ordinateur, télécharge Hemmia depuis le site Hemmia et installe le hub.',
+  'getHub.step2': 'Suis la configuration. À la fin, elle affiche un code QR.',
+  'getHub.step3': 'Reviens ici et scanne-le.',
+  'getHub.sendLink.button': 'Envoyer le lien à mon ordinateur',
+  'getHub.scan.button': 'Le hub est prêt : scanner le code QR',
+  'scan.title': 'Scanner le code QR',
+  'scan.intro':
+    'Il est sur l’écran de ton hub Hemmia, ou sur le téléphone de la personne qui t’a invité.',
+  'scan.paste.label': 'Ou colle plutôt un lien',
+  'scan.paste.placeholder': 'https://hub.example.com/j#1234567890',
+  'scan.paste.continue': 'Continuer',
+  'scan.back.button': '‹ Retour',
+  'offline.title': '{name} est injoignable',
+  'offline.checklist': 'Ce que tu peux vérifier',
+  'offline.check1': 'L’ordinateur est-il allumé et éveillé ?',
+  'offline.check2': 'A-t-il internet ?',
+  'offline.lastReached': 'Joint pour la dernière fois depuis ce téléphone : {when}',
+  'offline.tryAgain.button': 'Réessayer',
+  'offline.switch.button': 'Passer à un autre hub',
+  'hubList.title': 'Tes hubs',
+  'hubList.phone': 'Sur ce téléphone',
+  'hubList.phoneText': 'Ta propre clé, discussions seulement sur ce téléphone',
+  'welcome.phone.title': 'Juste moi, sur ce téléphone',
+  'welcome.phone.text':
+    'Utilise ta propre clé OpenAI ou Anthropic. Tes discussions restent sur ce téléphone.',
+  'open.connecting': 'Connexion…',
+  'open.invalidLink': 'Ce n’est pas un lien Hemmia. Scanne à nouveau le code QR de ton hub.',
+  'open.unreachable':
+    'Le hub à cette adresse est injoignable pour le moment. Réessaie dans un instant.',
+  'open.defaultName': 'Hemmia à la maison',
+  'confirm.title': 'Ajouter ce hub ?',
+  'confirm.text': 'Le lien que tu as ouvert mène à un hub Hemmia à cette adresse :',
+  'confirm.tailnet': 'C’est une adresse Tailscale. Elle ne fonctionne que si Tailscale est activé.',
+  'confirm.trust':
+    'Ne continue que si le lien vient de quelqu’un en qui tu as confiance, comme la personne qui a installé Hemmia chez vous.',
+  'confirm.add.button': 'Ajouter et ouvrir',
+  'confirm.cancel.button': 'Annuler',
+  'legal.privacy': 'Politique de confidentialité',
+  'legal.terms': 'Conditions d’utilisation',
+  'legal.agreeBefore': 'En continuant, tu acceptes les ',
+  'legal.agreeAfter': '. Comment nous traitons les données : ',
+  'getHub.shareText': 'Installer Hemmia sur cet ordinateur',
+  'hubList.empty': 'Aucun hub enregistré sur ce téléphone pour l’instant.',
+  ghost: 'Le fantôme Hemmia',
+  'ghost.asleep': 'Le fantôme Hemmia, endormi',
+  'hubList.add': 'Ajouter un autre hub',
+  'hubList.remove': 'Retirer {name}',
+  'outdated.app.title': 'Mets à jour l’app Hemmia',
+  'outdated.app.text':
+    '{name} a une version de Hemmia plus récente que ce que cette app prend en charge. Mets l’app à jour, puis rouvre {name}.',
+  'outdated.app.button': 'Mettre l’app à jour',
+  'outdated.hub.title': '{name} a besoin d’une mise à jour',
+  'outdated.hub.text':
+    'Cette app est plus récente que le Hemmia installé à la maison. La personne qui s’occupe de l’ordinateur Hemmia peut le mettre à jour (Réglages → Système, ou l’installateur).',
+  'outdated.retry.button': 'Réessayer',
+};
+
+export const it: Record<ShellKey, string> = {
+  'app.name': 'Hemmia',
+  'welcome.title': 'Benvenuto in Hemmia',
+  'welcome.intro': 'La tua IA, a casa. Privata per te e la tua famiglia, con i modelli che scegli.',
+  'welcome.scan.button': 'Scansiona il codice',
+  'welcome.paste.label': 'Oppure incolla il link',
+  'welcome.paste.placeholder': 'https://hub.example.com/j#1234567890',
+  'welcome.paste.continue': 'Continua',
+  'welcome.getHub.button': 'Non ho ancora Hemmia a casa',
+  'welcome.demo.title': 'Dai prima un’occhiata',
+  'welcome.demo.text': 'Prova Hemmia con una famiglia inventata: chat, immagini e agenda.',
+  'getHub.title': 'Hemmia vive su un computer di casa',
+  'getHub.intro':
+    'Installa l’hub Hemmia su un computer che resta acceso: un Mac con chip Apple, oppure un PC, un NAS o un Raspberry Pi con Docker. Le tue chat vengono salvate lì, cifrate.',
+  'getHub.step1': 'Sul computer, scarica Hemmia dal sito di Hemmia e installa l’hub.',
+  'getHub.step2': 'Segui la configurazione. Alla fine mostra un codice QR.',
+  'getHub.step3': 'Torna qui e scansionalo.',
+  'getHub.sendLink.button': 'Invia il link al mio computer',
+  'getHub.scan.button': 'L’hub è pronto: scansiona il codice QR',
+  'scan.title': 'Scansiona il codice QR',
+  'scan.intro': 'È sullo schermo del tuo hub Hemmia, o sul telefono di chi ti ha invitato.',
+  'scan.paste.label': 'Oppure incolla un link',
+  'scan.paste.placeholder': 'https://hub.example.com/j#1234567890',
+  'scan.paste.continue': 'Continua',
+  'scan.back.button': '‹ Indietro',
+  'offline.title': '{name} non è raggiungibile',
+  'offline.checklist': 'Cosa controllare',
+  'offline.check1': 'Il computer è acceso e non in stop?',
+  'offline.check2': 'Ha internet?',
+  'offline.lastReached': 'Raggiunto l’ultima volta da questo telefono: {when}',
+  'offline.tryAgain.button': 'Riprova',
+  'offline.switch.button': 'Passa a un altro hub',
+  'hubList.title': 'I tuoi hub',
+  'hubList.phone': 'Su questo telefono',
+  'hubList.phoneText': 'La tua chiave, chat solo su questo telefono',
+  'welcome.phone.title': 'Solo io, su questo telefono',
+  'welcome.phone.text':
+    'Usa la tua chiave OpenAI o Anthropic. Le tue chat restano su questo telefono.',
+  'open.connecting': 'Connessione…',
+  'open.invalidLink':
+    'Questo non è un link di Hemmia. Scansiona di nuovo il codice QR del tuo hub.',
+  'open.unreachable': 'L’hub a questo indirizzo non è raggiungibile ora. Riprova tra un momento.',
+  'open.defaultName': 'Hemmia a casa',
+  'confirm.title': 'Aggiungere questo hub?',
+  'confirm.text': 'Il link che hai aperto porta a un hub Hemmia a questo indirizzo:',
+  'confirm.tailnet': 'Questo è un indirizzo Tailscale. Funziona solo quando Tailscale è attivo.',
+  'confirm.trust':
+    'Continua solo se il link viene da qualcuno di cui ti fidi, come chi ha configurato Hemmia a casa.',
+  'confirm.add.button': 'Aggiungi e apri',
+  'confirm.cancel.button': 'Annulla',
+  'legal.privacy': 'Informativa sulla privacy',
+  'legal.terms': 'Condizioni d’uso',
+  'legal.agreeBefore': 'Continuando accetti le ',
+  'legal.agreeAfter': '. Come trattiamo i dati: ',
+  'getHub.shareText': 'Installa Hemmia su questo computer',
+  'hubList.empty': 'Ancora nessun hub salvato su questo telefono.',
+  ghost: 'Il fantasma di Hemmia',
+  'ghost.asleep': 'Il fantasma di Hemmia, addormentato',
+  'hubList.add': 'Aggiungi un altro hub',
+  'hubList.remove': 'Rimuovi {name}',
+  'outdated.app.title': 'Aggiorna l’app Hemmia',
+  'outdated.app.text':
+    '{name} ha una versione di Hemmia più recente di quella supportata da questa app. Aggiorna l’app, poi riapri {name}.',
+  'outdated.app.button': 'Aggiorna l’app',
+  'outdated.hub.title': '{name} ha bisogno di un aggiornamento',
+  'outdated.hub.text':
+    'Questa app è più recente dell’Hemmia installato a casa. Chi si occupa del computer di Hemmia può aggiornarlo lì (Impostazioni → Sistema, o il programma di installazione).',
+  'outdated.retry.button': 'Riprova',
+};
+
+export type ShellLanguage = 'en' | 'de' | 'fr' | 'it';
+const CATALOGUES: Record<ShellLanguage, Record<ShellKey, string>> = { en, de, fr, it };
 
 export function phoneLanguage(languages: readonly string[]): ShellLanguage {
-  return languages[0]?.toLowerCase().startsWith('de') ? 'de' : 'en';
+  const first = languages[0]?.toLowerCase().slice(0, 2) ?? '';
+  return first === 'de' || first === 'fr' || first === 'it' ? first : 'en';
 }
 
 export type ShellT = (key: ShellKey, params?: Record<string, string>) => string;
@@ -156,7 +305,7 @@ export function translate(
   key: ShellKey,
   params?: Record<string, string>,
 ): string {
-  const text: string = (language === 'de' ? de : en)[key];
+  const text: string = CATALOGUES[language][key];
   return params ? text.replace(/\{(\w+)\}/g, (m, name: string) => params[name] ?? m) : text;
 }
 

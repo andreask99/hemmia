@@ -2,6 +2,7 @@
  * The web_search tool: asks SearXNG on this Mac, reads the best pages, and returns text
  * for the model plus the sources to show in the chat. Queries and pages are never logged.
  */
+import type { Language } from '@hemmia/shared';
 import { z } from 'zod';
 import type { WebSearch } from '@hemmia/shared';
 import type { ToolSpec } from '../llm/types.ts';
@@ -43,7 +44,7 @@ export interface WebSearchOptions {
   searxngUrl: string;
   /** 0 off, 1 moderate, 2 strict (teen accounts). */
   safeSearch: 0 | 1 | 2;
-  language: 'en' | 'de';
+  language: Language;
   signal: AbortSignal;
   /** Characters of page text the model may get in total. */
   budgetChars: number;

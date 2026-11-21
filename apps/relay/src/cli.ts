@@ -3,12 +3,14 @@ import {
   listHubs,
   blockHub,
   unblockHub,
+  allowNewHub,
   stats,
   getMinHubVersion,
   setMinHubVersion,
 } from './admin.ts';
 import { isVersion } from '@hemmia/relay-protocol';
 import { installStats } from './api/manifest.ts';
+import { feedbackSince } from './api/feedback.ts';
 import { loadRelayConfig } from './config.ts';
 
 export function run(
@@ -18,7 +20,7 @@ export function run(
 ): number {
   if (argv.length === 0) {
     io.err(
-      'usage: node src/cli.ts list-hubs [--blocked] | block-hub <id> <reason...> | unblock-hub <id> | stats | min-hub-version [<x.y.z> | none] | install-stats [days]',
+      'usage: node src/cli.ts list-hubs [--blocked] | block-hub <id> <reason...> | unblock-hub <id> | allow-new-hub <id> | stats | min-hub-version [<x.y.z> | none] | install-stats [days] | feedback [--after <id>]',
     );
     return 2;
   }
@@ -56,7 +58,7 @@ export function run(
     case 'block-hub': {
       if (argv.length < 3) {
         io.err(
-          'usage: node src/cli.ts list-hubs [--blocked] | block-hub <id> <reason...> | unblock-hub <id> | stats | min-hub-version [<x.y.z> | none] | install-stats [days]',
+          'usage: node src/cli.ts list-hubs [--blocked] | block-hub <id> <reason...> | unblock-hub <id> | allow-new-hub <id> | stats | min-hub-version [<x.y.z> | none] | install-stats [days] | feedback [--after <id>]',
         );
         return 2;
       }
@@ -76,7 +78,7 @@ export function run(
     case 'unblock-hub': {
       if (argv.length < 2) {
         io.err(
-          'usage: node src/cli.ts list-hubs [--blocked] | block-hub <id> <reason...> | unblock-hub <id> | stats | min-hub-version [<x.y.z> | none] | install-stats [days]',
+          'usage: node src/cli.ts list-hubs [--blocked] | block-hub <id> <reason...> | unblock-hub <id> | allow-new-hub <id> | stats | min-hub-version [<x.y.z> | none] | install-stats [days] | feedback [--after <id>]',
         );
         return 2;
       }
@@ -90,6 +92,20 @@ export function run(
         io.err('unknown hub');
         return 1;
       }
+    }
+
+    case 'allow-new-hub': {
+      const id = argv[1] ?? '';
+      if (argv.length !== 2) {
+        io.err('usage: node src/cli.ts allow-new-hub <id>');
+        return 2;
+      }
+      if (allowNewHub(db, id)) {
+        io.out(`${id} may get its first certificate despite its network's weekly limit`);
+        return 0;
+      }
+      io.err('unknown hub');
+      return 1;
     }
 
     case 'min-hub-version': {
@@ -128,6 +144,17 @@ export function run(
       return 0;
     }
 
+    // One JSON object per line, oldest first, for the owner's digest (ops/feedback-digest.sh).
+    case 'feedback': {
+      const after = argv[1] === '--after' ? Number(argv[2]) : 0;
+      if (!Number.isInteger(after) || after < 0) {
+        io.err('usage: node src/cli.ts feedback [--after <id>]');
+        return 2;
+      }
+      for (const row of feedbackSince(db, after)) io.out(JSON.stringify(row));
+      return 0;
+    }
+
     case 'stats': {
       const statsResult = stats(db);
       for (const [key, value] of Object.entries(statsResult)) {
@@ -138,7 +165,7 @@ export function run(
 
     default: {
       io.err(
-        'usage: node src/cli.ts list-hubs [--blocked] | block-hub <id> <reason...> | unblock-hub <id> | stats | min-hub-version [<x.y.z> | none] | install-stats [days]',
+        'usage: node src/cli.ts list-hubs [--blocked] | block-hub <id> <reason...> | unblock-hub <id> | allow-new-hub <id> | stats | min-hub-version [<x.y.z> | none] | install-stats [days] | feedback [--after <id>]',
       );
       return 2;
     }

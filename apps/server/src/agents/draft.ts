@@ -2,6 +2,7 @@
  * The model drafts or revises an agent from a one-sentence description. Runs as a normal
  * job on the GPU lane (queued like a chat reply) and answers in a fixed JSON shape.
  */
+import { LANGUAGE_NAMES, type Language } from '@hemmia/shared';
 import { type AgentDraft, type AgentDraftRequest, AGENT_INSTRUCTIONS_MAX } from '@hemmia/shared';
 import type { Scheduler } from '../jobs/scheduler.ts';
 import type { MemoryUnavailableError } from '../jobs/memory.ts';
@@ -20,8 +21,8 @@ const SCHEMA = {
   required: ['name', 'emoji', 'description', 'instructions', 'examples'],
 };
 
-export function draftPrompt(req: AgentDraftRequest, language: 'en' | 'de'): string {
-  const lang = language === 'de' ? 'German' : 'English';
+export function draftPrompt(req: AgentDraftRequest, language: Language): string {
+  const lang = LANGUAGE_NAMES[language];
   return [
     'You write agent definitions for a private family chat app. An agent is a role the assistant takes on.',
     'Return JSON with:',
@@ -81,7 +82,7 @@ export class DraftUnavailableError extends Error {
 /** Runs the draft job. Throws BusyError (scheduler) or DraftUnavailableError. */
 export async function draftAgent(
   deps: { llm: LlmClient; scheduler: Scheduler },
-  user: { userId: string; language: 'en' | 'de' },
+  user: { userId: string; language: Language },
   model: ResolvedChatModel,
   req: AgentDraftRequest,
 ): Promise<AgentDraft> {

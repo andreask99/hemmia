@@ -14,22 +14,58 @@ export interface NavItem {
 }
 
 export const HEADER_NAV: readonly NavItem[] = [
-  { target: 'how-it-works', label: { en: 'How it works', de: 'So funktioniert es' } },
-  { target: 'privacy', label: { en: 'Privacy', de: 'Datenschutz' } },
-  { target: 'guides', label: { en: 'Guides', de: 'Anleitungen' } },
-  { target: '/demo/', label: { en: 'Demo', de: 'Demo' } },
-  { target: 'download', label: { en: 'Download', de: 'Download' } },
+  {
+    target: 'how-it-works',
+    label: {
+      en: 'How it works',
+      de: 'So funktioniert es',
+      fr: 'Comment ça marche',
+      it: 'Come funziona',
+    },
+  },
+  {
+    target: 'privacy',
+    label: { en: 'Privacy', de: 'Datenschutz', fr: 'Confidentialité', it: 'Privacy' },
+  },
+  { target: 'guides', label: { en: 'Guides', de: 'Anleitungen', fr: 'Guides', it: 'Guide' } },
+  { target: '/demo/', label: { en: 'Demo', de: 'Demo', fr: 'Démo', it: 'Demo' } },
+  {
+    target: 'download',
+    label: { en: 'Download', de: 'Download', fr: 'Télécharger', it: 'Download' },
+  },
 ];
 
 export const FOOTER_NAV: readonly NavItem[] = [
-  { target: 'faq', label: { en: 'FAQ', de: 'Fragen' } },
-  { target: 'help', label: { en: 'Help', de: 'Hilfe' } },
-  { target: 'news', label: { en: 'News', de: 'Neuigkeiten' } },
-  { target: 'press', label: { en: 'Press', de: 'Presse' } },
-  { target: 'https://github.com/andreask99/hemmia', label: { en: 'Source code', de: 'Quellcode' } },
-  { target: 'legal/privacy', label: { en: 'Privacy policy', de: 'Datenschutzerklärung' } },
-  { target: 'legal/terms', label: { en: 'Terms of use', de: 'Nutzungsbedingungen' } },
-  { target: 'legal/imprint', label: { en: 'Legal notice', de: 'Impressum' } },
+  { target: 'faq', label: { en: 'FAQ', de: 'Fragen', fr: 'FAQ', it: 'FAQ' } },
+  { target: 'help', label: { en: 'Help', de: 'Hilfe', fr: 'Aide', it: 'Aiuto' } },
+  { target: 'news', label: { en: 'News', de: 'Neuigkeiten', fr: 'Actualités', it: 'Novità' } },
+  { target: 'press', label: { en: 'Press', de: 'Presse', fr: 'Presse', it: 'Stampa' } },
+  {
+    target: 'https://github.com/andreask99/hemmia',
+    label: { en: 'Source code', de: 'Quellcode', fr: 'Code source', it: 'Codice sorgente' },
+  },
+  {
+    target: 'legal/privacy',
+    label: {
+      en: 'Privacy policy',
+      de: 'Datenschutzerklärung',
+      fr: 'Politique de confidentialité',
+      it: 'Informativa sulla privacy',
+    },
+  },
+  {
+    target: 'legal/terms',
+    label: {
+      en: 'Terms of use',
+      de: 'Nutzungsbedingungen',
+      fr: 'Conditions d’utilisation',
+      it: 'Condizioni d’uso',
+    },
+  },
+  {
+    target: 'legal/imprint',
+    label: { en: 'Legal notice', de: 'Impressum', fr: 'Mentions légales', it: 'Note legali' },
+  },
 ];
 
 export interface ResolvedNavItem {

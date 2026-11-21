@@ -79,8 +79,8 @@ Du verpflichtest dich,
 
 ## 7. Hemmia Connect
 
-- **Was es ist:** ein optionaler Weg, deinen Hub von überall zu erreichen. Der Admin schaltet es in den Einstellungen des Hubs ein. Dein Hub bekommt eine Adresse der Form `<zufällige-id>.h.hemmia.app`. Die Verbindung ist von deinem Telefon bis zu deinem Hub verschlüsselt; wir lesen sie nicht und könnten es nicht, ohne eine öffentliche Spur zu hinterlassen (siehe Datenschutzerklärung).
-- **Preis:** während der Beta kostenlos. Wird Connect kostenpflichtig (derzeit geplant: 29 € im Jahr oder 2,99 € im Monat pro Hub, mit 30 Tagen gratis), informieren wir Admins im Hub mindestens 30 Tage vorher, und Connect läuft für einen Hub nur weiter, wenn sein Admin es kauft. Käufe liefen über einen Zahlungsanbieter, der in eigenem Namen verkauft, zu seinen eigenen Bedingungen, die wir vor dem Kauf verlinken. Der Zugriff von überall mit Tailscale, das du selbst einrichtest, bleibt kostenlos.
+- **Was es ist:** ein optionaler Weg, deinen Hub von überall zu erreichen. Der Admin schaltet es in den Einstellungen des Hubs ein. Dein Hub bekommt eine Adresse der Form `<zufällige-id>.h.hemmia.app`. Die Verbindung ist von deinem Telefon bis zu deinem Hub verschlüsselt; wir lesen sie nicht. Dazu müssten wir die Software ändern, die wir betreiben, oder ein Zertifikat für die Adresse deines Hubs beschaffen, das in öffentlichen Protokollen erscheinen würde (siehe Datenschutzerklärung).
+- **Preis:** während der Beta kostenlos. Wird Connect kostenpflichtig (derzeit geplant: 29 € im Jahr oder 2,99 € im Monat pro Hub, mit 30 Tagen gratis), kündigen wir das mindestens 30 Tage vorher auf hemmia.app an (und im Hub, sobald er solche Hinweise anzeigen kann), und Connect läuft für einen Hub nur weiter, wenn sein Admin es kauft. Käufe liefen über einen Zahlungsanbieter, der in eigenem Namen verkauft, zu seinen eigenen Bedingungen, die wir vor dem Kauf verlinken. Der Zugriff von überall mit Tailscale, das du selbst einrichtest, bleibt kostenlos.
 - **Grenzen:** Jeder Hub kann pro Monat bis zu 20 GB über das Relay schicken. Erreicht ein Hub die Grenze, pausiert Connect für diesen Hub bis zum nächsten Monat (gezählt in UTC). Ist das monatliche Datenkontingent des Relays selbst aufgebraucht, können wir Connect auch für alle pausieren. Zu Hause und über Tailscale bleiben Hubs erreichbar.
 - **Versionen:** Zum Schutz aller kann Connect Hubs mit einer Version ablehnen, die ein bekanntes Sicherheitsproblem hat. Der Hub fordert seinen Admin dann zum Update auf.
 - **Unbenutzte Hubs:** Die Registrierung eines Hubs wird gelöscht, wenn er sich 12 Monate nicht verbunden hat. Wird Connect wieder eingeschaltet, bekommt er eine neue Adresse.
@@ -96,7 +96,7 @@ Kontaktstelle nach dem EU-Gesetz über digitale Dienste (Art. 11 und 12 DSA) fü
 - **Keine Garantie der Verfügbarkeit.** Wir bemühen uns, Connect, Mitteilungen und den Update-Dienst am Laufen zu halten, können aber nicht garantieren, dass sie immer verfügbar sind oder in jedem Netz funktionieren. Zu Hause funktioniert Hemmia ohne sie.
 - **Kein Anspruch auf kostenlose Dienste.** Wir können kostenlose Funktionen für die Zukunft ändern oder einstellen.
 - **Änderungen an App und Hub.** Wir können Hemmia verbessern und ändern, zum Beispiel um Fehler zu beheben, uns an neue Betriebssysteme anzupassen, gesetzliche Anforderungen zu erfüllen oder Funktionen hinzuzufügen. Würde eine Änderung etwas, wofür du bezahlt hast, wesentlich beeinträchtigen, nehmen wir sie nur aus einem triftigen Grund vor, informieren dich rechtzeitig und wahren deine gesetzlichen Rechte, in der EU einschliesslich deines Rechts, den Vertrag nach Art. 19 der Richtlinie (EU) 2019/770 zu beenden.
-- **Einstellen von Connect.** Planen wir je, Connect einzustellen, kündigen wir das mindestens 60 Tage vorher im Hub an; bezahlte, noch nicht genutzte Zeiträume würden anteilig erstattet.
+- **Einstellen von Connect.** Planen wir je, Connect einzustellen, kündigen wir das mindestens 60 Tage vorher auf hemmia.app an (und im Hub, sobald er solche Hinweise anzeigen kann); bezahlte, noch nicht genutzte Zeiträume würden anteilig erstattet.
 - **Deine Wahl.** Du kannst jederzeit aufhören, Hemmia zu nutzen: Connect ausschalten oder **Diese Adresse vergessen** wählen und die App löschen.
 - **Unsere Wahl.** Verstösst du schwer oder wiederholt gegen diese Bedingungen, können wir deinen Hub auf dem Relay sperren. Wo zumutbar, warnen wir dich vorher, und wir nennen dir den Grund (siehe Abschnitt 8).
 
@@ -132,7 +132,7 @@ Diese Bestimmungen gelten, weil die App über den App Store verteilt wird:
 
 ## 13. Änderungen dieser Bedingungen
 
-Wir können diese Bedingungen für die Zukunft ändern, wenn es einen triftigen Grund gibt (etwa neue gesetzliche Anforderungen, neue Funktionen oder Änderungen daran, wie Hemmia funktioniert) und die Änderung für dich zumutbar ist. Wir informieren dich im Hub oder in der App mindestens 30 Tage, bevor Änderungen gelten. Bist du nicht einverstanden, kannst du unsere Dienste vor diesem Datum nicht mehr nutzen. Änderungen betreffen nie Zahlungen, die vorher geleistet wurden.
+Wir können diese Bedingungen für die Zukunft ändern, wenn es einen triftigen Grund gibt (etwa neue gesetzliche Anforderungen, neue Funktionen oder Änderungen daran, wie Hemmia funktioniert) und die Änderung für dich zumutbar ist. Wir kündigen Änderungen mindestens 30 Tage, bevor sie gelten, auf hemmia.app an, und wo möglich auch im Hub oder in der App. Bist du nicht einverstanden, kannst du die Nutzung unserer Dienste bis zu diesem Datum beenden. Änderungen betreffen nie Zahlungen, die vorher geleistet wurden.
 
 ## 14. Anwendbares Recht und Gerichtsstand
 

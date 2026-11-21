@@ -3,7 +3,6 @@ title: Hemmia auf einem Mac einrichten
 description: Den Hub auf einem Mac mit Apple-Chip installieren, im Browser einrichten und dein Telefon verbinden.
 nav: guides
 order: 20
-draft: true
 ---
 
 # Hemmia auf einem Mac einrichten
@@ -13,8 +12,8 @@ Der Hub ist der Computer zu Hause, auf dem Hemmia für deine Familie läuft. Ein
 ## Was du brauchst
 
 - Einen Mac mit Apple-Chip (M1 oder neuer) und macOS 14 oder neuer.
-- 16 GB Arbeitsspeicher oder mehr, wenn du lokale Modelle nutzen willst; für nur Cloud-Modelle reichen 8 GB.
-- Etwa 20 GB freien Speicherplatz für ein lokales Modell.
+- Mit 8 GB Arbeitsspeicher läuft ein kleines lokales Modell; 16 GB oder mehr sind besser, und Bilder brauchen 24 GB. Cloud-Modelle funktionieren mit jedem Mac.
+- Etwa 10 GB freien Speicherplatz für ein lokales Modell und 6 GB mehr für Bilder.
 - Der Mac sollte eingeschaltet bleiben. Hemmia verhindert den Ruhezustand, solange Telefone ihn erreichen müssen.
 
 <!-- steps -->
@@ -28,7 +27,7 @@ Wenn der Installer fertig ist, öffnet dein Browser die Hemmia-Einrichtung. Gib 
 
 
 ## Deine KI wählen
-Wähle ein empfohlenes lokales Modell zum Herunterladen, trag einen Cloud-Schlüssel ein, oder beides. Das kannst du später unter Einstellungen → Modelle ändern.
+Hemmia empfiehlt ein lokales Modell, das zu diesem Mac passt: Lade es herunter, trag einen Cloud-Schlüssel ein, oder beides. Ist Ollama noch nicht installiert, erledigt das **Ollama installieren** für dich. Hier kannst du auch **Bilder einschalten** und **Websuche einschalten**. Das alles kannst du später unter Einstellungen → Modelle ändern.
 
 <!-- screenshot name="mac-setup-models" alt="Die Modellliste in der Einrichtung: empfohlene lokale Modelle mit ihrer Downloadgröße, einige schon heruntergeladen" -->
 

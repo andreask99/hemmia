@@ -79,4 +79,27 @@ CREATE TABLE manifest_checks (
 ) STRICT;
 `,
   },
+  {
+    id: 4,
+    name: 'feedback',
+    sql: `
+CREATE TABLE feedback (
+  id                INTEGER PRIMARY KEY AUTOINCREMENT,
+  created_at        INTEGER NOT NULL,
+  source            TEXT NOT NULL,
+  lang              TEXT NOT NULL,
+  page              TEXT,
+  version           TEXT,
+  email             TEXT,
+  message           TEXT NOT NULL
+) STRICT;
+CREATE INDEX feedback_created ON feedback(created_at);
+`,
+  },
+  {
+    id: 5,
+    name: 'network limit exemption',
+    // Set by the operator (CLI allow-new-hub) for a hub of ours, e.g. the App Review hub.
+    sql: `ALTER TABLE hubs ADD COLUMN network_exempt INTEGER NOT NULL DEFAULT 0;`,
+  },
 ];

@@ -106,4 +106,35 @@ describe('database', () => {
         .run(b),
     ).toThrow();
   });
+
+  it('allows French and Italian without losing anything that hangs off a user (24)', () => {
+    const db = new Database(':memory:');
+    db.pragma('foreign_keys = ON');
+    migrate(
+      db,
+      MIGRATIONS.filter((m) => m.id <= 23),
+    );
+    const b = Buffer.alloc(1);
+    db.prepare(
+      `INSERT INTO users (id, username, role, language, auth_hash, kdf_salt, kdf_params, wrapped_dek_pw,
+         recovery_salt, recovery_kdf_params, wrapped_dek_recovery, created_at, password_changed_at)
+       VALUES ('u1', 'anna', 'admin', 'de', ?, ?, '{}', ?, ?, '{}', ?, 1, 1)`,
+    ).run(b, b, b, b, b);
+    db.prepare(
+      `INSERT INTO chats (id, user_id, title, model_id, created_at, updated_at)
+       VALUES ('c1', 'u1', ?, 'm', 1, 1)`,
+    ).run(b);
+    expect(migrate(db)).toEqual([24]);
+    expect(db.pragma('foreign_keys', { simple: true })).toBe(1);
+    expect(db.prepare("SELECT language FROM users WHERE id = 'u1'").get()).toEqual({
+      language: 'de',
+    });
+    expect(db.prepare('SELECT COUNT(*) AS n FROM chats').get()).toEqual({ n: 1 });
+    db.prepare("UPDATE users SET language = 'fr' WHERE id = 'u1'").run();
+    db.prepare("UPDATE users SET language = 'it' WHERE id = 'u1'").run();
+    expect(() => db.prepare("UPDATE users SET language = 'xx' WHERE id = 'u1'").run()).toThrow();
+    // Foreign keys still cascade after the rebuild.
+    db.prepare("DELETE FROM users WHERE id = 'u1'").run();
+    expect(db.prepare('SELECT COUNT(*) AS n FROM chats').get()).toEqual({ n: 0 });
+  });
 });

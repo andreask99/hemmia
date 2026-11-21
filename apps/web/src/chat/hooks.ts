@@ -93,10 +93,7 @@ export function chatTitle(chat: Pick<ChatSummary, 'title'>, t: TFunction): strin
   return chat.title ?? t('chat.untitled');
 }
 
-export function modelLabel(
-  model: { label: { en: string; de: string } },
-  language: Language,
-): string {
+export function modelLabel(model: { label: Record<Language, string> }, language: Language): string {
   return model.label[language];
 }
 

@@ -31,13 +31,11 @@ export function renderPage(
   existing: ReadonlySet<string>,
   data: SiteData,
 ): string {
-  const other = page.lang === 'en' ? 'de' : 'en';
   const html = renderToStaticMarkup(
     <Layout
       lang={page.lang}
       title={page.header.title}
       description={page.header.description}
-      otherPath={pagePath(other, page.slug)}
       slug={page.slug}
       existing={existing}
       css={assets.css}
@@ -62,14 +60,13 @@ export function renderPage(
   return `<!doctype html>${html}`;
 }
 
-/** The "page not found" page (dist/404.html): both languages, the sleeping ghost, links home. */
+/** The "page not found" page (dist/404.html): every language, the sleeping ghost, links home. */
 export function renderNotFound(assets: RenderAssets, existing: ReadonlySet<string>): string {
   const html = renderToStaticMarkup(
     <Layout
       lang="en"
       title="Page not found"
       description="This page doesn't exist."
-      otherPath={pagePath('de', '')}
       slug="404"
       existing={existing}
       css={assets.css}
@@ -84,6 +81,12 @@ export function renderNotFound(assets: RenderAssets, existing: ReadonlySet<strin
         </p>
         <p lang="de">
           Diese Seite gibt es nicht (mehr). <a href={pagePath('de', '')}>Zur Startseite</a>
+        </p>
+        <p lang="fr">
+          Cette page n’existe pas (ou plus). <a href={pagePath('fr', '')}>Aller à l’accueil</a>
+        </p>
+        <p lang="it">
+          Questa pagina non esiste (più). <a href={pagePath('it', '')}>Vai alla home page</a>
         </p>
       </article>
     </Layout>,
