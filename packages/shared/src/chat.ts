@@ -251,6 +251,19 @@ export type WebSearchMode = z.infer<typeof WebSearchMode>;
 export const NotedRef = z.object({ id: Id, text: z.string() });
 export type NotedRef = z.infer<typeof NotedRef>;
 
+/**
+ * What the model put on the shopping list in a reply (P12): shown under the answer with Undo,
+ * stored with the message like profile notes.
+ */
+export const ShoppingAddedRef = z.object({
+  batchId: Id,
+  recipe: z.string().nullable(),
+  count: z.number().int(),
+  adapted: z.array(z.object({ from: z.string(), to: z.string() })).max(20),
+  atHome: z.array(z.string()).max(20),
+});
+export type ShoppingAddedRef = z.infer<typeof ShoppingAddedRef>;
+
 export const Message = z.object({
   id: Id,
   chatId: Id,
@@ -266,6 +279,8 @@ export const Message = z.object({
   pages: z.array(WebPage).default([]),
   /** Profile notes the model saved while writing this reply (assistant messages). */
   notes: z.array(NotedRef).default([]),
+  /** What the model put on the shopping list while writing this reply (assistant messages). */
+  shopping: z.array(ShoppingAddedRef).default([]),
   createdAt: z.number().int(),
 });
 export type Message = z.infer<typeof Message>;
@@ -356,6 +371,7 @@ export const StreamEvent = z.discriminatedUnion('type', [
   z.object({ type: z.literal('sources'), search: WebSearch }),
   /** The model saved a note to the user's profile. */
   z.object({ type: z.literal('noted'), note: NotedRef }),
+  z.object({ type: z.literal('shopping'), added: ShoppingAddedRef }),
   /** Finished: the saved assistant message (status done or cancelled). */
   z.object({ type: z.literal('done'), message: Message }),
   z.object({ type: z.literal('error'), code: z.union([ErrorCode, z.literal('model_error')]) }),

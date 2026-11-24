@@ -32,6 +32,7 @@ import { LoadingBar } from '@hemmia/ui';
 import { Markdown } from '@hemmia/ui';
 import { MessageBubble } from '../components/MessageBubble.tsx';
 import { NotedNotes } from '../components/NotedNotes.tsx';
+import { ShoppingAdded } from '../components/ShoppingAdded.tsx';
 import { ModelChip, ModelSheet } from '../components/ModelSheet.tsx';
 import { Logo } from '@hemmia/ui';
 import { type TFunction, useI18n } from '../i18n/index.tsx';
@@ -544,6 +545,7 @@ export function ChatPage() {
               <WebSearches searches={state.searches} />
               {state.text !== '' && <Markdown text={state.text} />}
               <NotedNotes notes={state.noted} />
+              <ShoppingAdded added={state.shopping} />
               {status && (
                 <p className="flex items-center gap-2 text-sm text-muted">
                   <SparkIcon size={15} className="animate-pulse text-forest" />

@@ -66,8 +66,10 @@ import {
 import { registerAgentRoutes } from './routes/agents.ts';
 import { createAgentRepo } from './db/agents.ts';
 import { createDailyRepo } from './db/daily.ts';
+import { createShoppingRepo } from './db/shopping.ts';
 import { createProfileRepo } from './db/profile.ts';
 import { registerDailyRoutes, sendDueDaily } from './routes/daily.ts';
+import { registerShoppingRoutes } from './routes/shopping.ts';
 import { registerProfileRoutes } from './routes/profile.ts';
 import type { runWebSearch } from './tools/websearch.ts';
 import type { findPhotos } from './tools/webphotos.ts';
@@ -345,6 +347,8 @@ export async function buildApp(config: Config, overrides: AppOverrides = {}): Pr
   });
   registerPushRoutes(app, push, { db, refs: pushRefs });
   registerDailyRoutes(app, { daily, ...(overrides.now ? { now: overrides.now } : {}) });
+  const shopping = createShoppingRepo(db, overrides.now ? { now: overrides.now } : {});
+  registerShoppingRoutes(app, { shopping });
   const profiles = createProfileRepo(db, overrides.now);
   registerProfileRoutes(app, { profiles });
   const llm = overrides.llm;
@@ -594,6 +598,7 @@ export async function buildApp(config: Config, overrides: AppOverrides = {}): Pr
       }),
       agents,
       daily,
+      shopping,
       profiles,
       paused: () => modelOverrides.get().paused,
       cloud: {

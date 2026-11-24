@@ -2,7 +2,7 @@ import { NavLink, useMatch, useNavigate } from 'react-router';
 import { useAgents } from '../agents/hooks.ts';
 import { chatTitle, useChats, useDeleteChat } from '../chat/hooks.ts';
 import { useT } from '../i18n/index.tsx';
-import { CalendarIcon, PenIcon, TrashIcon } from '@hemmia/ui';
+import { BasketIcon, CalendarIcon, PenIcon, TrashIcon } from '@hemmia/ui';
 
 export function ChatSidebar({ onNavigate }: { onNavigate?: () => void }) {
   const t = useT();
@@ -35,6 +35,16 @@ export function ChatSidebar({ onNavigate }: { onNavigate?: () => void }) {
       >
         <CalendarIcon size={19} />
         {t('nav.planner')}
+      </NavLink>
+      <NavLink
+        to="/shopping"
+        onClick={onNavigate}
+        className={({ isActive }) =>
+          `mb-2 -mt-1 inline-flex min-h-11 items-center gap-2.5 rounded-xl px-3 text-[15px] font-medium hover:bg-champagne ${isActive ? 'bg-champagne text-forest' : 'text-ink'}`
+        }
+      >
+        <BasketIcon size={19} />
+        {t('nav.shopping')}
       </NavLink>
       <nav aria-label={t('nav.chats')} className="-mx-1 flex-1 overflow-y-auto px-1 pb-3">
         {isLoading ? (

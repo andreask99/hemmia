@@ -182,6 +182,8 @@ describe('web search in replies', () => {
       'add_goal',
       'update_goal',
       'list_goals',
+      'add_to_shopping_list',
+      'show_shopping_list',
       'remember',
     ]);
     const second = requests[1]?.messages.slice(-2);

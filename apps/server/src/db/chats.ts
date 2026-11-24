@@ -14,6 +14,7 @@ import {
   type Message,
   type MessageStatus,
   NotedRef,
+  ShoppingAddedRef,
   type WebPage,
   WebPageReason,
   WebSearch,
@@ -50,6 +51,7 @@ interface MessageRow {
   status: MessageStatus;
   searches: Buffer | null;
   notes: Buffer | null;
+  shopping: Buffer | null;
   created_at: number;
 }
 
@@ -98,10 +100,13 @@ export interface NewMessage {
   searches?: readonly WebSearch[];
   /** Profile notes saved while writing an assistant reply (stored encrypted). */
   notes?: readonly NotedRef[];
+  /** What the model put on the shopping list while writing a reply (stored encrypted). */
+  shopping?: readonly ShoppingAddedRef[];
 }
 
 const Searches = z.array(WebSearch);
 const Noted = z.array(NotedRef);
+const ShoppingAdded = z.array(ShoppingAddedRef);
 
 /** A chat title from a first message: first non-empty line, at most 60 characters. */
 export function titleFrom(text: string): string | null {
@@ -132,6 +137,8 @@ export function createChatRepo(db: DB, now: () => number = Date.now) {
     aadColumn(u.userId, 'messages', messageId, 'searches');
   const notesAad = (u: UserKey, messageId: string) =>
     aadColumn(u.userId, 'messages', messageId, 'notes');
+  const shoppingAad = (u: UserKey, messageId: string) =>
+    aadColumn(u.userId, 'messages', messageId, 'shopping');
 
   function toSummary(u: UserKey, row: ChatRow): ChatSummary {
     return {
@@ -232,6 +239,11 @@ export function createChatRepo(db: DB, now: () => number = Date.now) {
         : [],
       notes: row.notes
         ? Noted.parse(JSON.parse(decryptString(u.dek, row.notes, notesAad(u, row.id))) as unknown)
+        : [],
+      shopping: row.shopping
+        ? ShoppingAdded.parse(
+            JSON.parse(decryptString(u.dek, row.shopping, shoppingAad(u, row.id))) as unknown,
+          )
         : [],
       pages,
       createdAt: row.created_at,
@@ -429,7 +441,7 @@ export function createChatRepo(db: DB, now: () => number = Date.now) {
       if (!Number.isSafeInteger(before)) return { messages: [], nextCursor: null };
       const rows = db
         .prepare<[string, string, number, number], MessageRow>(
-          `SELECT seq, id, chat_id, role, content, model_id, status, searches, notes, created_at FROM messages
+          `SELECT seq, id, chat_id, role, content, model_id, status, searches, notes, shopping, created_at FROM messages
            WHERE chat_id = ? AND user_id = ? AND seq < ? ORDER BY seq DESC LIMIT ?`,
         )
         .all(chatId, u.userId, before, options.limit + 1);
@@ -454,12 +466,13 @@ export function createChatRepo(db: DB, now: () => number = Date.now) {
       const attachmentIds = msg.attachmentIds ?? [];
       const searches = msg.searches ?? [];
       const notes = msg.notes ?? [];
+      const shopping = msg.shopping ?? [];
       return db.transaction(() => {
         if (!ownsChat(u, chatId)) throw new NotFoundError();
         db.prepare(
           `INSERT INTO messages (id, chat_id, user_id, role, content, model_id, status,
-             prompt_tokens, output_tokens, searches, notes, created_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+             prompt_tokens, output_tokens, searches, notes, shopping, created_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         ).run(
           id,
           chatId,
@@ -474,6 +487,9 @@ export function createChatRepo(db: DB, now: () => number = Date.now) {
             ? encryptString(u.dek, JSON.stringify(searches), searchesAad(u, id))
             : null,
           notes.length > 0 ? encryptString(u.dek, JSON.stringify(notes), notesAad(u, id)) : null,
+          shopping.length > 0
+            ? encryptString(u.dek, JSON.stringify(shopping), shoppingAad(u, id))
+            : null,
           t,
         );
         for (const attachmentId of attachmentIds) {
@@ -508,6 +524,7 @@ export function createChatRepo(db: DB, now: () => number = Date.now) {
           attachments: atts,
           searches: [...searches],
           notes: [...notes],
+          shopping: [...shopping],
           pages: [],
           createdAt: t,
         };

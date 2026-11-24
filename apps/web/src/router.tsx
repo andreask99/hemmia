@@ -10,6 +10,7 @@ import { RecoverPage } from './pages/RecoverPage.tsx';
 import { SettingsPage } from './pages/SettingsPage.tsx';
 import { AgentEditorPage } from './pages/AgentEditorPage.tsx';
 import { PlannerPage } from './pages/PlannerPage.tsx';
+import { ShoppingPage } from './pages/ShoppingPage.tsx';
 import { RequireAuth } from './auth/RequireAuth.tsx';
 import { PushOpenPage } from './pages/PushOpenPage.tsx';
 import { ImportPage } from './pages/ImportPage.tsx';
@@ -78,6 +79,10 @@ export const routes: RouteObject[] = [
       {
         path: 'planner',
         element: <PlannerPage />,
+      },
+      {
+        path: 'shopping',
+        element: <ShoppingPage />,
       },
       {
         path: 'agents/new',

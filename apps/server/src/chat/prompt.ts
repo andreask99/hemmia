@@ -3,8 +3,9 @@
  * the policy (docs/DECISIONS.md, open questions).
  */
 import { LANGUAGE_NAMES } from '@hemmia/shared';
-import type { DailySettings, DayTask, Goal, Language, Plan } from '@hemmia/shared';
+import type { Country, DailySettings, DayTask, Goal, Language, Plan } from '@hemmia/shared';
 import { daysWonLine, goalsText, plansText, progressLine, tasksText } from '../tools/plans.ts';
+import { shoppingPrompt } from '../tools/shopping.ts';
 
 export interface PromptContext {
   language: Language;
@@ -20,6 +21,8 @@ export interface PromptContext {
   canReadLinks?: boolean;
   /** The planner tools (plans and weekly goals) are available. */
   canPlan?: boolean;
+  /** The shopping list tools are available; the country the user shops in. */
+  shoppingCountry?: Country;
   /** Planner: instructions for the morning snapshot, weekly planning or evening check-in. */
   daily?: string;
   /** This week's goals as the model sees them (goalsText), so it can refer to them. */
@@ -434,6 +437,7 @@ export function systemPrompt(ctx: PromptContext): string {
     ctx.canCreateImages === true ? IMAGES : '',
     ctx.canShowPhotos === true ? PHOTOS : '',
     ctx.canPlan === true ? PLANS : '',
+    ctx.shoppingCountry ? shoppingPrompt(ctx.shoppingCountry) : '',
     ctx.canPlan === true && ctx.goals
       ? `The user's planner:\n${ctx.goals}\nIMPORTANT: if the user's message says one of these is finished (e.g. "slides done", "cellar done"), first call update_day_item (for a day item) or update_goal (for a weekly goal) with its id and status "done", then reply. Finishing a day item does not finish its weekly goal; mark the goal done only when the user says the goal itself is reached.`
       : '',

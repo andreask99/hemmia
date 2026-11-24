@@ -251,6 +251,21 @@ through an update. Deleting a model is refused while any job runs or waits, and 
 family's last local model. The push for a new version (`kind: models`) goes to admins only and
 carries no content; native push for it waits for the next app release (the apps need its text).
 
+
+### 6.7 Shopping list (P12, 2026-11-24)
+
+One list per person, stored like other personal data: the recipes, lines and item states are one
+JSON value encrypted with the user's data key (AAD: user, `shopping_lists`, list id, `data`);
+country and pantry choices likewise (`shopping_settings`); what the model added in a reply is
+encrypted with the message (`messages.shopping`). Every query is scoped by `user_id`; another
+user's item keys, recipe ids and batch ids behave like ids that don't exist.
+
+The model may add to the list after a web search or while a linked page is in the chat, unlike
+the planner (§ M7 of the 2026-11-07 review): recipes usually come from pages, the worst a planted
+instruction can do is put items on the user's own list, which the reply shows with Undo, and one
+call adds at most 60 lines (a list at most 300). List contents never reach briefings or other
+prompts except through `show_shopping_list` in the user's own chat.
+
 ## 7. Native app
 
 - The web view never navigates to another site: it shows either the bundled shell or one

@@ -5,6 +5,7 @@ import { DocIcon, SparkIcon } from '@hemmia/ui';
 import { attachmentUrl, ImageViewer } from '@hemmia/ui';
 import { Markdown } from '@hemmia/ui';
 import { NotedNotes } from './NotedNotes.tsx';
+import { ShoppingAdded } from './ShoppingAdded.tsx';
 import { WebPhotos } from './WebPhotos.tsx';
 import { WebSearches } from './WebSearches.tsx';
 import { LinkedPages } from './LinkedPages.tsx';
@@ -41,6 +42,7 @@ export function MessageBubble({
     searches?: Message['searches'];
     pages?: Message['pages'];
     notes?: Message['notes'];
+    shopping?: Message['shopping'];
   };
 }) {
   const { t } = useI18n();
@@ -121,6 +123,7 @@ export function MessageBubble({
         </figure>
       ))}
       {!isUser && <NotedNotes notes={message.notes ?? []} />}
+      {!isUser && <ShoppingAdded added={message.shopping ?? []} />}
       {message.status === 'cancelled' && <p className="text-xs text-muted">{t('chat.stopped')}</p>}
       {message.status === 'error' && <p className="text-xs text-danger">{t('chat.failed')}</p>}
       {open && (

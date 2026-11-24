@@ -9,6 +9,7 @@ import {
   type ErrorCode,
   type Message,
   type NotedRef,
+  type ShoppingAddedRef,
   type StreamEvent,
   type WebPage,
   type WebSearch,
@@ -16,6 +17,7 @@ import {
 import { ApiError, api } from '../api/client.ts';
 import { followEvents, StreamDroppedError, streamEvents } from '../api/stream.ts';
 import { PROFILE_KEY } from '../profile/hooks.ts';
+import { SHOPPING_KEY } from '../shopping/hooks.ts';
 
 export type ReplyPhase =
   | 'idle'
@@ -53,6 +55,8 @@ export interface ReplyState {
   searches: WebSearch[];
   /** Profile notes the model saved so far ("Noted" with an undo). */
   noted: NotedRef[];
+  /** What the model put on the shopping list so far. */
+  shopping: ShoppingAddedRef[];
   /** While a model loads: when it started (ms) and about how long it takes. */
   loadingSince: number;
   loadingExpectedMs: number | null;
@@ -74,6 +78,7 @@ const IDLE: ReplyState = {
   readingTokens: 0,
   searches: [],
   noted: [],
+  shopping: [],
   loadingSince: 0,
   loadingExpectedMs: null,
   readingPages: [],
@@ -184,6 +189,10 @@ export function useReplyStream(chatId: string) {
         case 'noted':
           setState((s) => ({ ...s, noted: [...s.noted, event.note] }));
           void queryClient.invalidateQueries({ queryKey: PROFILE_KEY });
+          break;
+        case 'shopping':
+          setState((s) => ({ ...s, shopping: [...s.shopping, event.added] }));
+          void queryClient.invalidateQueries({ queryKey: SHOPPING_KEY });
           break;
         case 'reading_pages':
           setState((s) => ({

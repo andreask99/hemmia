@@ -71,8 +71,13 @@ describe('ChatSidebar', () => {
     show(<ChatSidebar />);
     await screen.findByText('Urlaub');
     const links = screen.getAllByRole('link');
-    expect(links.map((l) => l.textContent)).toEqual(['Planner', 'Urlaub', 'New chat']);
-    expect(links[2]?.getAttribute('aria-current')).toBe('page');
+    expect(links.map((l) => l.textContent)).toEqual([
+      'Planner',
+      'Shopping list',
+      'Urlaub',
+      'New chat',
+    ]);
+    expect(links[3]?.getAttribute('aria-current')).toBe('page');
   });
 
   it('deletes a chat from the list after confirmation, leaving the open chat', async () => {

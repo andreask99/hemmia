@@ -7,6 +7,8 @@
  */
 import type {
   Agent,
+  ShoppingItem,
+  ShoppingListResponse,
   AgentDraft,
   AdminModelsResponse,
   AdminUserListResponse,
@@ -37,6 +39,11 @@ import type {
 } from '@hemmia/shared';
 import type { z } from 'zod';
 import {
+  AddShoppingItemRequest,
+  ClearShoppingRequest,
+  ShoppingSettings,
+  UpdateShoppingItemRequest,
+  UpdateShoppingRecipeRequest,
   CreateChatRequest,
   CreateGoalRequest,
   CreateTaskRequest,
@@ -100,6 +107,7 @@ interface State {
   tasks: DayTask[];
   plans: Plan[];
   daily: DailySettings;
+  shopping: ShoppingListResponse;
   notes: ProfileNote[];
   profileUpdatedAt: number | null;
   paused: boolean;
@@ -146,6 +154,7 @@ function seed(lang: Language, now: number): State {
       searches: m.searches ?? [],
       pages: [],
       notes: [],
+      shopping: [],
       createdAt: start + i * MINUTE,
     }));
     chats.set(c.id, {
@@ -178,6 +187,7 @@ function seed(lang: Language, now: number): State {
     agents: seedAgents(lang, now),
     ...planner,
     daily: { ...DAILY },
+    shopping: seedShopping(lang),
     notes: seedProfile(lang).map((text, i) => ({
       id: `demo-note-${String(i)}`,
       text,
@@ -191,6 +201,83 @@ function seed(lang: Language, now: number): State {
     disabled: [],
     defaultChat: DEFAULT_MODEL,
     defaultImage: 'image',
+  };
+}
+
+/** A shopping list to look at: one recipe, a few items, salt at home. */
+function seedShopping(lang: Language): ShoppingListResponse {
+  const names = {
+    en: ['Apple crumble', 'Apples', 'Butter', 'Oats', 'Salt', 'Milk'],
+    de: ['Apfel-Crumble', 'Äpfel', 'Butter', 'Haferflocken', 'Salz', 'Milch'],
+    fr: ['Crumble aux pommes', 'Pommes', 'Beurre', "Flocons d'avoine", 'Sel', 'Lait'],
+    it: ['Crumble di mele', 'Mele', 'Burro', "Fiocchi d'avena", 'Sale', 'Latte'],
+  }[lang];
+  const [title, apples, butter, oats, salt, milk] = names as [
+    string,
+    string,
+    string,
+    string,
+    string,
+    string,
+  ];
+  const from = (original: string) => [{ recipeId: 'demo-recipe', recipeTitle: title, original }];
+  const item = (
+    key: string,
+    name: string,
+    aisle: ShoppingItem['aisle'],
+    buy: ShoppingItem['buy'],
+    extra: Partial<ShoppingItem> = {},
+  ): ShoppingItem => ({
+    key,
+    name,
+    aisle,
+    status: 'open',
+    need: null,
+    buy,
+    adjusted: false,
+    sources: [],
+    swappedFrom: [],
+    alwaysHome: false,
+    ...extra,
+  });
+  return {
+    country: lang === 'en' ? 'GB' : lang === 'de' ? 'DE' : lang === 'fr' ? 'FR' : 'IT',
+    recipes: [{ id: 'demo-recipe', title, url: null, baseServings: 4, servings: 4 }],
+    items: [
+      item(
+        'apple',
+        apples,
+        'produce',
+        { count: 6, size: null, unit: 'piece' },
+        { sources: from('6 apples') },
+      ),
+      item(
+        'butter',
+        butter,
+        'dairy',
+        { count: 1, size: 250, unit: 'g' },
+        {
+          need: { amount: 125, unit: 'g' },
+          sources: from('125 g butter'),
+        },
+      ),
+      item('milk', milk, 'dairy', { count: 1, size: 1, unit: 'l' }),
+      item(
+        'oats',
+        oats,
+        'pantry',
+        { count: 1, size: 500, unit: 'g' },
+        {
+          need: { amount: 100, unit: 'g' },
+          sources: from('100 g oats'),
+        },
+      ),
+      item('salt', salt, 'pantry', null, {
+        status: 'home',
+        alwaysHome: true,
+        sources: from('1 pinch salt'),
+      }),
+    ],
   };
 }
 
@@ -305,6 +392,12 @@ const WORDS = new Set([
   'users',
   'web-search',
   'week',
+  'shopping',
+  'items',
+  'recipes',
+  'batches',
+  'clear',
+  'settings',
 ]);
 
 const BRIEFING_TITLES: Record<Language, Record<BriefingKind, string>> = {
@@ -421,6 +514,7 @@ export function createDemoServer(lang: Language, options: DemoServerOptions): De
       searches: [],
       pages: [],
       notes: [],
+      shopping: [],
       createdAt: Date.now(),
     };
     chat.messages.push(user);
@@ -489,6 +583,7 @@ export function createDemoServer(lang: Language, options: DemoServerOptions): De
         searches,
         pages: [],
         notes: [],
+        shopping: [],
         createdAt: Date.now(),
       };
       chat.messages.push(message);
@@ -728,6 +823,82 @@ export function createDemoServer(lang: Language, options: DemoServerOptions): De
           instructions: r.description.slice(0, 1000),
           examples: [],
         } satisfies AgentDraft);
+      }
+
+      // --- shopping list
+      case 'GET /shopping':
+        return json(state.shopping);
+      case 'POST /shopping/items': {
+        const r = parse(AddShoppingItemRequest, body);
+        if (!r) return badRequest();
+        const key = r.text.toLowerCase();
+        const batchId = newId('b');
+        if (!state.shopping.items.some((i) => i.key === key)) {
+          state.shopping.items.push({
+            key,
+            name: r.text,
+            aisle: 'other',
+            status: 'open',
+            need: null,
+            buy: null,
+            adjusted: false,
+            sources: [],
+            swappedFrom: [],
+            alwaysHome: false,
+          });
+        }
+        return json({ batchId, recipe: null, count: 1, adapted: [], atHome: [] }, 201);
+      }
+      case 'PATCH /shopping/items/:id': {
+        const r = parse(UpdateShoppingItemRequest, body);
+        const item = state.shopping.items.find((i) => i.key === seg[2]);
+        if (!item) return notFound();
+        if (!r) return badRequest();
+        if (r.alwaysHome !== undefined) {
+          item.alwaysHome = r.alwaysHome;
+          item.status = r.alwaysHome ? 'home' : 'open';
+        }
+        if (r.status) item.status = r.status;
+        if (r.count !== undefined && item.buy) {
+          item.buy = { ...item.buy, count: r.count ?? 1 };
+          item.adjusted = r.count !== null;
+        }
+        return empty();
+      }
+      case 'DELETE /shopping/items/:id':
+        state.shopping.items = state.shopping.items.filter((i) => i.key !== seg[2]);
+        return empty();
+      case 'PATCH /shopping/recipes/:id': {
+        const r = parse(UpdateShoppingRecipeRequest, body);
+        const recipe = state.shopping.recipes.find((x) => x.id === seg[2]);
+        if (!recipe) return notFound();
+        if (!r) return badRequest();
+        recipe.servings = r.servings;
+        return empty();
+      }
+      case 'DELETE /shopping/recipes/:id':
+        state.shopping.recipes = state.shopping.recipes.filter((x) => x.id !== seg[2]);
+        state.shopping.items = state.shopping.items.filter(
+          (i) => !i.sources.some((src) => src.recipeId === seg[2]),
+        );
+        return empty();
+      case 'DELETE /shopping/batches/:id':
+        return empty();
+      case 'POST /shopping/clear': {
+        const r = parse(ClearShoppingRequest, body);
+        if (!r) return badRequest();
+        state.shopping.items =
+          r.what === 'all' ? [] : state.shopping.items.filter((i) => i.status !== 'bought');
+        if (r.what === 'all') state.shopping.recipes = [];
+        return empty();
+      }
+      case 'GET /shopping/settings':
+        return json({ country: state.shopping.country });
+      case 'PUT /shopping/settings': {
+        const r = parse(ShoppingSettings, body);
+        if (!r) return badRequest();
+        state.shopping.country = r.country;
+        return json(r);
       }
 
       // --- planner

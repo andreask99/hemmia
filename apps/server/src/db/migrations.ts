@@ -546,4 +546,28 @@ DROP TABLE users;
 ALTER TABLE users_new RENAME TO users;
 `,
   },
+  {
+    id: 25,
+    name: 'shopping list',
+    // The shopping list (P12): one list per person for now, its recipes, lines and item states
+    // in one encrypted JSON value (AAD: user, table, list id, column). A household list later
+    // gets its own rows keyed by a household, encrypted with a household key (DECISIONS.md
+    // 2026-11-24). Settings: the country and the person's pantry choices, encrypted.
+    // messages.shopping: what the model added to the list in a reply (for the undo), encrypted
+    // like messages.notes.
+    sql: `
+CREATE TABLE shopping_lists (
+  id                    TEXT PRIMARY KEY,
+  user_id               TEXT NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+  data                  BLOB NOT NULL,
+  updated_at            INTEGER NOT NULL
+) STRICT;
+CREATE TABLE shopping_settings (
+  user_id               TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  data                  BLOB NOT NULL,
+  updated_at            INTEGER NOT NULL
+) STRICT;
+ALTER TABLE messages ADD COLUMN shopping BLOB;
+`,
+  },
 ];

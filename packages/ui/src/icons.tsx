@@ -136,3 +136,9 @@ export const CheckIcon = (p: IconProps) => (
     <path d="M5 12.5l4.5 4.5L19 7.5" />
   </Svg>
 );
+export const BasketIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M3.5 9.5h17l-1.6 9.1a2 2 0 0 1-2 1.65H7.1a2 2 0 0 1-2-1.65z" />
+    <path d="M8 9.5l3-5.5M16 9.5l-3-5.5M9.5 13.5v3.5M14.5 13.5v3.5" />
+  </Svg>
+);

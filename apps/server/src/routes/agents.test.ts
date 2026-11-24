@@ -207,6 +207,8 @@ describe('agents', () => {
       'add_goal',
       'update_goal',
       'list_goals',
+      'add_to_shopping_list',
+      'show_shopping_list',
       'remember',
     ]);
   });

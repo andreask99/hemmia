@@ -19,6 +19,7 @@ import type {
   AttachmentRef,
   Message,
   NotedRef,
+  ShoppingAddedRef,
   StreamEvent,
   WebPage,
   WebSearch,
@@ -69,6 +70,15 @@ import {
   daysWon,
 } from '../tools/plans.ts';
 import { addDays, type DailyRepo, localDateTime, weekStart } from '../db/daily.ts';
+import { type ShoppingRepo, ShoppingLimitError } from '../db/shopping.ts';
+import {
+  ADD_TO_SHOPPING_LIST_TOOL,
+  AddToShoppingListArgs,
+  addedText,
+  linesFrom,
+  SHOW_SHOPPING_LIST_TOOL,
+  shoppingText,
+} from '../tools/shopping.ts';
 import { buildContext } from './context.ts';
 import { expectedLoadMs, recordLoad } from './loadTimes.ts';
 import { dailyPrompt, eveningPrompt, isWeekend, systemPrompt, weekPrompt } from './prompt.ts';
@@ -84,6 +94,8 @@ const PLANNER_TOOLS = [
 ];
 const PLANNER_TOOL_NAMES = new Set(PLANNER_TOOLS.map((t) => t.name));
 const PLANNER_READ_TOOLS = new Set([LIST_PLANS_TOOL.name, LIST_GOALS_TOOL.name]);
+const SHOPPING_TOOLS = [ADD_TO_SHOPPING_LIST_TOOL, SHOW_SHOPPING_LIST_TOOL];
+const SHOPPING_TOOL_NAMES = new Set(SHOPPING_TOOLS.map((t) => t.name));
 
 export const CHAT_TIMEOUT_MS = 5 * 60_000;
 /** Slowest measured reading speed on this Mac (Qwen3.8 / gemma4 at long context: ~200 tok/s). */
@@ -282,6 +294,8 @@ export interface ReplyDeps {
   imageTool?: ImageToolDeps;
   /** Planner settings, plans and goals; without it no planner tools and no briefings. */
   daily?: DailyRepo;
+  /** The shopping list; without it no shopping tools. */
+  shopping?: ShoppingRepo;
   /** Profiles (notes about the user); without it no profile context and no remember tool. */
   profiles?: ProfileRepo;
   /** Web search; without it (or when it returns null for this user) no search tool. */
@@ -376,6 +390,7 @@ export function startReply(deps: ReplyDeps, input: ReplyInput): StartedReply {
       case 'page':
       case 'sources':
       case 'noted':
+      case 'shopping':
       case 'image':
         live.parts.push(event);
         break;
@@ -484,6 +499,8 @@ export function startReply(deps: ReplyDeps, input: ReplyInput): StartedReply {
   const searches: WebSearch[] = [];
   /** Profile notes the model saved for this reply (saved with it, for the undo). */
   const noted: NotedRef[] = [];
+  /** What the model put on the shopping list in this reply (saved with it, for the undo). */
+  const shopped: ShoppingAddedRef[] = [];
   /** Photos from the web for this reply (stored unlinked, linked when the reply is saved). */
   const photos: AttachmentRef[] = [];
 
@@ -495,6 +512,7 @@ export function startReply(deps: ReplyDeps, input: ReplyInput): StartedReply {
       status,
       searches,
       notes: noted,
+      shopping: shopped,
       attachmentIds: photos.map((p) => p.id),
       ...(usage ? { promptTokens: usage.p, outputTokens: usage.o } : {}),
     });
@@ -519,6 +537,9 @@ export function startReply(deps: ReplyDeps, input: ReplyInput): StartedReply {
         : null;
     const webPhotos = search !== null ? (deps.webPhotos ?? null) : null;
     const plans = model.tools === true && deps.daily ? deps.daily : null;
+    // Teens too: a list of things to buy is harmless and useful.
+    const shopping = model.tools === true && deps.shopping ? deps.shopping : null;
+    const shopper = { ...key, language: input.user.language };
     // Teen accounts have no profile. The model may add to it only from the user's own words:
     // not in a turn with attachments, not while a document or a linked page is in the chat,
     // and not after a web search brought in page text (untrusted text could plant notes).
@@ -541,6 +562,37 @@ export function startReply(deps: ReplyDeps, input: ReplyInput): StartedReply {
       ref === 'next' ? addDays(thisWeek, 7) : ref === 'last' ? addDays(thisWeek, -7) : thisWeek;
     const dayOf = (ref: string | null | undefined) =>
       !ref || ref === 'today' ? today.date : ref === 'tomorrow' ? addDays(today.date, 1) : ref;
+    /** Runs a shopping tool for this user; returns the text the model gets back. */
+    const runShoppingTool = (call: { name: string; arguments: unknown }): string => {
+      if (!shopping) return 'The shopping list is not available.';
+      if (call.name === SHOW_SHOPPING_LIST_TOOL.name) return shoppingText(shopping.get(shopper));
+      const args = AddToShoppingListArgs.safeParse(call.arguments);
+      if (!args.success) {
+        return 'Not added: pass "items", each with "name", "generic" and "aisle" (amount and unit as written).';
+      }
+      const r = args.data.recipe;
+      try {
+        const added = shopping.add(shopper, {
+          recipe: r
+            ? {
+                title: r.title,
+                url: r.url,
+                baseServings: r.servings ?? null,
+                servings: r.servings_wanted ?? r.servings ?? null,
+              }
+            : null,
+          lines: linesFrom(args.data),
+        });
+        shopped.push(added);
+        send({ type: 'shopping', added });
+        return addedText(added);
+      } catch (err) {
+        if (err instanceof ShoppingLimitError) {
+          return 'Not added: the shopping list is full. Tell the user to clear bought items first.';
+        }
+        throw err;
+      }
+    };
     /** Runs a planner tool for this user; returns the text the model gets back. */
     const runPlanTool = (call: { name: string; arguments: unknown }): string => {
       if (!plans) return 'The planner is not available.';
@@ -749,6 +801,7 @@ export function startReply(deps: ReplyDeps, input: ReplyInput): StartedReply {
         canSearch: search !== null,
         canShowPhotos: webPhotos !== null,
         canPlan: plans !== null,
+        ...(shopping ? { shoppingCountry: shopping.country(shopper) } : {}),
         canReadLinks,
         ...(profiles
           ? { profile: { notes: profileNotes.map((n) => n.text), canRemember: mayRemember } }
@@ -868,6 +921,7 @@ export function startReply(deps: ReplyDeps, input: ReplyInput): StartedReply {
           // Also kept after its one call (later calls are refused, like searches over the cap).
           ...(webPhotos !== null ? [SHOW_PHOTOS_TOOL] : []),
           ...(plans ? PLANNER_TOOLS : []),
+          ...(shopping ? SHOPPING_TOOLS : []),
           ...(offerRemember ? [REMEMBER_TOOL] : []),
         ];
         let roundText = '';
@@ -877,6 +931,7 @@ export function startReply(deps: ReplyDeps, input: ReplyInput): StartedReply {
         const searchCalls: Call[] = [];
         const planCalls: Call[] = [];
         const rememberCalls: Call[] = [];
+        const shopCalls: Call[] = [];
         const photoCalls: Call[] = [];
         let roundReplay: unknown;
         for await (const chunk of chatRound(tools)) {
@@ -909,6 +964,8 @@ export function startReply(deps: ReplyDeps, input: ReplyInput): StartedReply {
               photoCalls.push(chunk);
             } else if (plans && PLANNER_TOOL_NAMES.has(chunk.name)) {
               planCalls.push(chunk);
+            } else if (shopping && SHOPPING_TOOL_NAMES.has(chunk.name)) {
+              shopCalls.push(chunk);
             } else if (chunk.name === REMEMBER_TOOL.name && offerRemember) {
               rememberCalls.push(chunk);
             }
@@ -933,7 +990,12 @@ export function startReply(deps: ReplyDeps, input: ReplyInput): StartedReply {
         }
         const called =
           toolArgs !== null ||
-          searchCalls.length + planCalls.length + rememberCalls.length + photoCalls.length > 0;
+          searchCalls.length +
+            planCalls.length +
+            rememberCalls.length +
+            photoCalls.length +
+            shopCalls.length >
+            0;
         if (
           !cloud &&
           !called &&
@@ -955,6 +1017,7 @@ export function startReply(deps: ReplyDeps, input: ReplyInput): StartedReply {
         if (
           (!runSearches &&
             planCalls.length === 0 &&
+            shopCalls.length === 0 &&
             rememberCalls.length === 0 &&
             photoCalls.length === 0) ||
           toolArgs !== null
@@ -969,7 +1032,7 @@ export function startReply(deps: ReplyDeps, input: ReplyInput): StartedReply {
         messages.push({
           role: 'assistant',
           content: roundText,
-          toolCalls: [...calls, ...planCalls, ...rememberCalls, ...photoCalls],
+          toolCalls: [...calls, ...planCalls, ...shopCalls, ...rememberCalls, ...photoCalls],
           ...(roundReplay !== undefined ? { replay: roundReplay } : {}),
         });
         /** A tool result for a call (cloud engines match it to the call by id). */
@@ -993,6 +1056,7 @@ export function startReply(deps: ReplyDeps, input: ReplyInput): StartedReply {
             ),
           );
         }
+        for (const call of shopCalls) messages.push(result(call, runShoppingTool(call)));
         for (const call of rememberCalls) {
           messages.push(
             result(

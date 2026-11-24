@@ -124,7 +124,12 @@ describe('database', () => {
       `INSERT INTO chats (id, user_id, title, model_id, created_at, updated_at)
        VALUES ('c1', 'u1', ?, 'm', 1, 1)`,
     ).run(b);
-    expect(migrate(db)).toEqual([24]);
+    expect(
+      migrate(
+        db,
+        MIGRATIONS.filter((m) => m.id <= 24),
+      ),
+    ).toEqual([24]);
     expect(db.pragma('foreign_keys', { simple: true })).toBe(1);
     expect(db.prepare("SELECT language FROM users WHERE id = 'u1'").get()).toEqual({
       language: 'de',

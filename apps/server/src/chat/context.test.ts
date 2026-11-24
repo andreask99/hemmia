@@ -16,6 +16,7 @@ function msg(role: 'user' | 'assistant', content: string, extra: Partial<Message
     searches: [],
     pages: [],
     notes: [],
+    shopping: [],
     createdAt: seq,
     ...extra,
   };

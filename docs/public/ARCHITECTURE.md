@@ -90,6 +90,10 @@ Unchanged at its core. Additions (task ids in brackets):
   catalogue digest moved from the one first seen). "Update" downloads, then moves every
   reference in one transaction (`models/lifecycle.ts`) and offers to delete the old model.
   New updates are announced once: a web push to admins and a dot on Settings.
+- **Shopping list** [P12]: recipes from the chat (`add_to_shopping_list`, offered after the
+  model gives or suggests recipes) or items typed on `/shopping`. The model only reads recipes;
+  `shopping/` converts units, scales servings, merges and rounds to the packs of the user's
+  country. One encrypted list per person (`db/shopping.ts`); a household list is planned.
 - **First-run setup** [P3.1–P3.4]: a hub without users is in setup mode. A setup code
   (printed to the console and written to `<dataDir>/setup-code.txt`; the macOS installer opens
   `http://localhost:8787/setup#<code>`) unlocks the wizard H1–H6, which creates the admin.
