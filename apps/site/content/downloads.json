@@ -21,14 +21,14 @@
   },
   {
     "platform": "macos",
-    "url": "https://github.com/andreask99/hemmia/releases/download/v0.2.0/hemmia-hub-0.2.0.pkg",
+    "url": "https://github.com/andreask99/hemmia/releases/download/v0.3.0/hemmia-hub-0.3.0.pkg",
     "note": {
       "en": "Hemmia at home on a Mac with Apple silicon, macOS 14 or later. 8 GB runs a small model, 16 GB or more recommended, 24 GB for pictures. Signed and notarized.",
       "de": "Hemmia zu Hause auf einem Mac mit Apple-Chip, ab macOS 14. Mit 8 GB läuft ein kleines Modell, 16 GB oder mehr empfohlen, 24 GB für Bilder. Signiert und von Apple geprüft.",
       "fr": "Hemmia à la maison sur un Mac avec puce Apple, macOS 14 ou plus. 8 Go font tourner un petit modèle, 16 Go ou plus recommandés, 24 Go pour les images. Signé et notarié.",
       "it": "Hemmia a casa su un Mac con chip Apple, macOS 14 o successivo. Con 8 GB gira un modello piccolo, 16 GB o più consigliati, 24 GB per le immagini. Firmato e notarizzato."
     },
-    "version": "0.2.0"
+    "version": "0.3.0"
   },
   {
     "platform": "docker",
@@ -39,6 +39,6 @@
       "fr": "Linux, Windows avec Docker Desktop ou un NAS : une commande lance Hemmia avec des modèles locaux et la recherche web.",
       "it": "Linux, Windows con Docker Desktop o un NAS: un comando avvia Hemmia con modelli locali e ricerca web."
     },
-    "version": "0.2.0"
+    "version": "0.3.0"
   }
 ]

@@ -8,7 +8,7 @@ date: 2026-11-21
 
 # Politique de confidentialité
 
-Dernière mise à jour : 21 novembre 2026 · S’applique aux apps Hemmia, au logiciel du hub Hemmia tel que nous le distribuons, à Hemmia Connect (notre relais), à la vérification des mises à jour et à ce site (hemmia.app).
+Dernière mise à jour : 27 novembre 2026 · S’applique aux apps Hemmia, au logiciel du hub Hemmia tel que nous le distribuons, à Hemmia Connect (notre relais), à la vérification des mises à jour et à ce site (hemmia.app).
 
 <!-- note -->
 **L’essentiel**
@@ -60,7 +60,7 @@ Hemmia est fait par une seule personne ; il n’y a donc pas de délégué à la
 
 Hemmia comprend trois parties, et la responsabilité suit celui qui les exploite :
 
-- **Le hub Hemmia** est un logiciel que tu installes sur ton propre ordinateur (un Mac, ou n’importe quel ordinateur avec Docker). Il stocke les comptes, discussions, photos, documents et réglages de ta famille sur cet ordinateur, chiffrés par personne. **Nous n’exploitons pas ton hub et n’y avons aucun accès.** La personne qui gère un hub (l’« admin ») est responsable des données personnelles des personnes qui l’utilisent, par exemple des membres de la famille qu’elle invite. Lorsque le hub utilise un modèle d’IA cloud, cherche sur le web, ouvre une page web, télécharge un modèle ou envoie une notification à un navigateur, il le fait depuis cet ordinateur, pour le compte de l’admin, selon les réglages qu’il choisit. Cette politique décrit le logiciel pour que tu saches ce qu’il fait ; ce n’est pas une promesse sur la façon dont un admin particulier gère son hub.
+- **Le hub Hemmia** est un logiciel que tu installes sur ton propre ordinateur (un Mac, ou n’importe quel ordinateur avec Docker). Il stocke les comptes, discussions, photos, documents et réglages de ta famille sur cet ordinateur, chiffrés par personne (la liste de courses familiale, que tous partagent, avec une clé conservée sur cet ordinateur). **Nous n’exploitons pas ton hub et n’y avons aucun accès.** La personne qui gère un hub (l’« admin ») est responsable des données personnelles des personnes qui l’utilisent, par exemple des membres de la famille qu’elle invite. Lorsque le hub utilise un modèle d’IA cloud, cherche sur le web, ouvre une page web, télécharge un modèle ou envoie une notification à un navigateur, il le fait depuis cet ordinateur, pour le compte de l’admin, selon les réglages qu’il choisit. Cette politique décrit le logiciel pour que tu saches ce qu’il fait ; ce n’est pas une promesse sur la façon dont un admin particulier gère son hub.
 - **L’app Hemmia** tourne sur ton téléphone. Elle se connecte soit à un hub (section 3.1), soit fonctionne seule avec un fournisseur d’IA que tu choisis (section 3.2).
 - **Nos services** : Hemmia Connect (section 4), les notifications via le relais (section 5), la vérification des mises à jour (section 6) et ce site (section 16). Pour ceux-ci, nous sommes le responsable du traitement.
 

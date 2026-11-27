@@ -565,14 +565,16 @@ export function startReply(deps: ReplyDeps, input: ReplyInput): StartedReply {
     /** Runs a shopping tool for this user; returns the text the model gets back. */
     const runShoppingTool = (call: { name: string; arguments: unknown }): string => {
       if (!shopping) return 'The shopping list is not available.';
-      if (call.name === SHOW_SHOPPING_LIST_TOOL.name) return shoppingText(shopping.get(shopper));
+      if (call.name === SHOW_SHOPPING_LIST_TOOL.name) {
+        return shoppingText(shopping.get(shopper, 'family'), shopping.get(shopper, 'mine'));
+      }
       const args = AddToShoppingListArgs.safeParse(call.arguments);
       if (!args.success) {
         return 'Not added: pass "items", each with "name", "generic" and "aisle" (amount and unit as written).';
       }
       const r = args.data.recipe;
       try {
-        const added = shopping.add(shopper, {
+        const added = shopping.add(shopper, args.data.list, {
           recipe: r
             ? {
                 title: r.title,
@@ -801,7 +803,7 @@ export function startReply(deps: ReplyDeps, input: ReplyInput): StartedReply {
         canSearch: search !== null,
         canShowPhotos: webPhotos !== null,
         canPlan: plans !== null,
-        ...(shopping ? { shoppingCountry: shopping.country(shopper) } : {}),
+        ...(shopping ? { shoppingCountry: shopping.country(shopper, 'family') } : {}),
         canReadLinks,
         ...(profiles
           ? { profile: { notes: profileNotes.map((n) => n.text), canRemember: mayRemember } }

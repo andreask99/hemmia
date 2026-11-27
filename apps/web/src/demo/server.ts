@@ -9,6 +9,8 @@ import type {
   Agent,
   ShoppingItem,
   ShoppingListResponse,
+  ShoppingListName,
+  ShoppingPerson,
   AgentDraft,
   AdminModelsResponse,
   AdminUserListResponse,
@@ -41,6 +43,7 @@ import type { z } from 'zod';
 import {
   AddShoppingItemRequest,
   ClearShoppingRequest,
+  MoveShoppingRequest,
   ShoppingSettings,
   UpdateShoppingItemRequest,
   UpdateShoppingRecipeRequest,
@@ -107,7 +110,7 @@ interface State {
   tasks: DayTask[];
   plans: Plan[];
   daily: DailySettings;
-  shopping: ShoppingListResponse;
+  shopping: Record<ShoppingListName, ShoppingListResponse>;
   notes: ProfileNote[];
   profileUpdatedAt: number | null;
   paused: boolean;
@@ -187,7 +190,7 @@ function seed(lang: Language, now: number): State {
     agents: seedAgents(lang, now),
     ...planner,
     daily: { ...DAILY },
-    shopping: seedShopping(lang),
+    shopping: { family: seedShopping(lang), mine: seedOwnShopping(lang) },
     notes: seedProfile(lang).map((text, i) => ({
       id: `demo-note-${String(i)}`,
       text,
@@ -204,7 +207,45 @@ function seed(lang: Language, now: number): State {
   };
 }
 
-/** A shopping list to look at: one recipe, a few items, salt at home. */
+/** Example family members on the demo's family list (the demo user is anna). */
+const DEMO_PEOPLE: Record<string, ShoppingPerson> = {
+  anna: { userId: 'demo-anna', name: 'anna' },
+  ben: { userId: 'demo-ben', name: 'ben' },
+  mila: { userId: 'demo-mila', name: 'mila' },
+};
+
+/** The demo's own list: something the family shouldn't see yet. */
+function seedOwnShopping(lang: Language): ShoppingListResponse {
+  const name = {
+    en: 'Birthday candles',
+    de: 'Geburtstagskerzen',
+    fr: "Bougies d'anniversaire",
+    it: 'Candeline',
+  }[lang];
+  return {
+    list: 'mine',
+    country: lang === 'en' ? 'GB' : lang === 'de' ? 'DE' : lang === 'fr' ? 'FR' : 'IT',
+    recipes: [],
+    items: [
+      {
+        key: 'birthday candles',
+        name,
+        aisle: 'household',
+        status: 'open',
+        need: null,
+        buy: { count: 1, size: null, unit: 'pack' },
+        adjusted: false,
+        sources: [],
+        swappedFrom: [],
+        alwaysHome: false,
+        addedBy: [],
+        ticked: null,
+      },
+    ],
+  };
+}
+
+/** The family list to look at: one recipe, a few items from different people, salt at home. */
 function seedShopping(lang: Language): ShoppingListResponse {
   const names = {
     en: ['Apple crumble', 'Apples', 'Butter', 'Oats', 'Salt', 'Milk'],
@@ -238,9 +279,12 @@ function seedShopping(lang: Language): ShoppingListResponse {
     sources: [],
     swappedFrom: [],
     alwaysHome: false,
+    addedBy: [DEMO_PEOPLE.anna as ShoppingPerson],
+    ticked: null,
     ...extra,
   });
   return {
+    list: 'family',
     country: lang === 'en' ? 'GB' : lang === 'de' ? 'DE' : lang === 'fr' ? 'FR' : 'IT',
     recipes: [{ id: 'demo-recipe', title, url: null, baseServings: 4, servings: 4 }],
     items: [
@@ -261,7 +305,17 @@ function seedShopping(lang: Language): ShoppingListResponse {
           sources: from('125 g butter'),
         },
       ),
-      item('milk', milk, 'dairy', { count: 1, size: 1, unit: 'l' }),
+      item(
+        'milk',
+        milk,
+        'dairy',
+        { count: 1, size: 1, unit: 'l' },
+        {
+          status: 'bought',
+          addedBy: [DEMO_PEOPLE.mila as ShoppingPerson],
+          ticked: { ...(DEMO_PEOPLE.ben as ShoppingPerson), at: Date.now() - 3_600_000 },
+        },
+      ),
       item(
         'oats',
         oats,
@@ -393,6 +447,9 @@ const WORDS = new Set([
   'web-search',
   'week',
   'shopping',
+  'family',
+  'mine',
+  'move',
   'items',
   'recipes',
   'batches',
@@ -643,6 +700,127 @@ export function createDemoServer(lang: Language, options: DemoServerOptions): De
 
   // -------------------------------------------------------------------------
 
+  /** The shopping lists: /shopping/:list/…, /shopping/batches/:id. */
+  function shoppingRoute(method: string, seg: string[], body: unknown): Response {
+    if (seg[0] === 'batches') {
+      if (method === 'DELETE') return empty();
+      if (method === 'POST' && seg[2] === 'move')
+        return parse(MoveShoppingRequest, body) ? empty() : badRequest();
+      return notFound();
+    }
+    const name = seg[0] === 'family' || seg[0] === 'mine' ? seg[0] : null;
+    if (!name) return badRequest();
+    const list = state.shopping[name];
+    const other = state.shopping[name === 'family' ? 'mine' : 'family'];
+    const [, what, key, action] = seg;
+    const route = `${method} ${what ?? ''}${key ? '/:id' : ''}${action ? `/${action}` : ''}`;
+    switch (route) {
+      case 'GET ':
+        return json(list);
+      case 'POST items': {
+        const r = parse(AddShoppingItemRequest, body);
+        if (!r) return badRequest();
+        const k = r.text.toLowerCase();
+        if (!list.items.some((i) => i.key === k)) {
+          list.items.push({
+            key: k,
+            name: r.text,
+            aisle: 'other',
+            status: 'open',
+            need: null,
+            buy: null,
+            adjusted: false,
+            sources: [],
+            swappedFrom: [],
+            alwaysHome: false,
+            addedBy: name === 'family' ? [DEMO_PEOPLE.anna as ShoppingPerson] : [],
+            ticked: null,
+          });
+        }
+        return json(
+          { batchId: newId('b'), list: name, recipe: null, count: 1, adapted: [], atHome: [] },
+          201,
+        );
+      }
+      case 'PATCH items/:id': {
+        const r = parse(UpdateShoppingItemRequest, body);
+        const item = list.items.find((i) => i.key === key);
+        if (!item) return notFound();
+        if (!r) return badRequest();
+        if (r.alwaysHome !== undefined) {
+          item.alwaysHome = r.alwaysHome;
+          item.status = r.alwaysHome ? 'home' : 'open';
+        }
+        if (r.status) {
+          item.status = r.status;
+          item.ticked =
+            name === 'family' && r.status === 'bought'
+              ? { ...(DEMO_PEOPLE.anna as ShoppingPerson), at: Date.now() }
+              : null;
+        }
+        if (r.count !== undefined && item.buy) {
+          item.buy = { ...item.buy, count: r.count ?? 1 };
+          item.adjusted = r.count !== null;
+        }
+        return empty();
+      }
+      case 'DELETE items/:id':
+        list.items = list.items.filter((i) => i.key !== key);
+        return empty();
+      case 'POST items/:id/move':
+      case 'POST move': {
+        const r = parse(MoveShoppingRequest, body);
+        if (!r || r.to === name) return badRequest();
+        const moving = list.items.filter((i) => what === 'move' || i.key === key);
+        if (moving.length === 0) return notFound();
+        const recipes = list.recipes.filter((x) =>
+          moving.some((i) => i.sources.some((src) => src.recipeId === x.id)),
+        );
+        list.items = list.items.filter((i) => !moving.includes(i));
+        list.recipes = list.recipes.filter((x) => !recipes.includes(x));
+        for (const i of moving) {
+          other.items = other.items.filter((o) => o.key !== i.key);
+          other.items.push({
+            ...i,
+            addedBy: r.to === 'family' ? [DEMO_PEOPLE.anna as ShoppingPerson] : [],
+            ticked: null,
+          });
+        }
+        other.recipes.push(...recipes.filter((x) => !other.recipes.some((o) => o.id === x.id)));
+        return empty();
+      }
+      case 'PATCH recipes/:id': {
+        const r = parse(UpdateShoppingRecipeRequest, body);
+        const recipe = list.recipes.find((x) => x.id === key);
+        if (!recipe) return notFound();
+        if (!r) return badRequest();
+        recipe.servings = r.servings;
+        return empty();
+      }
+      case 'DELETE recipes/:id':
+        list.recipes = list.recipes.filter((x) => x.id !== key);
+        list.items = list.items.filter((i) => !i.sources.some((src) => src.recipeId === key));
+        return empty();
+      case 'POST clear': {
+        const r = parse(ClearShoppingRequest, body);
+        if (!r) return badRequest();
+        list.items = r.what === 'all' ? [] : list.items.filter((i) => i.status !== 'bought');
+        if (r.what === 'all') list.recipes = [];
+        return empty();
+      }
+      case 'GET settings':
+        return json({ country: list.country });
+      case 'PUT settings': {
+        const r = parse(ShoppingSettings, body);
+        if (!r) return badRequest();
+        list.country = r.country;
+        return json(r);
+      }
+      default:
+        return notFound();
+    }
+  }
+
   function handle(method: string, url: URL, body: unknown, signal: AbortSignal | null): Response {
     const path = url.pathname.replace(/^\/api/, '');
     const seg = path.split('/').filter(Boolean).map(decodeURIComponent);
@@ -650,6 +828,7 @@ export function createDemoServer(lang: Language, options: DemoServerOptions): De
     const route = `${method} /${seg.map((s, i) => (i > 0 && !WORDS.has(s) ? ':id' : s)).join('/')}`;
     const id = seg[1] ?? '';
     const now = Date.now();
+    if (seg[0] === 'shopping') return shoppingRoute(method, seg.slice(1), body);
 
     switch (route) {
       // --- account
@@ -823,82 +1002,6 @@ export function createDemoServer(lang: Language, options: DemoServerOptions): De
           instructions: r.description.slice(0, 1000),
           examples: [],
         } satisfies AgentDraft);
-      }
-
-      // --- shopping list
-      case 'GET /shopping':
-        return json(state.shopping);
-      case 'POST /shopping/items': {
-        const r = parse(AddShoppingItemRequest, body);
-        if (!r) return badRequest();
-        const key = r.text.toLowerCase();
-        const batchId = newId('b');
-        if (!state.shopping.items.some((i) => i.key === key)) {
-          state.shopping.items.push({
-            key,
-            name: r.text,
-            aisle: 'other',
-            status: 'open',
-            need: null,
-            buy: null,
-            adjusted: false,
-            sources: [],
-            swappedFrom: [],
-            alwaysHome: false,
-          });
-        }
-        return json({ batchId, recipe: null, count: 1, adapted: [], atHome: [] }, 201);
-      }
-      case 'PATCH /shopping/items/:id': {
-        const r = parse(UpdateShoppingItemRequest, body);
-        const item = state.shopping.items.find((i) => i.key === seg[2]);
-        if (!item) return notFound();
-        if (!r) return badRequest();
-        if (r.alwaysHome !== undefined) {
-          item.alwaysHome = r.alwaysHome;
-          item.status = r.alwaysHome ? 'home' : 'open';
-        }
-        if (r.status) item.status = r.status;
-        if (r.count !== undefined && item.buy) {
-          item.buy = { ...item.buy, count: r.count ?? 1 };
-          item.adjusted = r.count !== null;
-        }
-        return empty();
-      }
-      case 'DELETE /shopping/items/:id':
-        state.shopping.items = state.shopping.items.filter((i) => i.key !== seg[2]);
-        return empty();
-      case 'PATCH /shopping/recipes/:id': {
-        const r = parse(UpdateShoppingRecipeRequest, body);
-        const recipe = state.shopping.recipes.find((x) => x.id === seg[2]);
-        if (!recipe) return notFound();
-        if (!r) return badRequest();
-        recipe.servings = r.servings;
-        return empty();
-      }
-      case 'DELETE /shopping/recipes/:id':
-        state.shopping.recipes = state.shopping.recipes.filter((x) => x.id !== seg[2]);
-        state.shopping.items = state.shopping.items.filter(
-          (i) => !i.sources.some((src) => src.recipeId === seg[2]),
-        );
-        return empty();
-      case 'DELETE /shopping/batches/:id':
-        return empty();
-      case 'POST /shopping/clear': {
-        const r = parse(ClearShoppingRequest, body);
-        if (!r) return badRequest();
-        state.shopping.items =
-          r.what === 'all' ? [] : state.shopping.items.filter((i) => i.status !== 'bought');
-        if (r.what === 'all') state.shopping.recipes = [];
-        return empty();
-      }
-      case 'GET /shopping/settings':
-        return json({ country: state.shopping.country });
-      case 'PUT /shopping/settings': {
-        const r = parse(ShoppingSettings, body);
-        if (!r) return badRequest();
-        state.shopping.country = r.country;
-        return json(r);
       }
 
       // --- planner

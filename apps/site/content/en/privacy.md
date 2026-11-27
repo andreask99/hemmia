@@ -11,7 +11,7 @@ This page says in plain words what happens to your data. The technical details a
 
 ## What stays on your devices
 
-- **At home:** your chats, photos and documents are stored on your hub. Each person's content is encrypted with a key that comes from their own passphrase, so other family members, and the hub's admin account, can't read it. If you forget your passphrase, your recovery code gets you back in.
+- **At home:** your chats, photos and documents are stored on your hub. Each person's content is encrypted with a key that comes from their own passphrase, so other family members, and the hub's admin account, can't read it. If you forget your passphrase, your recovery code gets you back in. The family shopping list is the exception: everyone in the family shares it, so it is encrypted with a family key kept on the hub. Someone with the hub's computer or its backups could read it; your own list stays as private as your chats.
 - **On your phone:** your chats and photos are stored in the app, encrypted with a key that only the phone's secure storage holds.
 - There is no Hemmia account and no server of ours that keeps your chats.
 

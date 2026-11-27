@@ -570,4 +570,24 @@ CREATE TABLE shopping_settings (
 ALTER TABLE messages ADD COLUMN shopping BLOB;
 `,
   },
+  {
+    id: 26,
+    name: 'family shopping list',
+    // The family shopping list (P12.6, DECISIONS.md 2026-11-27): one list every account on the
+    // hub shares, encrypted with the family key (a file in the data folder,
+    // security/household.ts; AAD user component "household"). Settings: the family's country
+    // and pantry choices, encrypted likewise. One row each (id 'family').
+    sql: `
+CREATE TABLE household_shopping (
+  id                    TEXT PRIMARY KEY CHECK (id = 'family'),
+  data                  BLOB NOT NULL,
+  updated_at            INTEGER NOT NULL
+) STRICT;
+CREATE TABLE household_shopping_settings (
+  id                    TEXT PRIMARY KEY CHECK (id = 'family'),
+  data                  BLOB NOT NULL,
+  updated_at            INTEGER NOT NULL
+) STRICT;
+`,
+  },
 ];

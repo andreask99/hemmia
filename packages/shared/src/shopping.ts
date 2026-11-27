@@ -3,12 +3,18 @@ import { Id } from './chat.ts';
 
 /**
  * The shopping list (P12): ingredients from recipes (chat, links, pasted text) and items added
- * by hand, converted to the units, pack sizes and products of the user's country. One list
- * per person for now (encrypted with the user's data key); a household list is planned.
+ * by hand, converted to the units, pack sizes and products of the user's country. Each person
+ * has their own list (encrypted with their data key) and the family shares one (P12.6,
+ * encrypted with the family key); items and whole lists can move between them.
  *
  * The model only reads recipes (names, amounts as written, aisle, local product); the server
  * does all arithmetic: units, scaling to the servings wanted, merging and pack sizes.
  */
+
+/** Which list: the family's (shared by every account on the hub) or the person's own. */
+export const SHOPPING_LISTS = ['family', 'mine'] as const;
+export const ShoppingListName = z.enum(SHOPPING_LISTS);
+export type ShoppingListName = z.infer<typeof ShoppingListName>;
 
 export const COUNTRIES = ['DE', 'AT', 'CH', 'FR', 'IT', 'GB', 'US'] as const;
 export const Country = z.enum(COUNTRIES);
@@ -73,6 +79,10 @@ export const ItemSource = z.object({
 });
 export type ItemSource = z.infer<typeof ItemSource>;
 
+/** A family member, as shown on the family list; `name` is null for a deleted account. */
+export const ShoppingPerson = z.object({ userId: z.string(), name: z.string().nullable() });
+export type ShoppingPerson = z.infer<typeof ShoppingPerson>;
+
 /** One item on the list as shown: lines with the same ingredient merged. */
 export const ShoppingItem = z.object({
   /** Merge key (the ingredient's generic English name); identifies the item in requests. */
@@ -88,8 +98,12 @@ export const ShoppingItem = z.object({
   sources: z.array(ItemSource),
   /** Original products this one stands in for ("heavy cream"), when swapped for the country. */
   swappedFrom: z.array(z.string()),
-  /** On the user's "always at home" list. */
+  /** On the "always at home" list (the person's own, or the family's on the family list). */
   alwaysHome: z.boolean(),
+  /** Family list: who put it on the list (each person once, in order). Empty on your own. */
+  addedBy: z.array(ShoppingPerson).default([]),
+  /** Family list: who ticked it off, while it is bought. */
+  ticked: ShoppingPerson.extend({ at: z.number().int() }).nullable().default(null),
 });
 export type ShoppingItem = z.infer<typeof ShoppingItem>;
 
@@ -103,19 +117,20 @@ export const ShoppingRecipe = z.object({
 });
 export type ShoppingRecipe = z.infer<typeof ShoppingRecipe>;
 
-/** GET /api/shopping. */
+/** GET /api/shopping/:list. */
 export const ShoppingListResponse = z.object({
+  list: ShoppingListName.default('mine'),
   country: Country,
   recipes: z.array(ShoppingRecipe),
   items: z.array(ShoppingItem),
 });
 export type ShoppingListResponse = z.infer<typeof ShoppingListResponse>;
 
-/** POST /api/shopping/items: "milk", "2 l milk", "500 g Hackfleisch". */
+/** POST /api/shopping/:list/items: "milk", "2 l milk", "500 g Hackfleisch". */
 export const AddShoppingItemRequest = z.object({ text: z.string().trim().min(1).max(120) });
 export type AddShoppingItemRequest = z.infer<typeof AddShoppingItemRequest>;
 
-/** PATCH /api/shopping/items/:key. `count` sets the number of packs or pieces by hand. */
+/** PATCH /api/shopping/:list/items/:key. `count` sets the number of packs or pieces by hand. */
 export const UpdateShoppingItemRequest = z.object({
   status: ItemStatus.optional(),
   count: z.number().int().min(1).max(99).nullable().optional(),
@@ -123,15 +138,23 @@ export const UpdateShoppingItemRequest = z.object({
 });
 export type UpdateShoppingItemRequest = z.infer<typeof UpdateShoppingItemRequest>;
 
-/** PATCH /api/shopping/recipes/:id. */
+/** PATCH /api/shopping/:list/recipes/:id. */
 export const UpdateShoppingRecipeRequest = z.object({ servings: z.number().int().min(1).max(50) });
 export type UpdateShoppingRecipeRequest = z.infer<typeof UpdateShoppingRecipeRequest>;
 
-/** POST /api/shopping/clear: bought items, or the whole list. */
+/** POST /api/shopping/:list/clear: bought items, or the whole list. */
 export const ClearShoppingRequest = z.object({ what: z.enum(['bought', 'all']) });
 export type ClearShoppingRequest = z.infer<typeof ClearShoppingRequest>;
 
-/** GET/PUT /api/shopping/settings. */
+/**
+ * Moves to the other list: POST /api/shopping/:list/items/:key/move (one item),
+ * /api/shopping/:list/move (everything) and /api/shopping/batches/:batchId/move (what the model
+ * added in one reply).
+ */
+export const MoveShoppingRequest = z.object({ to: ShoppingListName });
+export type MoveShoppingRequest = z.infer<typeof MoveShoppingRequest>;
+
+/** GET/PUT /api/shopping/:list/settings. */
 export const ShoppingSettings = z.object({ country: Country });
 export type ShoppingSettings = z.infer<typeof ShoppingSettings>;
 

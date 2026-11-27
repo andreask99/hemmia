@@ -257,6 +257,8 @@ export type NotedRef = z.infer<typeof NotedRef>;
  */
 export const ShoppingAddedRef = z.object({
   batchId: Id,
+  /** The list it went on (refs stored before the family list are the person's own). */
+  list: z.enum(['family', 'mine']).default('mine'),
   recipe: z.string().nullable(),
   count: z.number().int(),
   adapted: z.array(z.object({ from: z.string(), to: z.string() })).max(20),

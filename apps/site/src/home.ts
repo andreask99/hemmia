@@ -91,6 +91,11 @@ export const HOME: Record<Lang, HomeText> = {
           text: 'Take a photo of what’s there and get three ideas.',
         },
         {
+          pose: 'house',
+          title: 'Recipe to shopping list',
+          text: 'Any recipe, from any country, on one list the whole family shares: amounts in your units, the usual packs, and what you have at home already ticked off. With Hemmia at home.',
+        },
+        {
           pose: 'glass',
           title: 'Letters, explained',
           text: 'Add a PDF from the tax office or the school and get it in plain words.',
@@ -325,6 +330,11 @@ export const HOME: Record<Lang, HomeText> = {
           pose: 'pot',
           title: 'Abendessen aus dem Kühlschrank',
           text: 'Fotografier, was da ist, und du bekommst drei Ideen.',
+        },
+        {
+          pose: 'house',
+          title: 'Vom Rezept zur Einkaufsliste',
+          text: 'Jedes Rezept, aus jedem Land, auf einer Liste für die ganze Familie: Mengen in deinen Einheiten, die üblichen Packungen, und was du zu Hause hast, ist schon abgehakt. Mit Hemmia zu Hause.',
         },
         {
           pose: 'glass',
@@ -564,6 +574,11 @@ export const HOME: Record<Lang, HomeText> = {
           pose: 'pot',
           title: 'Le dîner avec ce qu’il y a dans le frigo',
           text: 'Prends une photo de ce qu’il y a et reçois trois idées.',
+        },
+        {
+          pose: 'house',
+          title: 'De la recette à la liste de courses',
+          text: 'N’importe quelle recette, de n’importe quel pays, sur une liste que toute la famille partage : les quantités dans tes unités, les emballages habituels, et ce que tu as déjà est coché. Avec Hemmia à la maison.',
         },
         {
           pose: 'glass',
@@ -807,6 +822,11 @@ export const HOME: Record<Lang, HomeText> = {
           pose: 'pot',
           title: 'La cena con quello che c’è in frigo',
           text: 'Fai una foto di quello che c’è e ricevi tre idee.',
+        },
+        {
+          pose: 'house',
+          title: 'Dalla ricetta alla lista della spesa',
+          text: 'Qualsiasi ricetta, da qualsiasi paese, in una lista che tutta la famiglia condivide: quantità nelle tue unità, le confezioni solite, e ciò che hai già in casa è spuntato. Con Hemmia a casa.',
         },
         {
           pose: 'glass',

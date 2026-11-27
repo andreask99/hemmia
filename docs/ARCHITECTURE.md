@@ -331,6 +331,10 @@ user's data key; see SECURITY.md. Tables are SQLite `STRICT`; migrations live in
 | `cloud_keys` | user_id, provider, secret (enc: the API key and its hint), created_at |
 | `cloud_usage` | user_id, month, provider, model, input_tokens, output_tokens, cost_micros (no content) |
 | `cloud_settings` | user_id, cap_cents (monthly limit; no row = $20, NULL = none) |
+| `shopping_lists` | id, user_id, data (enc: recipes, lines, item states), updated_at |
+| `shopping_settings` | user_id, data (enc: country, pantry choices), updated_at |
+| `household_shopping` | id (`family`), data (enc with the family key: the family list, with who added and ticked), updated_at |
+| `household_shopping_settings` | id (`family`), data (enc with the family key: country, pantry), updated_at |
 | `audit_log` | id, user_id, event (`login`, `login_failed`, `invite_used`, `password_changed`, …), ip_hash, created_at (never content) |
 
 Deleting a chat deletes its messages and attachment blobs (hard delete, not a flag, for

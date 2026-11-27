@@ -8,7 +8,7 @@ date: 2026-11-21
 
 # Datenschutzerklärung
 
-Stand: 21. November 2026 · Gilt für die Hemmia-Apps, die Hemmia-Hub-Software, wie wir sie verteilen, Hemmia Connect (unser Relay), die Update-Prüfung und diese Website (hemmia.app).
+Stand: 27. November 2026 · Gilt für die Hemmia-Apps, die Hemmia-Hub-Software, wie wir sie verteilen, Hemmia Connect (unser Relay), die Update-Prüfung und diese Website (hemmia.app).
 
 <!-- note -->
 **Das Wichtigste in Kürze**
@@ -60,7 +60,7 @@ Hemmia wird von einer Person gemacht; es gibt deshalb keinen separaten Datenschu
 
 Hemmia besteht aus drei Teilen, und die Verantwortung richtet sich danach, wer sie betreibt:
 
-- **Der Hemmia-Hub** ist Software, die du auf deinem eigenen Computer installierst (einem Mac oder einem Computer mit Docker). Er speichert die Konten, Chats, Fotos, Dokumente und Einstellungen deiner Familie auf diesem Computer, pro Person verschlüsselt. **Wir betreiben deinen Hub nicht und haben keinen Zugriff darauf.** Wer einen Hub betreibt (der „Admin“), ist für die Personendaten der Menschen verantwortlich, die ihn nutzen, zum Beispiel der eingeladenen Familienmitglieder. Nutzt der Hub ein Cloud-KI-Modell, sucht oder öffnet er Webseiten, lädt er ein Modell herunter oder schickt er eine Mitteilung an einen Browser, tut er das von diesem Computer aus, im Auftrag des Admins und nach dessen Einstellungen. Diese Erklärung beschreibt die Software, damit du weisst, was sie tut; sie ist kein Versprechen darüber, wie ein bestimmter Admin seinen Hub betreibt.
+- **Der Hemmia-Hub** ist Software, die du auf deinem eigenen Computer installierst (einem Mac oder einem Computer mit Docker). Er speichert die Konten, Chats, Fotos, Dokumente und Einstellungen deiner Familie auf diesem Computer, pro Person verschlüsselt (die Einkaufsliste der Familie, die alle teilen, mit einem Schlüssel, der auf diesem Computer liegt). **Wir betreiben deinen Hub nicht und haben keinen Zugriff darauf.** Wer einen Hub betreibt (der „Admin“), ist für die Personendaten der Menschen verantwortlich, die ihn nutzen, zum Beispiel der eingeladenen Familienmitglieder. Nutzt der Hub ein Cloud-KI-Modell, sucht oder öffnet er Webseiten, lädt er ein Modell herunter oder schickt er eine Mitteilung an einen Browser, tut er das von diesem Computer aus, im Auftrag des Admins und nach dessen Einstellungen. Diese Erklärung beschreibt die Software, damit du weisst, was sie tut; sie ist kein Versprechen darüber, wie ein bestimmter Admin seinen Hub betreibt.
 - **Die Hemmia-App** läuft auf deinem Telefon. Sie verbindet sich entweder mit einem Hub (Abschnitt 3.1) oder arbeitet allein mit einem KI-Anbieter deiner Wahl (Abschnitt 3.2).
 - **Unsere Dienste**: Hemmia Connect (Abschnitt 4), Mitteilungen über das Relay (Abschnitt 5), die Update-Prüfung (Abschnitt 6) und diese Website (Abschnitt 16). Dafür sind wir verantwortlich.
 

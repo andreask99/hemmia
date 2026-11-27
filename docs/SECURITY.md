@@ -10,7 +10,9 @@ file is Claude's responsibility and is never delegated to the local model. Code:
 2. Each person can only see their own chats and photos (app layer).
 3. Stored chats and photos can only be decrypted with that person's password (or their
    recovery code, or an active session on their own device). Not by other family members,
-   not by the admin, not from a stolen disk or backup.
+   not by the admin, not from a stolen disk or backup. **One exception, accepted by the
+   owner (2026-11-27):** the family shopping list is shared by everyone and encrypted with a
+   family key kept on the Mac (see "Shopping lists").
 4. Nothing leaves the house unless the user chooses it: no third-party scripts, fonts or
    analytics, and no cloud AI except a cloud model the user picked for that chat with their
    own API key (2026-10-14, see "Cloud models" below). Web search sends search terms out.
@@ -27,6 +29,7 @@ file is Claude's responsibility and is never delegated to the local model. Code:
 | Malicious content in model output | Markdown rendered without raw HTML; strict CSP; links open with `rel="noopener noreferrer"`. |
 | Malicious uploads | Size limit, type check by magic bytes, decode + re-encode with sharp, dimension limit; never served with a sniffable type. |
 | Password guessing | Argon2id, rate limits per IP and per username, backoff, audit log. |
+| Someone with the Mac's disk or a backup reading the family shopping list | Accepted by the owner (2026-11-27): the family key is a file on the Mac. A copy of the database alone can't be read. Personal data is unaffected. |
 | CSRF / clickjacking | SameSite=Strict cookies, Origin check on state-changing requests, `frame-ancestors 'none'`. |
 | Chat content at a cloud provider | Only chats whose model the user picked from the "Cloud" group (☁) go there; the engine is fixed per model, no fallback between local and cloud; switching a chat with history asks first. Provider retention per their API terms (accepted by the owner). |
 | A user's cloud API key leaking | Encrypted with the user's data key (admin can't read or use it), never returned or logged, sent only to its provider's fixed origin. Users also set a limit in the provider's console. |
@@ -484,6 +487,35 @@ restarted with backoff. A SearXNG that already answers is used as it is.
   money, passwords/codes and other people's private matters unless the user asks, and every
   saved note is shown under the reply with an undo. At most 3 notes per reply, 60 in all.
 - Notes are never logged.
+
+## Shopping lists
+
+- **Own list:** recipes, lines and item states are one JSON value encrypted with the user's
+  data key (`shopping_lists.data`, AAD bound to user and row); settings (country, pantry
+  choices) likewise. Every query is scoped by user id.
+- **Family list (P12.6, owner decision 2026-11-27):** shared by every active account on the
+  hub, admins, members and teens alike; a disabled or deleted account loses access with its
+  sessions. Stored in `household_shopping` / `household_shopping_settings` (one row each),
+  encrypted with the **family key**: 32 random bytes in `<dataDir>/household/shopping.key`
+  (0600, directory 0700), created on first use, never logged or sent
+  (`security/household.ts`). AAD user component `household` (user ids are UUIDs, so no
+  clash). This protects a database copied on its own; it does **not** protect against the
+  whole disk, a Time Machine backup, or Terminal access as the admin. Per-member wrapping
+  (X25519) was offered and declined: a new member would have waited for someone with access
+  to open the app. If the key file is lost the list reads as empty (a warning without
+  content is logged) and the next change starts a new one.
+- **Attribution:** lines store who added them and item states who last changed them (user
+  ids, inside the encryption); names are looked up when the family list is read, so a deleted
+  account shows no name. Usernames of people on the list are visible to the family.
+- **Chat batches:** the Undo and "move to the other list" of a reply only touch the caller's
+  own lines on the family list; a batch id is only known to the person whose message holds
+  it, and is a random UUID.
+- **Moves** between the lists are one database transaction (no item on both or neither).
+  Anyone can move or remove any family item, and clear the family list (owner).
+- **Model tools:** `add_to_shopping_list` takes `list` (default `family`); a planted
+  instruction in a web page can at worst add up to 60 lines per call to the family list,
+  shown with Undo. `show_shopping_list` returns both lists, so the family list reaches a
+  cloud provider when someone using a cloud model asks about it (privacy page).
 
 ## Logging and privacy
 

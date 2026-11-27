@@ -1,60 +1,76 @@
-/** The shopping list (P12). Changes show at once (optimistic) and reload from the server. */
+/**
+ * The shopping lists (P12, P12.6): the family's and the user's own. Changes show at once
+ * (optimistic) and reload from the server; the family list also reloads every 10 seconds while
+ * it is on screen, so what others add shows up.
+ */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   type Country,
   ShoppingAddedRef,
+  type ShoppingListName,
   ShoppingListResponse,
   ShoppingSettings,
   type UpdateShoppingItemRequest,
 } from '@hemmia/shared';
 import { api } from '../api/client.ts';
 
+/** Prefix of both lists' query keys. */
 export const SHOPPING_KEY = ['shopping'] as const;
+const keyOf = (list: ShoppingListName) => ['shopping', list] as const;
 
-export function useShopping() {
+/** How often the family list reloads while on screen. */
+export const FAMILY_REFRESH_MS = 10_000;
+
+export function useShopping(list: ShoppingListName) {
   return useQuery({
-    queryKey: SHOPPING_KEY,
-    queryFn: () => api('/shopping', { schema: ShoppingListResponse }),
+    queryKey: keyOf(list),
+    queryFn: () => api(`/shopping/${list}`, { schema: ShoppingListResponse }),
+    refetchInterval: list === 'family' ? FAMILY_REFRESH_MS : false,
+    refetchIntervalInBackground: false,
   });
 }
 
-/** A change that is shown at once and undone if the server refuses it. */
+/** A change to one list that is shown at once and undone if the server refuses it. */
 function useListChange<V>(
+  list: ShoppingListName,
   call: (v: V) => Promise<unknown>,
-  apply?: (list: ShoppingListResponse, v: V) => ShoppingListResponse,
+  apply?: (data: ShoppingListResponse, v: V) => ShoppingListResponse,
 ) {
   const queryClient = useQueryClient();
+  const key = keyOf(list);
   return useMutation({
     mutationFn: call,
     onMutate: async (v: V) => {
       if (!apply) return { before: undefined };
-      await queryClient.cancelQueries({ queryKey: SHOPPING_KEY });
-      const before = queryClient.getQueryData<ShoppingListResponse>(SHOPPING_KEY);
-      if (before) queryClient.setQueryData(SHOPPING_KEY, apply(before, v));
+      await queryClient.cancelQueries({ queryKey: key });
+      const before = queryClient.getQueryData<ShoppingListResponse>(key);
+      if (before) queryClient.setQueryData(key, apply(before, v));
       return { before };
     },
     onError: (_err, _v, ctx) => {
-      if (ctx?.before) queryClient.setQueryData(SHOPPING_KEY, ctx.before);
+      if (ctx?.before) queryClient.setQueryData(key, ctx.before);
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: SHOPPING_KEY }),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: key }),
   });
 }
 
-const path = (key: string) => `/shopping/items/${encodeURIComponent(key)}`;
+const itemPath = (list: ShoppingListName, key: string) =>
+  `/shopping/${list}/items/${encodeURIComponent(key)}`;
 
-export function useAddShoppingItem() {
-  return useListChange((text: string) =>
-    api('/shopping/items', { method: 'POST', body: { text }, schema: ShoppingAddedRef }),
+export function useAddShoppingItem(list: ShoppingListName) {
+  return useListChange(list, (text: string) =>
+    api(`/shopping/${list}/items`, { method: 'POST', body: { text }, schema: ShoppingAddedRef }),
   );
 }
 
-export function useUpdateShoppingItem() {
+export function useUpdateShoppingItem(list: ShoppingListName) {
   return useListChange(
+    list,
     ({ key, ...body }: UpdateShoppingItemRequest & { key: string }) =>
-      api(path(key), { method: 'PATCH', body }),
-    (list, { key, status, alwaysHome }) => ({
-      ...list,
-      items: list.items.map((i) =>
+      api(itemPath(list, key), { method: 'PATCH', body }),
+    (data, { key, status, alwaysHome }) => ({
+      ...data,
+      items: data.items.map((i) =>
         i.key !== key
           ? i
           : {
@@ -69,47 +85,86 @@ export function useUpdateShoppingItem() {
   );
 }
 
-export function useRemoveShoppingItem() {
+export function useRemoveShoppingItem(list: ShoppingListName) {
   return useListChange(
-    (key: string) => api(path(key), { method: 'DELETE' }),
-    (list, key) => ({ ...list, items: list.items.filter((i) => i.key !== key) }),
+    list,
+    (key: string) => api(itemPath(list, key), { method: 'DELETE' }),
+    (data, key) => ({ ...data, items: data.items.filter((i) => i.key !== key) }),
   );
 }
 
-export function useSetServings() {
-  return useListChange(({ id, servings }: { id: string; servings: number }) =>
-    api(`/shopping/recipes/${encodeURIComponent(id)}`, { method: 'PATCH', body: { servings } }),
+export function useSetServings(list: ShoppingListName) {
+  return useListChange(list, ({ id, servings }: { id: string; servings: number }) =>
+    api(`/shopping/${list}/recipes/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      body: { servings },
+    }),
   );
 }
 
-export function useRemoveRecipe() {
-  return useListChange((id: string) =>
-    api(`/shopping/recipes/${encodeURIComponent(id)}`, { method: 'DELETE' }),
+export function useRemoveRecipe(list: ShoppingListName) {
+  return useListChange(list, (id: string) =>
+    api(`/shopping/${list}/recipes/${encodeURIComponent(id)}`, { method: 'DELETE' }),
   );
 }
 
-export function useClearShopping() {
+export function useClearShopping(list: ShoppingListName) {
   return useListChange(
-    (what: 'bought' | 'all') => api('/shopping/clear', { method: 'POST', body: { what } }),
-    (list, what) =>
+    list,
+    (what: 'bought' | 'all') => api(`/shopping/${list}/clear`, { method: 'POST', body: { what } }),
+    (data, what) =>
       what === 'all'
-        ? { ...list, items: [], recipes: [] }
-        : { ...list, items: list.items.filter((i) => i.status !== 'bought') },
+        ? { ...data, items: [], recipes: [] }
+        : { ...data, items: data.items.filter((i) => i.status !== 'bought') },
   );
 }
 
-/** The chat's Undo for what the model put on the list. */
+/** A change that touches both lists (moves, the chat's Undo): reloads both afterwards. */
+function useBothLists<V>(call: (v: V) => Promise<unknown>) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: call,
+    onSettled: () => queryClient.invalidateQueries({ queryKey: SHOPPING_KEY }),
+  });
+}
+
+/** Moves one item, or (without `key`) the whole list, to the other list. */
+export function useMoveShopping(list: ShoppingListName) {
+  const to: ShoppingListName = list === 'family' ? 'mine' : 'family';
+  return useBothLists((key: string | null) =>
+    api(key === null ? `/shopping/${list}/move` : `${itemPath(list, key)}/move`, {
+      method: 'POST',
+      body: { to },
+    }),
+  );
+}
+
+/** The chat's Undo for what the model put on a list. */
 export function useUndoShopping() {
-  return useListChange((batchId: string) =>
+  return useBothLists((batchId: string) =>
     api(`/shopping/batches/${encodeURIComponent(batchId)}`, { method: 'DELETE' }),
   );
 }
 
-export function useSetCountry() {
+/** The chat's "Move to my list" / "Move to family list" for what the model added. */
+export function useMoveShoppingBatch() {
+  return useBothLists(({ batchId, to }: { batchId: string; to: ShoppingListName }) =>
+    api(`/shopping/batches/${encodeURIComponent(batchId)}/move`, {
+      method: 'POST',
+      body: { to },
+    }),
+  );
+}
+
+export function useSetCountry(list: ShoppingListName) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (country: Country) =>
-      api('/shopping/settings', { method: 'PUT', body: { country }, schema: ShoppingSettings }),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: SHOPPING_KEY }),
+      api(`/shopping/${list}/settings`, {
+        method: 'PUT',
+        body: { country },
+        schema: ShoppingSettings,
+      }),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: keyOf(list) }),
   });
 }

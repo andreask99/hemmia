@@ -8,7 +8,7 @@ date: 2026-11-21
 
 # Privacy Policy
 
-Last updated: 21 November 2026 · Applies to the Hemmia apps, the Hemmia hub software as we distribute it, Hemmia Connect (our relay), the update check and this website (hemmia.app).
+Last updated: 27 November 2026 · Applies to the Hemmia apps, the Hemmia hub software as we distribute it, Hemmia Connect (our relay), the update check and this website (hemmia.app).
 
 <!-- note -->
 **The short version**
@@ -60,7 +60,7 @@ Hemmia is made by one person, so there is no separate data protection officer. W
 
 Hemmia has three parts, and responsibility follows who runs them:
 
-- **The Hemmia hub** is software you install on your own computer (a Mac, or any computer with Docker). It stores your family's accounts, chats, photos, documents and settings on that computer, encrypted per person. **We don't run your hub and have no access to it.** The person who runs a hub (the "admin") is responsible for the personal data of the people who use it, for example the family members they invite. When the hub uses a cloud AI model, searches the web, opens a web page, downloads a model or sends a notification to a browser, it does so from that computer, on the admin's behalf, under the settings they choose. This policy describes the software so you know what it does; it is not a promise about how a particular admin runs their hub.
+- **The Hemmia hub** is software you install on your own computer (a Mac, or any computer with Docker). It stores your family's accounts, chats, photos, documents and settings on that computer, encrypted per person (the family shopping list, which everyone shares, with a key kept on that computer). **We don't run your hub and have no access to it.** The person who runs a hub (the "admin") is responsible for the personal data of the people who use it, for example the family members they invite. When the hub uses a cloud AI model, searches the web, opens a web page, downloads a model or sends a notification to a browser, it does so from that computer, on the admin's behalf, under the settings they choose. This policy describes the software so you know what it does; it is not a promise about how a particular admin runs their hub.
 - **The Hemmia app** runs on your phone. It either connects to a hub (section 3.1) or works on its own with an AI provider you choose (section 3.2).
 - **Our services**: Hemmia Connect (section 4), notifications through the relay (section 5), the update check (section 6) and this website (section 16). For these, we are the controller.
 

@@ -24,6 +24,7 @@ Schritt für Schritt, in einfachen Worten.
 - pot | [Mit Docker einrichten](/de/guides/docker/) | Linux, Windows oder ein NAS: Ein Befehl startet Hemmia mit lokalen Modellen und Websuche.
 - book | [KI-Modelle auswählen](/de/guides/models/) | Lokale Modelle auf deinem Hub, LM Studio und Cloud-Modelle mit deinem eigenen Schlüssel.
 - wave | [Familie einladen](/de/guides/family/) | Konten für alle, eingeschränkte Konten für Teenager, Geräte.
+- pot | [Einkaufsliste](/de/guides/shopping/) | Rezepte aus jedem Land werden zur Liste für deine Läden, was du zu Hause hast, steht separat.
 - key | [Telefon verbinden](/de/guides/phone-to-hub/) | Die App per QR-Code koppeln, weitere Geräte anmelden, zwischen Hubs wechseln.
 - glass | [Unterwegs](/de/guides/remote/) | Deinen Hub mit Hemmia Connect oder Tailscale erreichen, und was das Relay nicht sieht.
 <!-- /cards -->

@@ -11,7 +11,7 @@ Cette page dit en mots simples ce qui arrive à tes données. Les détails techn
 
 ## Ce qui reste sur tes appareils
 
-- **À la maison :** tes discussions, photos et documents sont stockés sur ton hub. Le contenu de chacun est chiffré avec une clé issue de sa propre phrase de passe, donc les autres membres de la famille, et le compte admin du hub, ne peuvent pas le lire. Si tu oublies ta phrase de passe, ton code de récupération te permet de revenir.
+- **À la maison :** tes discussions, photos et documents sont stockés sur ton hub. Le contenu de chacun est chiffré avec une clé issue de sa propre phrase de passe, donc les autres membres de la famille, et le compte admin du hub, ne peuvent pas le lire. Si tu oublies ta phrase de passe, ton code de récupération te permet de revenir. La liste de courses familiale est l’exception : toute la famille la partage, donc elle est chiffrée avec une clé familiale conservée sur le hub. Quelqu’un qui a l’ordinateur du hub ou ses sauvegardes pourrait la lire ; ta liste perso reste aussi privée que tes discussions.
 - **Sur ton téléphone :** tes discussions et photos sont stockées dans l’app, chiffrées avec une clé que seul le stockage sécurisé du téléphone détient.
 - Il n’y a pas de compte Hemmia et pas de serveur à nous qui garde tes discussions.
 

@@ -1,22 +1,31 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import type { ShoppingAddedRef } from '@hemmia/shared';
+import type { ShoppingAddedRef, ShoppingListName } from '@hemmia/shared';
 import { useI18n } from '../i18n/index.tsx';
-import { useUndoShopping } from '../shopping/hooks.ts';
+import { useMoveShoppingBatch, useUndoShopping } from '../shopping/hooks.ts';
+import { rememberList } from '../shopping/lastList.ts';
 import { BasketIcon } from '@hemmia/ui';
 
-/** What the model put on the shopping list with a reply: summary, swaps, Open list and Undo. */
+/**
+ * What the model put on a shopping list with a reply: which list, swaps, Open list, Undo and a
+ * move to the other list.
+ */
 export function ShoppingAdded({ added }: { added: readonly ShoppingAddedRef[] }) {
   const { t } = useI18n();
   const navigate = useNavigate();
   const undo = useUndoShopping();
+  const move = useMoveShoppingBatch();
   const [undone, setUndone] = useState<ReadonlySet<string>>(new Set());
+  /** Where a batch is now, after a move from this card. */
+  const [moved, setMoved] = useState<ReadonlyMap<string, ShoppingListName>>(new Map());
   if (added.length === 0) return null;
 
   return (
     <ul className="flex w-full max-w-prose flex-col gap-2">
       {added.map((a) => {
         const gone = undone.has(a.batchId);
+        const where = moved.get(a.batchId) ?? a.list;
+        const other: ShoppingListName = where === 'family' ? 'mine' : 'family';
         return (
           <li
             key={a.batchId}
@@ -26,8 +35,13 @@ export function ShoppingAdded({ added }: { added: readonly ShoppingAddedRef[] })
               <BasketIcon size={17} className="shrink-0 text-forest" />
               <span className={gone ? 'text-muted line-through' : ''}>
                 {a.recipe
-                  ? t('shopping.addedRecipe', { recipe: a.recipe, n: a.count })
-                  : t('shopping.added', { n: a.count })}
+                  ? t(where === 'family' ? 'shopping.addedRecipeFamily' : 'shopping.addedRecipe', {
+                      recipe: a.recipe,
+                      n: a.count,
+                    })
+                  : t(where === 'family' ? 'shopping.addedFamily' : 'shopping.added', {
+                      n: a.count,
+                    })}
               </span>
             </p>
             {!gone && (a.adapted.length > 0 || a.atHome.length > 0) && (
@@ -51,6 +65,7 @@ export function ShoppingAdded({ added }: { added: readonly ShoppingAddedRef[] })
                   <button
                     type="button"
                     onClick={() => {
+                      rememberList(where);
                       void navigate('/shopping');
                     }}
                     className="min-h-9 rounded-lg bg-forest px-3 font-semibold text-on-forest hover:bg-forest-hover"
@@ -71,6 +86,23 @@ export function ShoppingAdded({ added }: { added: readonly ShoppingAddedRef[] })
                     className="min-h-9 rounded-lg px-2 font-semibold text-forest hover:bg-champagne"
                   >
                     {t('shopping.undo')}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={move.isPending}
+                    onClick={() => {
+                      move.mutate(
+                        { batchId: a.batchId, to: other },
+                        {
+                          onSuccess: () => {
+                            setMoved((m) => new Map([...m, [a.batchId, other]]));
+                          },
+                        },
+                      );
+                    }}
+                    className="min-h-9 rounded-lg px-2 font-semibold text-forest hover:bg-champagne"
+                  >
+                    {t(other === 'mine' ? 'shopping.moveToMine' : 'shopping.moveToFamily')}
                   </button>
                 </>
               )}

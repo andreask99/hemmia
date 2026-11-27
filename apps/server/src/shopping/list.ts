@@ -15,6 +15,8 @@ import {
   LineUnit,
   type ShoppingItem,
   type ShoppingListResponse,
+  type ShoppingListName,
+  type ShoppingPerson,
   ShoppingRecipe,
 } from '@hemmia/shared';
 import { findIngredient, type Ingredient, mergeKey, type Pack, packsFor } from './ingredients.ts';
@@ -32,6 +34,8 @@ export const StoredLine = z.object({
   unit: LineUnit,
   original: z.string().max(160),
   swappedFrom: z.string().max(80).nullable(),
+  /** Who added it (user id); lines stored before the family list (P12.6) have none. */
+  addedBy: z.string().max(64).optional(),
 });
 export type StoredLine = z.infer<typeof StoredLine>;
 
@@ -41,6 +45,9 @@ export type StoredRecipe = z.infer<typeof StoredRecipe>;
 export const ItemState = z.object({
   status: ItemStatus.optional(),
   count: z.number().int().min(1).max(99).optional(),
+  /** Who last changed the status (user id), and when. */
+  by: z.string().max(64).optional(),
+  at: z.number().int().optional(),
 });
 export type ItemState = z.infer<typeof ItemState>;
 
@@ -247,11 +254,24 @@ export function buyAmount(
 const recipeFactor = (r: StoredRecipe | undefined): number =>
   r && r.baseServings && r.servings ? r.servings / r.baseServings : 1;
 
+/**
+ * Who is who on the family list (user id → username). Null for a person's own list, which shows
+ * no names.
+ */
+export type People = ReadonlyMap<string, string> | null;
+
+const person = (people: ReadonlyMap<string, string>, userId: string): ShoppingPerson => ({
+  userId,
+  name: people.get(userId) ?? null,
+});
+
 /** The list as shown, from what is stored. */
 export function buildList(
   list: StoredList,
   pantry: Pantry,
   country: Country,
+  name: ShoppingListName = 'mine',
+  people: People = null,
 ): ShoppingListResponse {
   const recipes = new Map(list.recipes.map((r) => [r.id, r]));
   const groups = new Map<string, StoredLine[]>();
@@ -314,12 +334,22 @@ export function buildList(
         ...new Set(lines.map((l) => l.swappedFrom).filter((s): s is string => s !== null)),
       ],
       alwaysHome,
+      addedBy: people
+        ? [...new Set(lines.map((l) => l.addedBy).filter((x): x is string => x !== undefined))].map(
+            (id) => person(people, id),
+          )
+        : [],
+      ticked:
+        people && state.status === 'bought' && state.by !== undefined && state.at !== undefined
+          ? { ...person(people, state.by), at: state.at }
+          : null,
     });
   }
   items.sort(
     (a, b) => AISLES.indexOf(a.aisle) - AISLES.indexOf(b.aisle) || a.name.localeCompare(b.name),
   );
   return {
+    list: name,
     country,
     recipes: list.recipes.map((r) => ({
       id: r.id,

@@ -1,19 +1,24 @@
-import { type SubmitEvent, useState } from 'react';
+import { type SubmitEvent, useEffect, useRef, useState } from 'react';
 import {
   AISLES,
   type Aisle,
   COUNTRIES,
   type Country,
   type ShoppingItem,
+  type ShoppingListName,
+  type ShoppingListResponse,
   type ShoppingRecipe,
 } from '@hemmia/shared';
 import { ApiError } from '../api/client.ts';
+import { useMe } from '../auth/hooks.ts';
 import { PageHeader } from '../components/layout.tsx';
 import { type MessageKey, useI18n } from '../i18n/index.tsx';
 import { formatBuy, formatNeed } from '../shopping/format.ts';
+import { dismissShare, lastList, rememberList, shareDismissed } from '../shopping/lastList.ts';
 import {
   useAddShoppingItem,
   useClearShopping,
+  useMoveShopping,
   useRemoveRecipe,
   useRemoveShoppingItem,
   useSetCountry,
@@ -53,23 +58,110 @@ const COUNTRY_KEYS: Record<Country, MessageKey> = {
   US: 'shopping.country.US',
 };
 
-/** The shopping list: recipes, items by aisle, at home, bought (P12). */
+/** How long items others added keep their "just added" outline. */
+const JUST_ADDED_MS = 15_000;
+
+/**
+ * Keys of items that appeared on the list since it was last shown and weren't added by the
+ * user (someone else in the family added them); cleared after a while.
+ */
+function useJustAdded(data: ShoppingListResponse | undefined, me: string | undefined) {
+  const seen = useRef<{ list: ShoppingListName; keys: Set<string> } | null>(null);
+  const [fresh, setFresh] = useState<ReadonlySet<string>>(new Set());
+  useEffect(() => {
+    if (!data) return;
+    const keys = new Set(data.items.map((i) => i.key));
+    const before = seen.current;
+    seen.current = { list: data.list, keys };
+    if (!before || before.list !== data.list || data.list !== 'family') return;
+    const added = data.items
+      .filter((i) => !before.keys.has(i.key) && !i.addedBy.some((p) => p.userId === me))
+      .map((i) => i.key);
+    if (added.length === 0) return;
+    setFresh((f) => new Set([...f, ...added]));
+    const timer = setTimeout(() => {
+      setFresh((f) => new Set([...f].filter((k) => !added.includes(k))));
+    }, JUST_ADDED_MS);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [data, me]);
+  return fresh;
+}
+
+/** The shopping lists, family and own: recipes, items by aisle, at home, bought (P12). */
 export function ShoppingPage() {
   const { t } = useI18n();
-  const { data } = useShopping();
-  const add = useAddShoppingItem();
-  const clear = useClearShopping();
-  const setCountry = useSetCountry();
+  const [list, setList] = useState<ShoppingListName>(lastList);
+  const family = useShopping('family');
+  const mine = useShopping('mine');
+  const { data } = list === 'family' ? family : mine;
+  const me = useMe().data?.id;
+  const fresh = useJustAdded(data, me);
+  const add = useAddShoppingItem(list);
+  const clear = useClearShopping(list);
+  const setCountry = useSetCountry(list);
+  const moveAll = useMoveShopping('mine');
   const [text, setText] = useState('');
   const [open, setOpen] = useState<string | null>(null);
   const [confirmClear, setConfirmClear] = useState(false);
+  const [shareHidden, setShareHidden] = useState(shareDismissed);
+
+  const choose = (next: ShoppingListName) => {
+    setList(next);
+    setOpen(null);
+    setConfirmClear(false);
+    add.reset();
+    rememberList(next);
+  };
+  const openCount = (d: ShoppingListResponse | undefined) =>
+    d ? d.items.filter((i) => i.status === 'open').length : null;
 
   const header = (
     <PageHeader>
       <h1 className="font-display text-[19px] font-semibold">{t('shopping.title')}</h1>
     </PageHeader>
   );
-  if (!data) return <div className="flex min-h-0 flex-1 flex-col">{header}</div>;
+  const switcher = (
+    <div
+      role="group"
+      aria-label={t('shopping.whichList')}
+      className="grid grid-cols-2 gap-1 rounded-xl border border-line bg-paper p-1"
+    >
+      {(['family', 'mine'] as const).map((name) => {
+        const n = openCount(name === 'family' ? family.data : mine.data);
+        return (
+          <button
+            key={name}
+            type="button"
+            aria-pressed={list === name}
+            onClick={() => {
+              choose(name);
+            }}
+            className={`min-h-10 rounded-lg px-3 text-sm font-semibold ${
+              list === name ? 'bg-card text-ink shadow-sm' : 'text-muted hover:text-ink'
+            }`}
+          >
+            {t(name === 'family' ? 'shopping.family' : 'shopping.mine')}
+            {n !== null && n > 0 && (
+              <>
+                {' '}
+                <span className="ml-1 text-forest tabular-nums">{n}</span>
+              </>
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
+  if (!data) {
+    return (
+      <div className="flex min-h-0 flex-1 flex-col">
+        {header}
+        <div className="mx-auto w-full max-w-2xl p-4">{switcher}</div>
+      </div>
+    );
+  }
 
   const toBuy = data.items.filter((i) => i.status === 'open');
   const atHome = data.items.filter((i) => i.status === 'home');
@@ -88,6 +180,9 @@ export function ShoppingPage() {
     <ItemRow
       key={item.key}
       item={item}
+      list={list}
+      me={me}
+      fresh={fresh.has(item.key)}
       country={data.country}
       open={open === item.key}
       onToggleOpen={() => {
@@ -101,6 +196,48 @@ export function ShoppingPage() {
       {header}
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto w-full max-w-2xl space-y-4 p-4 pb-10">
+          {switcher}
+
+          {list === 'mine' && data.items.length > 0 && !shareHidden && (
+            <div className="space-y-2 rounded-2xl border border-forest bg-card p-3.5 text-sm">
+              <p className="font-semibold">{t('shopping.shareTitle')}</p>
+              <p className="text-muted">{t('shopping.shareText')}</p>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  disabled={moveAll.isPending}
+                  onClick={() => {
+                    moveAll.mutate(null, {
+                      onSuccess: () => {
+                        choose('family');
+                      },
+                    });
+                  }}
+                  className={primaryButton}
+                >
+                  {t('shopping.shareMove')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShareHidden(true);
+                    dismissShare();
+                  }}
+                  className="min-h-11 rounded-xl px-3 font-semibold text-forest hover:bg-champagne"
+                >
+                  {t('shopping.notNow')}
+                </button>
+              </div>
+              {moveAll.error && (
+                <p role="alert" className="text-danger">
+                  {moveAll.error instanceof ApiError && moveAll.error.code === 'too_many'
+                    ? t('shopping.full')
+                    : t('error.generic')}
+                </p>
+              )}
+            </div>
+          )}
+
           <div className="flex flex-wrap items-center justify-between gap-2">
             <p className="text-sm font-semibold text-forest">
               {toBuy.length === 0
@@ -130,7 +267,7 @@ export function ShoppingPage() {
           {data.recipes.length > 0 && (
             <ul className="flex flex-wrap gap-2" aria-label={t('shopping.recipes')}>
               {data.recipes.map((r) => (
-                <RecipeChip key={r.id} recipe={r} />
+                <RecipeChip key={r.id} recipe={r} list={list} />
               ))}
             </ul>
           )}
@@ -142,7 +279,9 @@ export function ShoppingPage() {
                 setText(e.target.value);
               }}
               aria-label={t('shopping.addLabel')}
-              placeholder={t('shopping.addPlaceholder')}
+              placeholder={t(
+                list === 'family' ? 'shopping.addPlaceholderFamily' : 'shopping.addPlaceholderMine',
+              )}
               maxLength={120}
               className={input}
             />
@@ -164,8 +303,12 @@ export function ShoppingPage() {
 
           {data.items.length === 0 && (
             <div className="rounded-2xl border border-dashed border-line p-5 text-sm text-muted">
-              <p className="font-semibold text-ink">{t('shopping.emptyTitle')}</p>
-              <p className="mt-1">{t('shopping.emptyHint')}</p>
+              <p className="font-semibold text-ink">
+                {t(list === 'family' ? 'shopping.emptyFamilyTitle' : 'shopping.emptyTitle')}
+              </p>
+              <p className="mt-1">
+                {t(list === 'family' ? 'shopping.emptyFamilyHint' : 'shopping.emptyHint')}
+              </p>
             </div>
           )}
 
@@ -231,7 +374,13 @@ export function ShoppingPage() {
             <div className="flex flex-wrap items-center gap-2 pt-2">
               {confirmClear ? (
                 <>
-                  <span className="text-sm">{t('shopping.clearAllConfirm')}</span>
+                  <span className="text-sm">
+                    {t(
+                      list === 'family'
+                        ? 'shopping.clearFamilyConfirm'
+                        : 'shopping.clearAllConfirm',
+                    )}
+                  </span>
                   <button
                     type="button"
                     onClick={() => {
@@ -265,16 +414,18 @@ export function ShoppingPage() {
               )}
             </div>
           )}
+
+          {list === 'mine' && <p className="text-xs text-muted">{t('shopping.onlyYou')}</p>}
         </div>
       </div>
     </div>
   );
 }
 
-function RecipeChip({ recipe }: { recipe: ShoppingRecipe }) {
+function RecipeChip({ recipe, list }: { recipe: ShoppingRecipe; list: ShoppingListName }) {
   const { t } = useI18n();
-  const setServings = useSetServings();
-  const remove = useRemoveRecipe();
+  const setServings = useSetServings(list);
+  const remove = useRemoveRecipe(list);
   const n = recipe.servings;
   return (
     <li className="flex items-center gap-1.5 rounded-full border border-line bg-card py-1 pr-1 pl-3 text-sm">
@@ -323,21 +474,53 @@ function RecipeChip({ recipe }: { recipe: ShoppingRecipe }) {
   );
 }
 
+/** "You", or the person's username; null for a deleted account. */
+function personName(
+  p: { userId: string; name: string | null },
+  me: string | undefined,
+  you: string,
+): string | null {
+  return p.userId === me ? you : p.name;
+}
+
+/** "17:40" today, else "Tue 17:40". */
+function formatTime(at: number, language: string): string {
+  const d = new Date(at);
+  const today = new Date().toDateString() === d.toDateString();
+  return new Intl.DateTimeFormat(language, {
+    ...(today ? {} : { weekday: 'short' }),
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(d);
+}
+
 function ItemRow({
   item,
+  list,
+  me,
+  fresh,
   country,
   open,
   onToggleOpen,
 }: {
   item: ShoppingItem;
+  list: ShoppingListName;
+  me: string | undefined;
+  fresh: boolean;
   country: Country;
   open: boolean;
   onToggleOpen: () => void;
 }) {
   const { t, language } = useI18n();
-  const update = useUpdateShoppingItem();
-  const remove = useRemoveShoppingItem();
+  const update = useUpdateShoppingItem(list);
+  const remove = useRemoveShoppingItem(list);
+  const move = useMoveShopping(list);
   const done = item.status === 'bought';
+  const you = t('shopping.you');
+  const adders = item.addedBy
+    .map((p) => personName(p, me, you))
+    .filter((x): x is string => x !== null);
+  const ticker = item.ticked ? personName(item.ticked, me, you) : null;
   const recipes = [
     ...new Set(item.sources.map((s) => s.recipeTitle).filter((x): x is string => x !== null)),
   ];
@@ -346,11 +529,17 @@ function ItemRow({
     item.swappedFrom.length > 0
       ? t('shopping.insteadOf', { name: item.swappedFrom.join(', ') })
       : null,
+    done && item.ticked && ticker
+      ? t('shopping.tickedBy', { name: ticker, time: formatTime(item.ticked.at, language) })
+      : adders.length > 0
+        ? adders.join(', ')
+        : null,
+    fresh ? t('shopping.justAdded') : null,
   ].filter((x): x is string => Boolean(x));
   const count = item.buy?.count ?? 1;
 
   return (
-    <li>
+    <li className={fresh ? 'rounded-2xl outline-2 -outline-offset-2 outline-forest' : ''}>
       <div className="flex min-h-12 items-center gap-3 px-3 py-1.5">
         {item.status === 'home' ? (
           <button
@@ -485,8 +674,30 @@ function ItemRow({
                   update.mutate({ key: item.key, alwaysHome: e.target.checked });
                 }}
               />
-              {t('shopping.alwaysHome')}
+              {t(list === 'family' ? 'shopping.alwaysHomeFamily' : 'shopping.alwaysHome')}
             </label>
+          </div>
+          {list === 'family' && adders.length > 0 && (
+            <p className="text-muted">{t('shopping.addedBy', { names: adders.join(', ') })}</p>
+          )}
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              disabled={move.isPending}
+              onClick={() => {
+                move.mutate(item.key);
+              }}
+              className={secondaryButton}
+            >
+              {t(list === 'family' ? 'shopping.moveToMine' : 'shopping.moveToFamily')}
+            </button>
+            {move.error && (
+              <span role="alert" className="text-danger">
+                {move.error instanceof ApiError && move.error.code === 'too_many'
+                  ? t('shopping.full')
+                  : t('error.generic')}
+              </span>
+            )}
             <button
               type="button"
               onClick={() => {

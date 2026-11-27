@@ -67,6 +67,7 @@ import { registerAgentRoutes } from './routes/agents.ts';
 import { createAgentRepo } from './db/agents.ts';
 import { createDailyRepo } from './db/daily.ts';
 import { createShoppingRepo } from './db/shopping.ts';
+import { householdKeyFile } from './security/household.ts';
 import { createProfileRepo } from './db/profile.ts';
 import { registerDailyRoutes, sendDueDaily } from './routes/daily.ts';
 import { registerShoppingRoutes } from './routes/shopping.ts';
@@ -347,7 +348,14 @@ export async function buildApp(config: Config, overrides: AppOverrides = {}): Pr
   });
   registerPushRoutes(app, push, { db, refs: pushRefs });
   registerDailyRoutes(app, { daily, ...(overrides.now ? { now: overrides.now } : {}) });
-  const shopping = createShoppingRepo(db, overrides.now ? { now: overrides.now } : {});
+  // The family key lives in the data folder; an injected (test) database keeps it in memory.
+  const shopping = createShoppingRepo(db, {
+    ...(overrides.now ? { now: overrides.now } : {}),
+    ...(overrides.db ? {} : { householdKey: householdKeyFile(config.dataDir) }),
+    onFamilyUnreadable: () => {
+      app.log.warn('family shopping list could not be decrypted; starting an empty one');
+    },
+  });
   registerShoppingRoutes(app, { shopping });
   const profiles = createProfileRepo(db, overrides.now);
   registerProfileRoutes(app, { profiles });

@@ -8,7 +8,7 @@ date: 2026-11-21
 
 # Informativa sulla privacy
 
-Ultimo aggiornamento: 21 novembre 2026 · Si applica alle app Hemmia, al software dell’hub Hemmia come lo distribuiamo, a Hemmia Connect (il nostro relay), al controllo degli aggiornamenti e a questo sito (hemmia.app).
+Ultimo aggiornamento: 27 novembre 2026 · Si applica alle app Hemmia, al software dell’hub Hemmia come lo distribuiamo, a Hemmia Connect (il nostro relay), al controllo degli aggiornamenti e a questo sito (hemmia.app).
 
 <!-- note -->
 **In breve**
@@ -60,7 +60,7 @@ Hemmia è fatto da una sola persona, quindi non c’è un responsabile della pro
 
 Hemmia ha tre parti, e la responsabilità segue chi le gestisce:
 
-- **L’hub Hemmia** è un software che installi sul tuo computer (un Mac, o qualsiasi computer con Docker). Conserva gli account, le chat, le foto, i documenti e le impostazioni della tua famiglia su quel computer, cifrati per persona. **Non gestiamo il tuo hub e non vi abbiamo accesso.** La persona che gestisce un hub (l’«admin») è responsabile dei dati personali delle persone che lo usano, ad esempio dei familiari che invita. Quando l’hub usa un modello di IA cloud, cerca sul web, apre una pagina web, scarica un modello o invia una notifica a un browser, lo fa da quel computer, per conto dell’admin, secondo le impostazioni che sceglie. Questa informativa descrive il software perché tu sappia cosa fa; non è una promessa su come un determinato admin gestisce il proprio hub.
+- **L’hub Hemmia** è un software che installi sul tuo computer (un Mac, o qualsiasi computer con Docker). Conserva gli account, le chat, le foto, i documenti e le impostazioni della tua famiglia su quel computer, cifrati per persona (la lista della spesa di famiglia, che tutti condividono, con una chiave conservata su quel computer). **Non gestiamo il tuo hub e non vi abbiamo accesso.** La persona che gestisce un hub (l’«admin») è responsabile dei dati personali delle persone che lo usano, ad esempio dei familiari che invita. Quando l’hub usa un modello di IA cloud, cerca sul web, apre una pagina web, scarica un modello o invia una notifica a un browser, lo fa da quel computer, per conto dell’admin, secondo le impostazioni che sceglie. Questa informativa descrive il software perché tu sappia cosa fa; non è una promessa su come un determinato admin gestisce il proprio hub.
 - **L’app Hemmia** gira sul tuo telefono. Si collega a un hub (sezione 3.1) oppure funziona da sola con un fornitore di IA che scegli (sezione 3.2).
 - **I nostri servizi**: Hemmia Connect (sezione 4), le notifiche tramite il relay (sezione 5), il controllo degli aggiornamenti (sezione 6) e questo sito (sezione 16). Per questi, siamo noi il titolare del trattamento.
 

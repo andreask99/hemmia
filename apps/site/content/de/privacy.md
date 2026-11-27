@@ -11,7 +11,7 @@ Auf dieser Seite steht in einfachen Worten, was mit deinen Daten passiert. Die t
 
 ## Was auf deinen Geräten bleibt
 
-- **Zu Hause:** Deine Chats, Fotos und Dokumente liegen auf deinem Hub. Die Inhalte jeder Person sind mit einem Schlüssel verschlüsselt, der aus ihrer eigenen Passphrase entsteht. Andere in der Familie können sie nicht lesen, auch nicht das Admin-Konto des Hubs. Wenn du deine Passphrase vergisst, kommst du mit deinem Wiederherstellungscode wieder hinein.
+- **Zu Hause:** Deine Chats, Fotos und Dokumente liegen auf deinem Hub. Die Inhalte jeder Person sind mit einem Schlüssel verschlüsselt, der aus ihrer eigenen Passphrase entsteht. Andere in der Familie können sie nicht lesen, auch nicht das Admin-Konto des Hubs. Wenn du deine Passphrase vergisst, kommst du mit deinem Wiederherstellungscode wieder hinein. Die Ausnahme ist die Einkaufsliste der Familie: Alle in der Familie teilen sie, deshalb ist sie mit einem Familienschlüssel verschlüsselt, der auf dem Hub liegt. Wer den Computer des Hubs oder seine Backups hat, könnte sie lesen; deine eigene Liste bleibt so privat wie deine Chats.
 - **Auf dem Telefon:** Deine Chats und Fotos liegen in der App, verschlüsselt mit einem Schlüssel, den nur der sichere Speicher des Telefons kennt.
 - Es gibt kein Hemmia-Konto und keinen Server von uns, der deine Chats aufbewahrt.
 

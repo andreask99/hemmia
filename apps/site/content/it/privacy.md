@@ -11,7 +11,7 @@ Questa pagina dice in parole semplici cosa succede ai tuoi dati. I dettagli tecn
 
 ## Cosa resta sui tuoi dispositivi
 
-- **A casa:** le tue chat, foto e documenti sono salvati sul tuo hub. Il contenuto di ognuno è cifrato con una chiave che deriva dalla sua passphrase, quindi gli altri in famiglia, e l’account admin dell’hub, non possono leggerlo. Se dimentichi la passphrase, il codice di recupero ti fa rientrare.
+- **A casa:** le tue chat, foto e documenti sono salvati sul tuo hub. Il contenuto di ognuno è cifrato con una chiave che deriva dalla sua passphrase, quindi gli altri in famiglia, e l’account admin dell’hub, non possono leggerlo. Se dimentichi la passphrase, il codice di recupero ti fa rientrare. L’eccezione è la lista della spesa di famiglia: la condividono tutti in famiglia, quindi è cifrata con una chiave di famiglia conservata sull’hub. Chi ha il computer dell’hub o i suoi backup potrebbe leggerla; la tua lista personale resta privata come le tue chat.
 - **Sul telefono:** le tue chat e foto sono salvate nell’app, cifrate con una chiave che solo la memoria sicura del telefono conosce.
 - Non esiste un account Hemmia e nessun nostro server conserva le tue chat.
 
