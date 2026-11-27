@@ -343,6 +343,8 @@ describe('shopping list', () => {
   it('moves items and whole lists between the lists', async () => {
     const rosa = await signUp('rosa');
     const ben = await signUp('ben');
+    // Egg boxes depend on the country (10 in Germany, 12 in the UK): fix it, not the time zone.
+    await call('PUT', '/api/shopping/family/settings', ben.cookie, { country: 'DE' });
     await call('POST', '/api/shopping/family/items', ben.cookie, { text: '6 eggs' });
     await call('PATCH', '/api/shopping/family/items/eggs', ben.cookie, { status: 'bought' });
     await call('POST', '/api/shopping/mine/items', rosa.cookie, { text: '4 eggs' });
