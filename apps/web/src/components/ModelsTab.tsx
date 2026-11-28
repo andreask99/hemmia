@@ -200,8 +200,11 @@ function MyModel() {
       ? me.defaultModelId
       : '';
   return (
-    <section className={`${card} flex flex-wrap items-center justify-between gap-4`}>
-      <div className="min-w-0 flex-1">
+    // Stacked on a phone (label above a full-width picker), side by side from sm up.
+    <section
+      className={`${card} flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4`}
+    >
+      <div className="sm:min-w-0 sm:flex-1">
         <label htmlFor="my-model" className="block font-semibold">
           {t('settings.defaultModel')}
         </label>
@@ -228,7 +231,7 @@ function MyModel() {
             },
           );
         }}
-        className={`${select} max-w-full`}
+        className={`${select} w-full sm:w-auto sm:max-w-xs`}
       >
         <option value="">
           {familyDefault
@@ -375,7 +378,10 @@ function ModelRow({
   const [confirm, setConfirm] = useState(false);
   const name = modelLabel(m, language);
   const isDefault = m.kind === 'chat' && m.id === data.defaultChatModel;
-  const disk = installed?.models.find((x) => x.offeredId === m.id);
+  // Offered models carry their id; switched-off ones are matched by their Ollama name.
+  const disk = installed?.models.find(
+    (x) => x.offeredId === m.id || (m.engineModel !== null && x.model === m.engineModel),
+  );
   const entry = m.engineModel ? catalog.find((e) => e.ollamaModel === m.engineModel) : undefined;
   const facts = [
     entry?.vision ? t('models.seesPictures') : null,

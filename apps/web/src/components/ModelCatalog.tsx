@@ -89,7 +89,8 @@ export function ModelCatalog({
   const searching = query.trim() !== '' || filters.size !== 1 || !filters.has('fits');
   const recommended = shown.filter((e) => e.recommended);
   const fresh = shown
-    .filter((e) => e.isNew && !e.recommended)
+    // "New" is for finding something to try: models the family already uses aren't listed.
+    .filter((e) => e.isNew && !e.recommended && !e.inUse)
     .sort((a, b) => (b.releasedAt ?? '').localeCompare(a.releasedAt ?? ''))
     .slice(0, NEW_SHOWN);
   const popular = shown

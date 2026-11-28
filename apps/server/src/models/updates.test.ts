@@ -4,6 +4,7 @@ import { openDatabase } from '../db/database.ts';
 import { fromRemote } from './catalog.ts';
 import { remoteModel } from './catalog-fixtures.ts';
 import {
+  isBuildOf,
   createUpdateNotices,
   createUpdateStateStore,
   findUpdates,
@@ -147,5 +148,18 @@ describe('notices', () => {
     t.n.dismiss(u?.key ?? '');
     expect(await t.n.refresh(true)).toEqual([]);
     expect(t.pushes()).toBe(0);
+  });
+});
+
+describe('isBuildOf', () => {
+  it('counts builds of a tag as that catalogue model, nothing else', () => {
+    expect(isBuildOf('qwen3.8:27b-mlx', 'qwen3.8:27b')).toBe(true);
+    expect(isBuildOf('qwen3.8:27b-q8_0', 'qwen3.8:27b')).toBe(true);
+    expect(isBuildOf('qwen3.8:27b', 'qwen3.8:27b')).toBe(true);
+    expect(isBuildOf('gemma4', 'gemma4:latest')).toBe(true);
+    expect(isBuildOf('qwen3.8:27b', 'qwen3.8:27b-mlx')).toBe(false);
+    expect(isBuildOf('qwen3.8:270b', 'qwen3.8:27b')).toBe(false);
+    expect(isBuildOf('qwen3.8-dev:latest', 'qwen3.8:latest')).toBe(false);
+    expect(isBuildOf('qwen3.9:27b', 'qwen3.8:27b')).toBe(false);
   });
 });

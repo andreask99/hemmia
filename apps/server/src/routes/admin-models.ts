@@ -26,7 +26,7 @@ import type { LlmClient } from '../llm/types.ts';
 import { LifecycleError, type ModelLifecycle } from '../models/lifecycle.ts';
 import type { OverrideStore } from '../models/overrides.ts';
 import { PullRefusedError, type PullManager } from '../models/pulls.ts';
-import { type UpdateNotices, withTag } from '../models/updates.ts';
+import { isBuildOf, type UpdateNotices, withTag } from '../models/updates.ts';
 import { HttpError, requireAdmin } from '../security/http.ts';
 import type { Capabilities } from '../system/capabilities.ts';
 
@@ -67,10 +67,8 @@ export function registerAdminModelRoutes(app: FastifyInstance, deps: AdminModelR
     { preHandler: requireAdmin },
     async (): Promise<CatalogResponse> => {
       const { memoryGiB } = deps.capabilities.current();
-      const installed = new Set(
-        (await deps.llm.installed().catch(() => [])).map((m) => withTag(m.model)),
-      );
-      const offered = new Set(deps.offered().map(withTag));
+      const installed = (await deps.llm.installed().catch(() => [])).map((m) => m.model);
+      const offered = deps.offered();
       const catalog = deps.catalog();
       // Popularity among the catalogue's own models, by Ollama's pull counts.
       const ranked = catalog
@@ -95,11 +93,11 @@ export function registerAdminModelRoutes(app: FastifyInstance, deps: AdminModelR
           contextTokens: e.contextTokens,
           fits: e.minTotalMemoryGiB <= memoryGiB,
           recommended: recommendedFor(e, memoryGiB),
-          installed: installed.has(withTag(e.ollamaModel)),
+          installed: installed.some((m) => isBuildOf(m, e.ollamaModel)),
           isNew: e.remote !== undefined && e.remote.addedAt >= cutoff,
           popularRank: e.remote ? (rankOf.get(e.ollamaModel.split(':')[0] ?? '') ?? null) : null,
           releasedAt: e.remote?.releasedAt ?? null,
-          inUse: offered.has(withTag(e.ollamaModel)),
+          inUse: offered.some((m) => isBuildOf(m, e.ollamaModel)),
         })),
       };
     },

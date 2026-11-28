@@ -81,6 +81,17 @@ export function withTag(model: string): string {
   return model.includes(':') ? model : `${model}:latest`;
 }
 
+/**
+ * Whether `local` (installed or offered) is the catalogue model `entry` or a build of it:
+ * "qwen3.8:27b-mlx" and "qwen3.8:27b-q8_0" are qwen3.8:27b (owner report 2026-11-28: the MLX
+ * build was shown as a new model to download).
+ */
+export function isBuildOf(local: string, entry: string): boolean {
+  const [lb, lt] = withTag(local).split(':') as [string, string];
+  const [eb, et] = withTag(entry).split(':') as [string, string];
+  return lb === eb && (lt === et || lt.startsWith(`${et}-`));
+}
+
 function closeness(a: number | null, b: number | null): number {
   if (a === null || b === null) return 0;
   return Math.abs(Math.log(a / b));
