@@ -67,6 +67,8 @@ export function celebrate({ from, big = false, text }: CelebrateOptions = {}) {
       for (let i = 0; i < 3; i++) {
         setTimeout(
           () => {
+            // The page (or a test's DOM) may be gone by now.
+            if (typeof window === 'undefined' || !layer.isConnected) return;
             burst(
               layer,
               window.innerWidth * (0.2 + 0.3 * i + Math.random() * 0.1),
