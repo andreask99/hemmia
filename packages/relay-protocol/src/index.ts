@@ -12,3 +12,4 @@ export * from './version.ts';
 export * from './manifest.ts';
 export * from './feedback.ts';
 export * from './catalog.ts';
+export * from './names.ts';

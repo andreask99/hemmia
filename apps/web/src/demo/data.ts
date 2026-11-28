@@ -91,7 +91,7 @@ export const CHAT_MODELS: ChatModelInfo[] = [
   model(
     'gemma4-26b',
     'gemma4:26b',
-    'gemma4 26B',
+    'Gemma 4 26B',
     [
       'Best all-rounder: fast, sees photos',
       'Bester Allrounder: schnell, sieht Fotos',
@@ -111,7 +111,7 @@ export const CHAT_MODELS: ChatModelInfo[] = [
   model(
     'gemma4-12b',
     'gemma4:12b',
-    'gemma4 12B',
+    'Gemma 4 12B',
     [
       'Smaller and lighter, leaves room for pictures',
       'Kleiner und leichter, lässt Platz für Bilder',
@@ -131,7 +131,7 @@ export const CHAT_MODELS: ChatModelInfo[] = [
   model(
     'qwen38-27b',
     'qwen3.8:27b-mlx',
-    'Qwen3.8 27B',
+    'Qwen 3.8 27B',
     [
       'Strongest thinker, but slow: for hard questions',
       'Denkt am gründlichsten, aber langsam: für schwierige Fragen',

@@ -590,4 +590,23 @@ CREATE TABLE household_shopping_settings (
 ) STRICT;
 `,
   },
+  {
+    id: 27,
+    name: 'past shopping lists',
+    // Past shopping lists (P12.8, DECISIONS.md 2026-11-28): a list whose last item was ticked
+    // off is archived here and deleted after 30 days. user_id is the owner of a personal list
+    // (data encrypted with their data key) or NULL for the family list (family key); AAD:
+    // owner ("household" for the family), table, id, column. archived_at is plaintext, for the
+    // clean-up.
+    sql: `
+CREATE TABLE shopping_archive (
+  id                    TEXT PRIMARY KEY,
+  user_id               TEXT REFERENCES users(id) ON DELETE CASCADE,
+  data                  BLOB NOT NULL,
+  archived_at           INTEGER NOT NULL
+) STRICT;
+CREATE INDEX shopping_archive_owner ON shopping_archive (user_id, archived_at);
+CREATE INDEX shopping_archive_age ON shopping_archive (archived_at);
+`,
+  },
 ];

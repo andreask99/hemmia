@@ -7,7 +7,7 @@ order: 40
 
 # Download
 
-Hemmia is in beta. Hemmia at home is available as version 0.3.0 for a Mac and with Docker: see [Set up Hemmia on a Mac](/guides/mac/) and [Set up with Docker](/guides/docker/). The iPhone app is in testing on TestFlight: write to [andreas.apps@icloud.com](mailto:andreas.apps@icloud.com) and we'll add you to the beta.
+Hemmia is in beta. Hemmia at home is available as version 0.4.0 for a Mac and with Docker: see [Set up Hemmia on a Mac](/guides/mac/) and [Set up with Docker](/guides/docker/). The iPhone app is in testing on TestFlight: write to [andreas.apps@icloud.com](mailto:andreas.apps@icloud.com) and we'll add you to the beta.
 
 <!-- download -->
 

@@ -16,6 +16,7 @@ public class HubLauncherPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "setSensitive", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "stagePhoneExport", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "takePhoneExport", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "pushEnvironment", returnType: CAPPluginReturnPromise),
     ]
 
     /// "Move to a home hub" (PHONE-MODE.md §8, SECURITY.md §7.1): the shell stages its export for
@@ -145,6 +146,26 @@ public class HubLauncherPlugin: CAPPlugin, CAPBridgedPlugin {
             guard caller != .other else { return call.reject("not allowed") }
             vc.sensitive = call.getBool("on") ?? false
             call.resolve()
+        }
+    }
+
+    /// Which APNs environment this build's device tokens belong to: "sandbox" for builds signed
+    /// with a development profile (run from Xcode), "production" for TestFlight and the App
+    /// Store (no embedded profile, or one with aps-environment "production").
+    static let apsEnvironment: String = {
+        guard let url = Bundle.main.url(forResource: "embedded", withExtension: "mobileprovision"),
+            let data = try? Data(contentsOf: url),
+            let text = String(data: data, encoding: .isoLatin1)
+        else { return "production" }
+        let compact = text.replacingOccurrences(of: "[\\s]", with: "", options: .regularExpression)
+        return compact.contains("<key>aps-environment</key><string>development</string>")
+            ? "sandbox" : "production"
+    }()
+
+    @objc func pushEnvironment(_ call: CAPPluginCall) {
+        withCaller(call) { _, caller in
+            guard caller != .other else { return call.reject("not allowed") }
+            call.resolve(["env": Self.apsEnvironment])
         }
     }
 

@@ -2,7 +2,8 @@
  * The shopping lists (P12, P12.6). Owned by Claude (per-user data). `:list` is `mine` (the
  * signed-in user's own list) or `family` (shared by every account on the hub, teens included;
  * DECISIONS.md 2026-11-27). A chat batch is found on either list; on the family list only the
- * caller's own additions can be undone or moved by batch.
+ * caller's own additions can be undone or moved by batch. Past lists (P12.8): a list whose last
+ * item is ticked off is archived; `/:list/archive` lists, restores and deletes them.
  */
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
@@ -11,7 +12,10 @@ import {
   ClearShoppingRequest,
   Id,
   MoveShoppingRequest,
+  RestoreShoppingRequest,
   type ShoppingAddedRef,
+  type ShoppingArchiveResponse,
+  type ShoppingChangeResponse,
   ShoppingListName,
   type ShoppingListResponse,
   ShoppingSettings,
@@ -25,6 +29,7 @@ const ListParams = z.object({ list: ShoppingListName });
 const ItemParams = ListParams.extend({ key: z.string().min(1).max(80) });
 const RecipeParams = ListParams.extend({ recipeId: Id });
 const BatchParams = z.object({ batchId: Id });
+const ArchiveParams = ListParams.extend({ id: Id });
 
 /** Runs a change that may hit the list limits: 409 `too_many`. */
 function limited<T>(fn: () => T): T {
@@ -62,20 +67,28 @@ export function registerShoppingRoutes(
     },
   );
 
-  app.patch('/api/shopping/:list/items/:key', { preHandler: requireUser }, async (req, reply) => {
-    const { list, key } = ItemParams.parse(req.params);
-    const body = UpdateShoppingItemRequest.parse(req.body);
-    if (!shopping.updateItem(currentUser(req), list, key, body)) {
-      throw new HttpError(404, 'not_found');
-    }
-    return reply.code(204).send();
-  });
+  app.patch(
+    '/api/shopping/:list/items/:key',
+    { preHandler: requireUser },
+    async (req): Promise<ShoppingChangeResponse> => {
+      const { list, key } = ItemParams.parse(req.params);
+      const body = UpdateShoppingItemRequest.parse(req.body);
+      const done = shopping.updateItem(currentUser(req), list, key, body);
+      if (!done) throw new HttpError(404, 'not_found');
+      return done;
+    },
+  );
 
-  app.delete('/api/shopping/:list/items/:key', { preHandler: requireUser }, async (req, reply) => {
-    const { list, key } = ItemParams.parse(req.params);
-    if (!shopping.removeItem(currentUser(req), list, key)) throw new HttpError(404, 'not_found');
-    return reply.code(204).send();
-  });
+  app.delete(
+    '/api/shopping/:list/items/:key',
+    { preHandler: requireUser },
+    async (req): Promise<ShoppingChangeResponse> => {
+      const { list, key } = ItemParams.parse(req.params);
+      const done = shopping.removeItem(currentUser(req), list, key);
+      if (!done) throw new HttpError(404, 'not_found');
+      return done;
+    },
+  );
 
   const move = (
     from: ShoppingListName | null,
@@ -151,6 +164,36 @@ export function registerShoppingRoutes(
     const { list } = ListParams.parse(req.params);
     const { what } = ClearShoppingRequest.parse(req.body);
     shopping.clear(currentUser(req), list, what);
+    return reply.code(204).send();
+  });
+
+  app.get(
+    '/api/shopping/:list/archive',
+    { preHandler: requireUser },
+    async (req): Promise<ShoppingArchiveResponse> => {
+      const { list } = ListParams.parse(req.params);
+      return { archives: shopping.archive(currentUser(req), list) };
+    },
+  );
+
+  app.post(
+    '/api/shopping/:list/archive/:id/restore',
+    { preHandler: requireUser },
+    async (req, reply) => {
+      const { list, id } = ArchiveParams.parse(req.params);
+      const { as } = RestoreShoppingRequest.parse(req.body);
+      if (!limited(() => shopping.restore(currentUser(req), list, id, as))) {
+        throw new HttpError(404, 'not_found');
+      }
+      return reply.code(204).send();
+    },
+  );
+
+  app.delete('/api/shopping/:list/archive/:id', { preHandler: requireUser }, async (req, reply) => {
+    const { list, id } = ArchiveParams.parse(req.params);
+    if (!shopping.deleteArchived(currentUser(req), list, id)) {
+      throw new HttpError(404, 'not_found');
+    }
     return reply.code(204).send();
   });
 

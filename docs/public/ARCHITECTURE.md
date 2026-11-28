@@ -96,6 +96,8 @@ Unchanged at its core. Additions (task ids in brackets):
   country. A family list shared by every account (default; family key on the hub) and each
   person's own list (their data key), with moves between them (`db/shopping.ts`, P12.6).
   `/api/shopping/:list/…` with `family` or `mine`; the family list reloads every 10 s.
+  A list whose last item is ticked off moves to its past lists (`shopping_archive`, P12.8):
+  Undo, "shop for these again", delete; deleted after 30 days.
 - **First-run setup** [P3.1–P3.4]: a hub without users is in setup mode. A setup code
   (printed to the console and written to `<dataDir>/setup-code.txt`; the macOS installer opens
   `http://localhost:8787/setup#<code>`) unlocks the wizard H1–H6, which creates the admin.

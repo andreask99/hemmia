@@ -64,8 +64,25 @@ const MINE = {
   items: [item('candles', 'Kerzen', { aisle: 'household' })],
 };
 
-function setup() {
-  return stubFetch((url) => {
+const PAST = {
+  id: 'p1',
+  archivedAt: new Date(2026, 10, 21, 18, 5).getTime(),
+  deleteAt: new Date(2026, 11, 21, 18, 5).getTime(),
+  finishedBy: { userId: 'u2', name: 'ben' },
+  list: {
+    list: 'family',
+    country: 'DE',
+    recipes: [],
+    items: [
+      item('milk', 'Milch', { status: 'bought', buy: { count: 2, size: 1, unit: 'l' } }),
+      item('bread', 'Brot', { status: 'bought' }),
+      item('salt', 'Salz', { status: 'home', alwaysHome: true }),
+    ],
+  },
+};
+
+function setup(opts: { archived?: string | null } = {}) {
+  return stubFetch((url, init) => {
     if (url === '/api/me') return json(ME);
     if (url === '/api/models') {
       return json({
@@ -84,6 +101,11 @@ function setup() {
         { batchId: 'b1', list: 'family', recipe: null, count: 1, adapted: [], atHome: [] },
         201,
       );
+    }
+    if (url === '/api/shopping/family/archive') return json({ archives: [PAST] });
+    if (url === '/api/shopping/mine/archive') return json({ archives: [] });
+    if (url.includes('/items/') && (init?.method === 'PATCH' || init?.method === 'DELETE')) {
+      return json({ archived: url.endsWith('/move') ? null : (opts.archived ?? null) });
     }
     if (url.startsWith('/api/shopping/')) return new Response(null, { status: 204 });
     return undefined;
@@ -211,5 +233,49 @@ describe('ShoppingPage', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: 'Clear list' }));
     expect(screen.getByText('Clear the family list for everyone?')).toBeDefined();
+  });
+
+  it('says when the last tick archived the list, with Undo', async () => {
+    const calls = setup({ archived: 'p2' });
+    renderRoute('/shopping');
+    fireEvent.click(await screen.findByRole('checkbox', { name: 'Hähnchenbrust bought' }));
+    const card = await screen.findByRole('status');
+    expect(card.textContent).toContain('All ticked off');
+    fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
+    await waitFor(() => {
+      const c = calls.find((x) => x.url === '/api/shopping/family/archive/p2/restore');
+      expect(c?.init?.method).toBe('POST');
+      expect(JSON.parse(c?.init?.body as string)).toEqual({ as: 'undo' });
+    });
+    await waitFor(() => {
+      expect(screen.queryByRole('status')).toBeNull();
+    });
+  });
+
+  it('shows past lists, shops for one again and deletes one', async () => {
+    const calls = setup();
+    renderRoute('/shopping');
+    const toggle = await screen.findByRole('button', { name: /Past lists/ });
+    expect(screen.queryByText(/30 days/)).toBeNull();
+    fireEvent.click(toggle);
+    expect(screen.getByText(/30 days/)).toBeDefined();
+    const entry = screen.getByRole('button', { name: /Finished by ben/ });
+    expect(entry.textContent).toContain('Milch, Brot, Salz');
+    fireEvent.click(entry);
+    expect(screen.getByText('2 × 1 l')).toBeDefined();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Shop for these again' }));
+    await waitFor(() => {
+      const c = calls.find((x) => x.url === '/api/shopping/family/archive/p1/restore');
+      expect(JSON.parse(c?.init?.body as string)).toEqual({ as: 'again' });
+    });
+    fireEvent.click(screen.getByRole('button', { name: /Finished by ben/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
+    await waitFor(() => {
+      const c = calls.find(
+        (x) => x.url === '/api/shopping/family/archive/p1' && x.init?.method === 'DELETE',
+      );
+      expect(c).toBeDefined();
+    });
   });
 });

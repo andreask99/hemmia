@@ -26,6 +26,10 @@ Ouvre **Liste de courses** dans le menu. Les articles sont triés par rayon. Coc
 
 Les recettes de la liste sont en haut. Change le nombre de portions avec **−** et **+** et les quantités suivent ; **×** retire une recette avec ses ingrédients.
 
+## Quand tout est coché
+
+Quand il ne reste plus rien à acheter, la liste est archivée et repart vide. **Annuler** la ramène si la dernière coche était une erreur. Les listes terminées restent 30 jours sous **Listes précédentes** : ouvre-en une pour voir ce qu’elle contenait, ou touche **Racheter la même chose** pour remettre ses articles sur la liste. Après 30 jours, elles sont supprimées.
+
 ## La liste familiale et la tienne
 
 En haut de la liste, tu passes de **Famille** à **Perso** ; le nombre à côté indique ce qui reste à acheter.

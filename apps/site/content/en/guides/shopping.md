@@ -26,6 +26,10 @@ Open **Shopping list** in the menu. Items are sorted by shop aisle. Tick an item
 
 The recipes on the list are shown at the top. Change the number of servings with **−** and **+** and the amounts follow; **×** takes a recipe off with its ingredients.
 
+## When everything is ticked off
+
+Once nothing is left to buy, the list is archived and starts empty. **Undo** brings it back if the last tick was a mistake. Finished lists stay under **Past lists** for 30 days: open one to see what was on it, or tap **Shop for these again** to put its items back on the list. After 30 days they're deleted.
+
 ## The family list and your own
 
 At the top of the list you switch between **Family** and **Mine**; the number next to each says what is left to buy.

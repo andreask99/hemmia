@@ -3,8 +3,9 @@
  * 2026-11-21). Runs every night from launchd on the owner's Mac (ops/catalog-job.sh), with no
  * person approving: the checks in check.ts and the guards in select.ts decide.
  *
- *   node scripts/catalog/build.ts [--dry-run] [--no-checks] [--budget-gb 60] [--summary FILE]
+ *   node scripts/catalog/build.ts [--dry-run] [--no-checks] [--budget-gb 60] [--digest FILE]
  *
+ * --digest writes the owner's email (digest.ts) as JSON: { send, subject, text, html }.
  * --dry-run builds and prints the catalogue without signing or publishing; --no-checks skips
  * the download tests (entries without a passed test are then left out). State (test results,
  * last published payload) lives in ~/.local/state/hemmia-catalog/.
@@ -12,7 +13,7 @@
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { mkdirSync, readFileSync, renameSync, statfsSync, writeFileSync } from 'node:fs';
-import { homedir } from 'node:os';
+import { homedir, totalmem } from 'node:os';
 import { join } from 'node:path';
 import { parseArgs } from 'node:util';
 import {
@@ -23,6 +24,7 @@ import {
   verifyCatalog,
 } from '@hemmia/relay-protocol';
 import { type CheckResult, checkModel } from './check.ts';
+import { buildDigest, type DigestInput, type TestLine } from './digest.ts';
 import { type LibraryModel, parseLibrary, parseTags } from './library.ts';
 import {
   type Chosen,
@@ -41,7 +43,7 @@ const { values } = parseArgs({
     'dry-run': { type: 'boolean', default: false },
     'no-checks': { type: 'boolean', default: false },
     'budget-gb': { type: 'string', default: '60' },
-    summary: { type: 'string' },
+    digest: { type: 'string' },
   },
 });
 
@@ -69,11 +71,34 @@ interface State {
 }
 
 const today = new Date().toISOString().slice(0, 10);
-const lines: string[] = [];
 const say = (s: string) => {
-  lines.push(s);
   process.stdout.write(`${s}\n`);
 };
+
+/** What tonight's run did, for the email. */
+const run: {
+  previous: CatalogModel[] | null;
+  catalog: CatalogModel[] | null;
+  published: boolean;
+  tests: TestLine[];
+  problem: string | null;
+  waiting: number;
+} = { previous: null, catalog: null, published: false, tests: [], problem: null, waiting: 0 };
+
+/** The Ollama models installed on this Mac, or null when Ollama doesn't answer. */
+async function installedModels(): Promise<string[] | null> {
+  const host = process.env['OLLAMA_HOST'] ?? 'http://127.0.0.1:11434';
+  try {
+    const res = await fetch(`${host.startsWith('http') ? host : `http://${host}`}/api/tags`, {
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (!res.ok) return null;
+    const body = (await res.json()) as { models?: { name?: unknown }[] };
+    return (body.models ?? []).map((m) => m.name).filter((n): n is string => typeof n === 'string');
+  } catch {
+    return null;
+  }
+}
 
 function loadState(): State {
   try {
@@ -146,6 +171,8 @@ function macIsFree(): boolean {
 async function main(): Promise<void> {
   const state = loadState();
   const previous = state.published?.entries ?? null;
+  run.previous = previous;
+  run.catalog = previous;
 
   // 1. Ollama's library.
   const popularPage = await get('https://ollama.com/library?sort=popular');
@@ -234,6 +261,14 @@ async function main(): Promise<void> {
         const r = await checkModel(e.ollamaModel, { claimsTools: e.tools, claimsVision: e.vision });
         state.tests[e.ollamaModel] = { ...r, digest: e.digest, at: today };
         saveState(state);
+        run.tests.push({
+          model: e.ollamaModel,
+          ok: r.ok,
+          seconds: r.seconds,
+          tools: r.tools,
+          vision: r.vision,
+          error: r.ok ? null : (r.error ?? null),
+        });
         say(
           `  ${r.ok ? 'passed' : 'FAILED'} ${e.ollamaModel} (${r.seconds}s` +
             `${r.ok ? `, tools ${r.tools ? 'yes' : 'no'}, pictures ${r.vision ? 'yes' : 'no'}` : `: ${r.error ?? ''}`})`,
@@ -272,11 +307,13 @@ async function main(): Promise<void> {
   }
   candidates = published;
   say(`Publishable: ${candidates.length} entries; ${waiting} wait for a passed test.`);
+  run.waiting = waiting;
 
   // 5. Guards, then sign and publish.
   const g = guard(candidates, previous, popular.length);
   if (!g.ok) {
     say(`NOT published: ${g.reason}.`);
+    run.problem = `Not published: ${g.reason}.`;
     return;
   }
   const stale = !state.published || Date.now() - state.published.at > REPUBLISH_DAYS * 86_400_000;
@@ -310,6 +347,8 @@ async function main(): Promise<void> {
   writeFileSync(join(STATE_DIR, 'history', `${payload.signedAt}.json`), JSON.stringify(envelope));
   state.published = { at: payload.signedAt, entries: candidates };
   saveState(state);
+  run.catalog = candidates;
+  run.published = true;
   say(`Published ${candidates.length} entries.`);
 }
 
@@ -372,7 +411,21 @@ try {
   await main();
 } catch (e) {
   say(`FAILED: ${e instanceof Error ? e.message : String(e)}`);
+  run.problem = `The job failed: ${e instanceof Error ? e.message : String(e)}`;
   process.exitCode = 1;
 } finally {
-  if (values.summary) writeFileSync(values.summary, `${lines.join('\n')}\n`);
+  if (values.digest) {
+    const input: DigestInput = {
+      date: today,
+      macMemoryGiB: Math.round(totalmem() / 1024 ** 3),
+      installed: await installedModels(),
+      catalog: run.catalog ?? [],
+      previous: run.previous,
+      published: run.published,
+      tests: run.tests,
+      problem: run.problem,
+      waiting: run.waiting,
+    };
+    writeFileSync(values.digest, JSON.stringify(buildDigest(input)), { mode: 0o600 });
+  }
 }

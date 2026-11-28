@@ -3,10 +3,10 @@
     {
       "ollamaModel": "gemma4:26b",
       "label": {
-        "en": "gemma4 26B",
-        "de": "gemma4 26B",
-        "fr": "gemma4 26B",
-        "it": "gemma4 26B"
+        "en": "Gemma 4 26B",
+        "de": "Gemma 4 26B",
+        "fr": "Gemma 4 26B",
+        "it": "Gemma 4 26B"
       },
       "description": {
         "en": "Best all-rounder: fast, good German, sees photos",
@@ -29,10 +29,10 @@
     {
       "ollamaModel": "gemma4:12b",
       "label": {
-        "en": "gemma4 12B",
-        "de": "gemma4 12B",
-        "fr": "gemma4 12B",
-        "it": "gemma4 12B"
+        "en": "Gemma 4 12B",
+        "de": "Gemma 4 12B",
+        "fr": "Gemma 4 12B",
+        "it": "Gemma 4 12B"
       },
       "description": {
         "en": "Same quality class as the 26B at half the speed, needs less memory",
@@ -55,10 +55,10 @@
     {
       "ollamaModel": "gemma4:e4b",
       "label": {
-        "en": "gemma4 E4B",
-        "de": "gemma4 E4B",
-        "fr": "gemma4 E4B",
-        "it": "gemma4 E4B"
+        "en": "Gemma 4 E4B",
+        "de": "Gemma 4 E4B",
+        "fr": "Gemma 4 E4B",
+        "it": "Gemma 4 E4B"
       },
       "description": {
         "en": "Small and quick, sees photos; for computers with 12–16 GB",
@@ -77,10 +77,10 @@
     {
       "ollamaModel": "gemma4:e2b",
       "label": {
-        "en": "gemma4 E2B",
-        "de": "gemma4 E2B",
-        "fr": "gemma4 E2B",
-        "it": "gemma4 E2B"
+        "en": "Gemma 4 E2B",
+        "de": "Gemma 4 E2B",
+        "fr": "Gemma 4 E2B",
+        "it": "Gemma 4 E2B"
       },
       "description": {
         "en": "Small, also understands photos; needs 12 GB or more",
@@ -103,10 +103,10 @@
     {
       "ollamaModel": "qwen3:4b-instruct",
       "label": {
-        "en": "Qwen3 4B",
-        "de": "Qwen3 4B",
-        "fr": "Qwen3 4B",
-        "it": "Qwen3 4B"
+        "en": "Qwen 3 4B",
+        "de": "Qwen 3 4B",
+        "fr": "Qwen 3 4B",
+        "it": "Qwen 3 4B"
       },
       "description": {
         "en": "The smallest: runs on 8 GB, quick and simple answers, no photos",
@@ -129,10 +129,10 @@
     {
       "ollamaModel": "qwen3-coder:30b",
       "label": {
-        "en": "Qwen3-Coder 30B",
-        "de": "Qwen3-Coder 30B",
-        "fr": "Qwen3-Coder 30B",
-        "it": "Qwen3-Coder 30B"
+        "en": "Qwen 3 Coder 30B",
+        "de": "Qwen 3 Coder 30B",
+        "fr": "Qwen 3 Coder 30B",
+        "it": "Qwen 3 Coder 30B"
       },
       "description": {
         "en": "For programming questions; no photos",

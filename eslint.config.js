@@ -77,6 +77,18 @@ export default tseslint.config(
           message: 'Use Tailwind classes; inline styles break the CSP.',
         },
       ],
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: '@hemmia/relay-protocol',
+              message:
+                'The package root pulls in Node-only code (Buffer) and blanks the app in a browser; import a browser-safe subpath such as @hemmia/relay-protocol/names.',
+            },
+          ],
+        },
+      ],
     },
   },
   {

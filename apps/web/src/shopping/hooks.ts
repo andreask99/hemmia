@@ -1,12 +1,15 @@
 /**
  * The shopping lists (P12, P12.6): the family's and the user's own. Changes show at once
  * (optimistic) and reload from the server; the family list also reloads every 10 seconds while
- * it is on screen, so what others add shows up.
+ * it is on screen, so what others add shows up. Past lists (P12.8): a tick or removal that
+ * finishes a list answers with the past list's id, for the page's Undo.
  */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   type Country,
   ShoppingAddedRef,
+  ShoppingArchiveResponse,
+  ShoppingChangeResponse,
   type ShoppingListName,
   ShoppingListResponse,
   ShoppingSettings,
@@ -31,10 +34,11 @@ export function useShopping(list: ShoppingListName) {
 }
 
 /** A change to one list that is shown at once and undone if the server refuses it. */
-function useListChange<V>(
+function useListChange<V, R = unknown>(
   list: ShoppingListName,
-  call: (v: V) => Promise<unknown>,
+  call: (v: V) => Promise<R>,
   apply?: (data: ShoppingListResponse, v: V) => ShoppingListResponse,
+  onSuccess?: (r: R) => void,
 ) {
   const queryClient = useQueryClient();
   const key = keyOf(list);
@@ -47,6 +51,9 @@ function useListChange<V>(
       if (before) queryClient.setQueryData(key, apply(before, v));
       return { before };
     },
+    // Here rather than in mutate(): a ticked row moves to another section and remounts, and
+    // mutate()'s callbacks don't run once the component that called it is gone.
+    ...(onSuccess ? { onSuccess } : {}),
     onError: (_err, _v, ctx) => {
       if (ctx?.before) queryClient.setQueryData(key, ctx.before);
     },
@@ -63,11 +70,18 @@ export function useAddShoppingItem(list: ShoppingListName) {
   );
 }
 
-export function useUpdateShoppingItem(list: ShoppingListName) {
+/** Calls `onFinished` with the past list's id when a change finished (archived) the list. */
+const finishedBy =
+  (onFinished?: (id: string) => void) =>
+  (r: ShoppingChangeResponse): void => {
+    if (r.archived && onFinished) onFinished(r.archived);
+  };
+
+export function useUpdateShoppingItem(list: ShoppingListName, onFinished?: (id: string) => void) {
   return useListChange(
     list,
     ({ key, ...body }: UpdateShoppingItemRequest & { key: string }) =>
-      api(itemPath(list, key), { method: 'PATCH', body }),
+      api(itemPath(list, key), { method: 'PATCH', body, schema: ShoppingChangeResponse }),
     (data, { key, status, alwaysHome }) => ({
       ...data,
       items: data.items.map((i) =>
@@ -82,14 +96,16 @@ export function useUpdateShoppingItem(list: ShoppingListName) {
             },
       ),
     }),
+    finishedBy(onFinished),
   );
 }
 
-export function useRemoveShoppingItem(list: ShoppingListName) {
+export function useRemoveShoppingItem(list: ShoppingListName, onFinished?: (id: string) => void) {
   return useListChange(
     list,
-    (key: string) => api(itemPath(list, key), { method: 'DELETE' }),
+    (key: string) => api(itemPath(list, key), { method: 'DELETE', schema: ShoppingChangeResponse }),
     (data, key) => ({ ...data, items: data.items.filter((i) => i.key !== key) }),
+    finishedBy(onFinished),
   );
 }
 
@@ -167,4 +183,28 @@ export function useSetCountry(list: ShoppingListName) {
       }),
     onSettled: () => queryClient.invalidateQueries({ queryKey: keyOf(list) }),
   });
+}
+
+/** The list's past lists (finished lists, kept 30 days). Reloaded with the list. */
+export function useShoppingArchive(list: ShoppingListName) {
+  return useQuery({
+    queryKey: [...keyOf(list), 'archive'],
+    queryFn: () => api(`/shopping/${list}/archive`, { schema: ShoppingArchiveResponse }),
+  });
+}
+
+/** Undo (the list as it was) or "shop again" (its items back on the list as to buy). */
+export function useRestoreShopping(list: ShoppingListName) {
+  return useListChange(list, ({ id, as }: { id: string; as: 'undo' | 'again' }) =>
+    api(`/shopping/${list}/archive/${encodeURIComponent(id)}/restore`, {
+      method: 'POST',
+      body: { as },
+    }),
+  );
+}
+
+export function useDeleteArchived(list: ShoppingListName) {
+  return useListChange(list, (id: string) =>
+    api(`/shopping/${list}/archive/${encodeURIComponent(id)}`, { method: 'DELETE' }),
+  );
 }

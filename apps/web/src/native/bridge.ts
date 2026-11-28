@@ -56,6 +56,8 @@ interface HubLauncherPlugin {
   showShell: (o?: { push: PushTap }) => Promise<void>;
   takePhoneExport: (o: { token: string }) => Promise<{ json: string }>;
   setSensitive: (o: { on: boolean }) => Promise<void>;
+  /** iOS builds from 2026-11-28 on; older ones reject (unknown method). */
+  pushEnvironment?: () => Promise<{ env: string }>;
 }
 interface CapacitorGlobal {
   isNativePlatform?: () => boolean;
@@ -154,7 +156,16 @@ export function detectNative(
           done(null);
         });
         const value = await token;
-        return value === null ? null : { token: value };
+        if (value === null) return null;
+        // A build run from Xcode gets sandbox tokens, which the production APNs rejects.
+        const env =
+          platform === 'ios'
+            ? await (plugin(plugins, 'HubLauncher') as HubLauncherPlugin)
+                .pushEnvironment?.()
+                .then((r) => (r.env === 'sandbox' ? 'sandbox' : 'production'))
+                .catch(() => undefined)
+            : undefined;
+        return env ? { token: value, env } : { token: value };
       } finally {
         for (const l of listeners) void l.remove();
       }

@@ -396,6 +396,8 @@ export const AdminModel = z.object({
   custom: z.boolean(),
   /** A cloud model (used with each person's own key; never the family default). */
   cloud: z.boolean().default(false),
+  /** The engine's model name (chat models on this Mac: "gemma4:26b"), for sizes and facts. */
+  engineModel: z.string().nullable().default(null),
 });
 export type AdminModel = z.infer<typeof AdminModel>;
 

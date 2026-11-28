@@ -62,6 +62,30 @@ describe('detectNative', () => {
     expect(await bridge?.registerPush()).toEqual({ token: 'abc' });
   });
 
+  it('tells the hub which APNs environment an iOS token belongs to', async () => {
+    const ios = (hub: object) => {
+      const f = fakeCapacitor({ token: 'abc' });
+      return detectNative({
+        Capacitor: {
+          ...f.win.Capacitor,
+          getPlatform: () => 'ios',
+          Plugins: { ...f.win.Capacitor.Plugins, HubLauncher: hub },
+        },
+      });
+    };
+    const env = (value: string) => ({ pushEnvironment: () => Promise.resolve({ env: value }) });
+    expect(await ios(env('sandbox'))?.registerPush()).toEqual({ token: 'abc', env: 'sandbox' });
+    expect(await ios(env('production'))?.registerPush()).toEqual({
+      token: 'abc',
+      env: 'production',
+    });
+    // Older app builds don't have the method, or reject it: the hub assumes production.
+    expect(await ios({})?.registerPush()).toEqual({ token: 'abc' });
+    expect(
+      await ios({ pushEnvironment: () => Promise.reject(new Error('unknown')) })?.registerPush(),
+    ).toEqual({ token: 'abc' });
+  });
+
   it('returns null when permission is refused or registration fails', async () => {
     expect(
       await detectNative(fakeCapacitor({ permission: 'denied' }).win)?.registerPush(),

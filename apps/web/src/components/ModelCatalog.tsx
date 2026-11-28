@@ -40,7 +40,14 @@ interface Active {
 }
 
 /** Settings → Models (and the setup's AI step): browse the catalogue and download a model. */
-export function ModelCatalog({ showCheck = false }: { showCheck?: boolean }) {
+export function ModelCatalog({
+  showCheck = false,
+  hideTitle = false,
+}: {
+  showCheck?: boolean;
+  /** Settings shows the catalogue on its own screen, under its own heading. */
+  hideTitle?: boolean;
+}) {
   const { t, language } = useI18n();
   const { data } = useCatalog();
   const startPull = useStartPull();
@@ -125,7 +132,9 @@ export function ModelCatalog({ showCheck = false }: { showCheck?: boolean }) {
   return (
     <div>
       <OllamaSetup />
-      <h3 className="mb-2 text-sm font-semibold text-muted">{t('catalog.title')}</h3>
+      {!hideTitle && (
+        <h3 className="mb-2 text-sm font-semibold text-muted">{t('catalog.title')}</h3>
+      )}
       <input
         type="search"
         value={query}
@@ -287,7 +296,7 @@ function Badge({ children }: { children: ReactNode }) {
 }
 
 /** The admin's switch "Look for new models" (the daily catalogue request). */
-function CatalogCheck() {
+export function CatalogCheck() {
   const { t } = useI18n();
   const { data } = useModelUpdates();
   const set = useCatalogCheck();

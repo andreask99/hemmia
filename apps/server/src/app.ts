@@ -1026,6 +1026,13 @@ export async function buildApp(config: Config, overrides: AppOverrides = {}): Pr
     attachments.cleanupOrphans(ORPHAN_MAX_AGE_MS).catch((err: unknown) => {
       app.log.error({ err }, 'orphan cleanup failed');
     });
+    // Past shopping lists are deleted after 30 days (P12.8).
+    try {
+      const n = shopping.purgeArchive();
+      if (n > 0) app.log.info({ n }, 'past shopping lists deleted');
+    } catch (err) {
+      app.log.error({ err }, 'shopping archive clean-up failed');
+    }
   }, 60 * 60_000);
   cleanup.unref();
 

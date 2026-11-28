@@ -13,6 +13,12 @@
  * Changes are read-modify-write of the whole value; better-sqlite3 is synchronous and the
  * server is one process, so two changes can't interleave. Moves write both lists in one
  * transaction.
+ *
+ * Past lists (P12.8): when a tick or a removal leaves nothing to buy and at least one item
+ * bought, the whole stored list moves to `shopping_archive` (same key as the list: the owner's
+ * data key, or the family key with user_id NULL) and the list starts empty, in one transaction.
+ * Past lists are deleted after SHOPPING_ARCHIVE_DAYS (`purgeArchive`, hourly, and before every
+ * listing) and at most MAX_SHOPPING_ARCHIVES are kept per list.
  */
 import { randomUUID } from 'node:crypto';
 import {
@@ -22,9 +28,13 @@ import {
   type Language,
   type LineUnit,
   MAX_RECIPE_LINES,
+  MAX_SHOPPING_ARCHIVES,
   MAX_SHOPPING_LINES,
   MAX_SHOPPING_RECIPES,
+  SHOPPING_ARCHIVE_DAYS,
   type ShoppingAddedRef,
+  type ShoppingArchiveEntry,
+  type ShoppingChangeResponse,
   type ShoppingListName,
   type ShoppingListResponse,
   type UpdateShoppingItemRequest,
@@ -51,6 +61,19 @@ import type { DB } from './database.ts';
 
 const StoredSettings = z.object({ country: z.enum(COUNTRIES).nullable(), pantry: Pantry });
 type StoredSettings = z.infer<typeof StoredSettings>;
+
+/** A past list as stored (encrypted like the list it came from). */
+const ArchivedList = z.object({
+  list: StoredList,
+  country: z.enum(COUNTRIES),
+  /** Who ticked off (or removed) the last item. */
+  finishedBy: z.string().max(64),
+  /** The item whose tick finished the list (opened again by Undo); null after a removal. */
+  lastKey: z.string().max(80).nullable(),
+});
+type ArchivedList = z.infer<typeof ArchivedList>;
+
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 /** An ingredient line to add (amounts already in base units, for the recipe's servings). */
 export interface NewLine {
@@ -232,6 +255,194 @@ export function createShoppingRepo(
     store.save(id, copy);
     return true;
   }
+
+  /** Changes one item; `onStatus` is called when its status changed. False when absent. */
+  function updateOne(
+    u: UserKey,
+    name: ShoppingListName,
+    key: string,
+    patch: UpdateShoppingItemRequest,
+    onStatus: () => void,
+  ): boolean {
+    const store = storeOf(u, name);
+    const k = normalizeKey(key);
+    if (patch.alwaysHome !== undefined) {
+      const s = store.settings();
+      const always = s.pantry.always.filter((x) => x !== k);
+      const never = s.pantry.never.filter((x) => x !== k);
+      if (patch.alwaysHome) always.push(k);
+      else never.push(k);
+      store.saveSettings({
+        ...s,
+        pantry: { always: always.slice(-200), never: never.slice(-200) },
+      });
+    }
+    return change(store, (list) => {
+      if (!list.lines.some((l) => mergeKey(l.key) === k)) return false;
+      const state = { ...list.states[k] };
+      const before = state.status;
+      if (patch.status !== undefined) state.status = patch.status;
+      if (patch.alwaysHome !== undefined && patch.status === undefined) {
+        state.status = patch.alwaysHome ? 'home' : 'open';
+      }
+      if (state.status !== before) {
+        onStatus();
+        state.by = u.userId;
+        state.at = now();
+      }
+      if (patch.count === null) delete state.count;
+      else if (patch.count !== undefined) state.count = patch.count;
+      list.states[k] = state;
+      return true;
+    });
+  }
+
+  // ---- Past lists ----
+
+  /** Where one list's past lists are kept: the owner column, and how they are encrypted. */
+  function archiveOwner(u: UserKey, name: ShoppingListName) {
+    const owner = name === 'family' ? null : u.userId;
+    const key = () => (name === 'family' ? familyKey() : u.dek);
+    const aad = (id: string) => aadColumn(owner ?? HOUSEHOLD, 'shopping_archive', id, 'data');
+    return { owner, key, aad };
+  }
+
+  /** Whether a list is finished: nothing left to buy, at least one item bought. */
+  function finished(list: StoredList, pantry: StoredSettings['pantry']): boolean {
+    const items = buildList(list, pantry, 'DE').items;
+    return items.some((i) => i.status === 'bought') && !items.some((i) => i.status === 'open');
+  }
+
+  /**
+   * Archives the list if it is finished (and empties it). Returns the past list's id, or null.
+   * Runs inside the caller's transaction.
+   */
+  function archiveIfFinished(
+    u: Shopper | UserKey,
+    name: ShoppingListName,
+    lastKey: string | null,
+  ): string | null {
+    const store = storeOf(u, name);
+    const { id: listId, list } = store.load();
+    const s = store.settings();
+    if (!finished(list, s.pantry)) return null;
+    const language = 'language' in u ? u.language : 'en';
+    const value: ArchivedList = {
+      list,
+      country: s.country ?? defaultCountry(language, timeZone),
+      finishedBy: u.userId,
+      lastKey,
+    };
+    const { owner, key, aad } = archiveOwner(u, name);
+    const id = randomUUID();
+    db.prepare(
+      'INSERT INTO shopping_archive (id, user_id, data, archived_at) VALUES (?, ?, ?, ?)',
+    ).run(id, owner, encryptString(key(), JSON.stringify(value), aad(id)), now());
+    db.prepare(
+      `DELETE FROM shopping_archive WHERE user_id IS ? AND id NOT IN (
+         SELECT id FROM shopping_archive WHERE user_id IS ?
+         ORDER BY archived_at DESC, rowid DESC LIMIT ?)`,
+    ).run(owner, owner, MAX_SHOPPING_ARCHIVES);
+    store.save(listId, EMPTY_LIST);
+    return id;
+  }
+
+  /** One past list of the caller's (own or family); null when absent or unreadable. */
+  function loadArchive(
+    u: UserKey,
+    name: ShoppingListName,
+    id: string,
+  ): { value: ArchivedList; archivedAt: number } | null {
+    const { owner, key, aad } = archiveOwner(u, name);
+    const row = db
+      .prepare<[string, string | null], { data: Buffer; archived_at: number }>(
+        'SELECT data, archived_at FROM shopping_archive WHERE id = ? AND user_id IS ?',
+      )
+      .get(id, owner);
+    if (!row) return null;
+    try {
+      const value = ArchivedList.parse(
+        JSON.parse(decryptString(key(), row.data, aad(id))) as unknown,
+      );
+      return { value, archivedAt: row.archived_at };
+    } catch (err) {
+      if (!(err instanceof DecryptError) || name !== 'family') throw err;
+      opts.onFamilyUnreadable?.();
+      return null;
+    }
+  }
+
+  const purgeArchive = (): number =>
+    db
+      .prepare<[number]>('DELETE FROM shopping_archive WHERE archived_at < ?')
+      .run(now() - SHOPPING_ARCHIVE_DAYS * DAY_MS).changes;
+
+  /** Puts a past list back on the list (see RestoreShoppingRequest). */
+  const restoreArchive = db.transaction(
+    (u: UserKey, name: ShoppingListName, id: string, as: 'undo' | 'again'): boolean => {
+      const found = loadArchive(u, name, id);
+      if (!found) return false;
+      const past = found.value.list;
+      const store = storeOf(u, name);
+      const { id: listId, list } = store.load();
+      const target: StoredList = structuredClone(list);
+
+      let recipes: StoredRecipe[];
+      let lines: StoredLine[];
+      if (as === 'undo') {
+        const known = new Set(target.recipes.map((r) => r.id));
+        const onList = new Set(target.lines.map((l) => l.id));
+        recipes = past.recipes.filter((r) => !known.has(r.id));
+        lines = past.lines.filter((l) => !onList.has(l.id));
+      } else {
+        const batchId = randomUUID();
+        const ids = new Map(past.recipes.map((r) => [r.id, randomUUID()]));
+        recipes = past.recipes.map((r) => ({ ...r, id: ids.get(r.id) as string, batchId }));
+        lines = past.lines.map((l) => ({
+          ...l,
+          id: randomUUID(),
+          batchId,
+          recipeId: l.recipeId === null ? null : (ids.get(l.recipeId) ?? null),
+          addedBy: u.userId,
+        }));
+      }
+      if (
+        target.lines.length + lines.length > MAX_SHOPPING_LINES ||
+        target.recipes.length + recipes.length > MAX_SHOPPING_RECIPES
+      ) {
+        throw new ShoppingLimitError();
+      }
+
+      const keys = new Set(lines.map((l) => mergeKey(l.key)));
+      if (as === 'undo') {
+        for (const k of keys) {
+          const st = past.states[k];
+          if (st && target.states[k] === undefined) target.states[k] = st;
+        }
+        const last = found.value.lastKey;
+        if (last !== null && keys.has(last)) {
+          target.states[last] = { ...target.states[last], status: 'open', by: u.userId, at: now() };
+        }
+      } else {
+        reopen(target, keys);
+        for (const k of keys) {
+          const count = past.states[k]?.count;
+          if (count !== undefined && target.states[k] === undefined) target.states[k] = { count };
+        }
+      }
+      target.recipes.push(...recipes);
+      target.lines.push(...lines);
+      tidy(target);
+      store.save(listId, target);
+      if (as === 'undo') {
+        db.prepare('DELETE FROM shopping_archive WHERE id = ? AND user_id IS ?').run(
+          id,
+          archiveOwner(u, name).owner,
+        );
+      }
+      return true;
+    },
+  );
 
   /** Usernames by id, for the family list. */
   function people(): People {
@@ -416,53 +627,86 @@ export function createShoppingRepo(
       });
     },
 
-    /** False when the item isn't on the list. */
+    /**
+     * Null when the item isn't on the list. A change of status that finishes the list archives
+     * it (`archived`: the past list's id).
+     */
     updateItem(
       u: UserKey,
       name: ShoppingListName,
       key: string,
       patch: UpdateShoppingItemRequest,
-    ): boolean {
-      const store = storeOf(u, name);
-      const k = normalizeKey(key);
-      if (patch.alwaysHome !== undefined) {
-        const s = store.settings();
-        const always = s.pantry.always.filter((x) => x !== k);
-        const never = s.pantry.never.filter((x) => x !== k);
-        if (patch.alwaysHome) always.push(k);
-        else never.push(k);
-        store.saveSettings({
-          ...s,
-          pantry: { always: always.slice(-200), never: never.slice(-200) },
+    ): ShoppingChangeResponse | null {
+      return db.transaction(() => {
+        const seen = { status: false };
+        const ok = updateOne(u, name, key, patch, () => {
+          seen.status = true;
         });
-      }
-      return change(store, (list) => {
-        if (!list.lines.some((l) => mergeKey(l.key) === k)) return false;
-        const state = { ...list.states[k] };
-        const before = state.status;
-        if (patch.status !== undefined) state.status = patch.status;
-        if (patch.alwaysHome !== undefined && patch.status === undefined) {
-          state.status = patch.alwaysHome ? 'home' : 'open';
-        }
-        if (state.status !== before) {
-          state.by = u.userId;
-          state.at = now();
-        }
-        if (patch.count === null) delete state.count;
-        else if (patch.count !== undefined) state.count = patch.count;
-        list.states[k] = state;
-        return true;
-      });
+        if (!ok) return null;
+        return {
+          archived: seen.status ? archiveIfFinished(u, name, normalizeKey(key)) : null,
+        };
+      })();
     },
 
-    removeItem(u: UserKey, name: ShoppingListName, key: string): boolean {
+    /** Null when the item isn't on the list; removing the last item to buy archives the list. */
+    removeItem(u: UserKey, name: ShoppingListName, key: string): ShoppingChangeResponse | null {
       const k = normalizeKey(key);
-      return change(storeOf(u, name), (list) => {
-        const before = list.lines.length;
-        list.lines = list.lines.filter((l) => mergeKey(l.key) !== k);
-        return list.lines.length !== before;
-      });
+      return db.transaction(() => {
+        const ok = change(storeOf(u, name), (list) => {
+          const before = list.lines.length;
+          list.lines = list.lines.filter((l) => mergeKey(l.key) !== k);
+          return list.lines.length !== before;
+        });
+        if (!ok) return null;
+        return { archived: archiveIfFinished(u, name, null) };
+      })();
     },
+
+    /** The caller's past lists, newest first (expired ones are deleted first). */
+    archive(u: Shopper, name: ShoppingListName): ShoppingArchiveEntry[] {
+      purgeArchive();
+      const { owner } = archiveOwner(u, name);
+      const rows = db
+        .prepare<[string | null], { id: string }>(
+          'SELECT id FROM shopping_archive WHERE user_id IS ? ORDER BY archived_at DESC, rowid DESC',
+        )
+        .all(owner);
+      const pantry = storeOf(u, name).settings().pantry;
+      const who = name === 'family' ? people() : null;
+      const out: ShoppingArchiveEntry[] = [];
+      for (const { id } of rows) {
+        const found = loadArchive(u, name, id);
+        if (!found) continue;
+        const { value, archivedAt } = found;
+        out.push({
+          id,
+          archivedAt,
+          deleteAt: archivedAt + SHOPPING_ARCHIVE_DAYS * DAY_MS,
+          finishedBy: who
+            ? { userId: value.finishedBy, name: who.get(value.finishedBy) ?? null }
+            : null,
+          list: buildList(value.list, pantry, value.country, name, who),
+        });
+      }
+      return out;
+    },
+
+    /** False when the past list isn't there. Throws ShoppingLimitError when the list is full. */
+    restore(u: UserKey, name: ShoppingListName, id: string, as: 'undo' | 'again'): boolean {
+      return restoreArchive(u, name, id, as);
+    },
+
+    deleteArchived(u: UserKey, name: ShoppingListName, id: string): boolean {
+      const { owner } = archiveOwner(u, name);
+      return (
+        db.prepare('DELETE FROM shopping_archive WHERE id = ? AND user_id IS ?').run(id, owner)
+          .changes > 0
+      );
+    },
+
+    /** Deletes past lists older than SHOPPING_ARCHIVE_DAYS; returns how many. */
+    purgeArchive,
 
     setServings(u: UserKey, name: ShoppingListName, recipeId: string, servings: number): boolean {
       return change(storeOf(u, name), (list) => {

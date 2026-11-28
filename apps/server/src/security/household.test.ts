@@ -47,4 +47,24 @@ describe('family key', () => {
     after.addTyped(u, 'family', 'bread');
     expect(after.get(u, 'family').items.map((i) => i.key)).toEqual(['bread']);
   });
+
+  it('skips family past lists the key no longer opens, and deletes them when due', () => {
+    const db = openDatabase(':memory:');
+    const u = { userId: 'u1', dek: randomKey(), language: 'en' as const };
+    let clock = 1_000;
+    const before = createShoppingRepo(db, { now: () => clock });
+    before.addTyped(u, 'family', 'milk');
+    expect(before.updateItem(u, 'family', 'milk', { status: 'bought' })?.archived).toBeTruthy();
+    let warned = 0;
+    const after = createShoppingRepo(db, {
+      now: () => clock,
+      onFamilyUnreadable: () => {
+        warned += 1;
+      },
+    });
+    expect(after.archive(u, 'family')).toEqual([]);
+    expect(warned).toBe(1);
+    clock += 31 * 24 * 60 * 60 * 1000;
+    expect(after.purgeArchive()).toBe(1);
+  });
 });

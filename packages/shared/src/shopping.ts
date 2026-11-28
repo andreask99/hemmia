@@ -162,3 +162,43 @@ export type ShoppingSettings = z.infer<typeof ShoppingSettings>;
 export const MAX_SHOPPING_LINES = 300;
 export const MAX_RECIPE_LINES = 60;
 export const MAX_SHOPPING_RECIPES = 20;
+
+/**
+ * Past lists (P12.8): when the last item on a list is ticked off (nothing left to buy, at least
+ * one item bought), the whole list is archived and the list starts empty. Past lists can be
+ * looked at, put back (Undo right after, or "shop again" later) and deleted; they are deleted
+ * on their own after SHOPPING_ARCHIVE_DAYS.
+ */
+export const SHOPPING_ARCHIVE_DAYS = 30;
+export const MAX_SHOPPING_ARCHIVES = 50;
+
+/**
+ * PATCH and DELETE /api/shopping/:list/items/:key: `archived` is the past list's id when that
+ * change finished the list.
+ */
+export const ShoppingChangeResponse = z.object({ archived: Id.nullable() });
+export type ShoppingChangeResponse = z.infer<typeof ShoppingChangeResponse>;
+
+/** One past list. `list` is the list as it was when finished. */
+export const ShoppingArchiveEntry = z.object({
+  id: Id,
+  archivedAt: z.number().int(),
+  /** When it is deleted on its own. */
+  deleteAt: z.number().int(),
+  /** Family list: who ticked off the last item. */
+  finishedBy: ShoppingPerson.nullable(),
+  list: ShoppingListResponse,
+});
+export type ShoppingArchiveEntry = z.infer<typeof ShoppingArchiveEntry>;
+
+/** GET /api/shopping/:list/archive: newest first. */
+export const ShoppingArchiveResponse = z.object({ archives: z.array(ShoppingArchiveEntry) });
+export type ShoppingArchiveResponse = z.infer<typeof ShoppingArchiveResponse>;
+
+/**
+ * POST /api/shopping/:list/archive/:id/restore. `undo`: the list comes back as it was, with the
+ * item ticked last open again, and the past list goes. `again`: its items are added to the list
+ * as "to buy" (shopping for the same again); the past list stays.
+ */
+export const RestoreShoppingRequest = z.object({ as: z.enum(['undo', 'again']) });
+export type RestoreShoppingRequest = z.infer<typeof RestoreShoppingRequest>;

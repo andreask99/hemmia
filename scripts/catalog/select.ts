@@ -8,6 +8,7 @@ import {
   LibraryModelName,
   compareModelVersions,
   parseModelName,
+  prettyModelName,
 } from '@hemmia/relay-protocol';
 import type { LibraryModel, LibraryTag } from './library.ts';
 
@@ -97,8 +98,7 @@ export function memoryClass(memoryGiB: number): number | null {
 
 /** "qwen3:30b" → "qwen3 30B", "gemma4:e4b" → "gemma4 E4B". */
 export function displayName(ollamaModel: string): string {
-  const [base, tag] = ollamaModel.split(':');
-  return `${base} ${(tag ?? '').toUpperCase()}`.trim();
+  return prettyModelName(ollamaModel).slice(0, 60);
 }
 
 /**

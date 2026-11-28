@@ -8,6 +8,7 @@ import {
   type CatalogModel,
   type CatalogPayload,
   CatalogModel as CatalogModelSchema,
+  prettyModelName,
   verifyCatalog,
 } from '@hemmia/relay-protocol';
 import { z } from 'zod';
@@ -50,7 +51,11 @@ export type CatalogStore = ReturnType<typeof createCatalogStore>;
 export function fromRemote(m: CatalogModel): CatalogEntry {
   return {
     ollamaModel: m.ollamaModel,
-    label: { en: m.name, de: m.name, fr: m.name, it: m.name },
+    // Named from the model id, so older catalogues' generated names ("gemma4 26B") read well too.
+    label: (() => {
+      const name = prettyModelName(m.ollamaModel);
+      return { en: name, de: name, fr: name, it: name };
+    })(),
     description: { en: m.description, de: '', fr: '', it: '' },
     downloadGiB: Math.max(0.1, Math.round((m.downloadBytes / 1024 ** 3) * 10) / 10),
     memoryGiB: m.memoryGiB,

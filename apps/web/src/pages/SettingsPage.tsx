@@ -4,13 +4,13 @@ import { SignInDevice } from '../components/SignInDevice.tsx';
 import { useCallback, useEffect, useState, type ReactNode, type SubmitEvent } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router';
 import { errorMessage } from '../auth/errorMessage.ts';
-import { AdminModels } from '../components/AdminModels.tsx';
+import { ModelsTab } from '../components/ModelsTab.tsx';
 import { DailySection } from '../components/DailySection.tsx';
 import { ProfileSection } from '../components/ProfileSection.tsx';
 import { PageHeader } from '../components/layout.tsx';
 import { disablePush, enablePush, pushState, type PushState } from '../push/push.ts';
 import { useMe } from '../auth/hooks.ts';
-import { modelLabel, useModels } from '../chat/hooks.ts';
+import { useModels } from '../chat/hooks.ts';
 import { useI18n } from '../i18n/index.tsx';
 import {
   useAdminUsers,
@@ -24,12 +24,10 @@ import {
   useLogoutAll,
   usePause,
   useSessions,
-  useUpdateMe,
   useUpdateUser,
 } from '../settings/hooks.ts';
 import { SystemPanel } from '../components/SystemPanel.tsx';
 import { FeedbackBox } from '../components/FeedbackBox.tsx';
-import { CloudSection } from '../components/CloudSection.tsx';
 import { native } from '../native/bridge.ts';
 import { ApiError } from '../api/client.ts';
 
@@ -570,14 +568,20 @@ function Notifications() {
   const { t } = useI18n();
   const [state, setState] = useState<PushState | null>(null);
   const [working, setWorking] = useState(false);
+  /** Turning on ended up off (no push address from the phone): say so instead of flipping back. */
+  const [failed, setFailed] = useState(false);
   useEffect(() => {
     void pushState().then(setState);
   }, []);
-  const run = (fn: () => Promise<PushState>) => {
+  const run = (fn: () => Promise<PushState>, turningOn: boolean) => {
     setWorking(true);
-    fn()
-      .then(setState)
-      .catch(() => pushState().then(setState))
+    setFailed(false);
+    void fn()
+      .catch(() => pushState())
+      .then((next) => {
+        setState(next);
+        setFailed(turningOn && next === 'off');
+      })
       .finally(() => {
         setWorking(false);
       });
@@ -594,12 +598,17 @@ function Notifications() {
     <div className="flex flex-col gap-3">
       <p className="text-sm text-muted">{t('notify.hint')}</p>
       {note && <p className="text-sm">{note}</p>}
+      {failed && (
+        <p role="alert" className="text-sm text-danger">
+          {t('notify.failed')}
+        </p>
+      )}
       {(state === 'off' || state === 'on') && (
         <button
           type="button"
           disabled={working}
           onClick={() => {
-            run(state === 'on' ? disablePush : enablePush);
+            run(state === 'on' ? disablePush : enablePush, state !== 'on');
           }}
           className={
             state === 'on'
@@ -652,15 +661,11 @@ function readLastTab(): string | null {
 }
 
 export function SettingsPage() {
-  const { t, language } = useI18n();
+  const { t } = useI18n();
   const me = useMe().data;
-  const models = useModels().data;
-  const updateMe = useUpdateMe();
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [saved, setSaved] = useState(false);
-
   // Back to where the user came from (usually a chat); the start page if Settings was opened directly.
   const back = useCallback(() => {
     if (location.key !== 'default') void navigate(-1);
@@ -689,7 +694,6 @@ export function SettingsPage() {
     }
     setSearchParams({ tab: next }, { replace: true });
   };
-  const defaultModel = me.defaultModelId ?? models?.defaultChatModel ?? '';
   const tabLabel: Record<Tab, string> = {
     account: t('settings.tabAccount'),
     family: t('settings.tabFamily'),
@@ -797,45 +801,7 @@ export function SettingsPage() {
           )}
           {tab === 'models' && (
             <>
-              <Section title={t('settings.defaultModel')}>
-                <select
-                  name="defaultModel"
-                  aria-label={t('settings.defaultModel')}
-                  value={defaultModel}
-                  disabled={!models}
-                  onChange={(e) => {
-                    setSaved(false);
-                    updateMe.mutate(
-                      { defaultModelId: e.target.value },
-                      {
-                        onSuccess: () => {
-                          setSaved(true);
-                        },
-                      },
-                    );
-                  }}
-                  className={input}
-                >
-                  {models?.chatModels.map((m) => (
-                    <option key={m.id} value={m.id}>
-                      {modelLabel(m, language)}
-                    </option>
-                  ))}
-                </select>
-                {saved && (
-                  <p role="status" className="mt-2 text-sm text-ok">
-                    {t('settings.saved')}
-                  </p>
-                )}
-              </Section>
-              {isAdmin && (
-                <Section title={t('admin.familyModels')}>
-                  <AdminModels />
-                </Section>
-              )}
-              <Section title={t('cloud.title')}>
-                <CloudSection />
-              </Section>
+              <ModelsTab isAdmin={isAdmin} />
               {isAdmin && (
                 <div className="flex flex-col px-1">
                   <FeedbackBox page="settings/models" />

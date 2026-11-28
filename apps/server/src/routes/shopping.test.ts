@@ -5,6 +5,8 @@ import {
   ChatSummary,
   MessagesResponse,
   ShoppingAddedRef,
+  ShoppingArchiveResponse,
+  ShoppingChangeResponse,
   ShoppingListResponse,
 } from '@hemmia/shared';
 import { type App, buildApp } from '../app.ts';
@@ -16,6 +18,8 @@ import type { ModelRegistry, ResolvedChatModel } from '../models/types.ts';
 
 const ORIGIN = 'http://localhost:5173';
 const NOW = new Date(2026, 10, 24, 18, 0).getTime();
+const DAY = 24 * 60 * 60 * 1000;
+let clock = NOW;
 const model: ResolvedChatModel = {
   id: 'smart',
   label: { en: 'Smart', de: 'Smart' },
@@ -56,6 +60,7 @@ const llm: LlmClient = {
 let built: App;
 let app: FastifyInstance;
 beforeEach(async () => {
+  clock = NOW;
   rounds = [];
   requests = [];
   built = await buildApp(loadConfig({ NODE_ENV: 'test' }), {
@@ -63,7 +68,7 @@ beforeEach(async () => {
     kdfParams: { m: 1024, t: 1, p: 1 },
     llm,
     registry,
-    now: () => NOW,
+    now: () => clock,
     webSearchRun: () => Promise.reject(new Error('unused')),
   });
   app = built.app;
@@ -101,6 +106,16 @@ const call = (
   });
 const list = async (cookie: string, name: 'mine' | 'family' = 'mine') =>
   ShoppingListResponse.parse((await call('GET', `/api/shopping/${name}`, cookie)).json());
+const archive = async (cookie: string, name: 'mine' | 'family' = 'mine') =>
+  ShoppingArchiveResponse.parse((await call('GET', `/api/shopping/${name}/archive`, cookie)).json())
+    .archives;
+const tick = async (cookie: string, name: 'mine' | 'family', key: string) => {
+  const res = await call('PATCH', `/api/shopping/${name}/items/${key}`, cookie, {
+    status: 'bought',
+  });
+  expect(res.statusCode).toBe(200);
+  return ShoppingChangeResponse.parse(res.json()).archived;
+};
 
 describe('shopping list', () => {
   it('keeps each person’s list to themselves, encrypted', async () => {
@@ -148,9 +163,9 @@ describe('shopping list', () => {
           count: 10,
         })
       ).statusCode,
-    ).toBe(204);
-    await call('PATCH', '/api/shopping/mine/items/saffron', rosa.cookie, { alwaysHome: true });
+    ).toBe(200);
     await call('PATCH', '/api/shopping/mine/items/salt', rosa.cookie, { status: 'open' });
+    await call('PATCH', '/api/shopping/mine/items/saffron', rosa.cookie, { alwaysHome: true });
     items = (await list(rosa.cookie)).items;
     expect(items.find((i) => i.key === 'eggs')).toMatchObject({
       status: 'bought',
@@ -325,7 +340,7 @@ describe('shopping list', () => {
     expect(
       (await call('PATCH', '/api/shopping/family/items/milk', kid.cookie, { status: 'bought' }))
         .statusCode,
-    ).toBe(204);
+    ).toBe(200);
     expect((await list(rosa.cookie, 'family')).items.find((i) => i.key === 'milk')).toMatchObject({
       status: 'bought',
       ticked: { userId: kid.userId, name: 'kid', at: NOW },
@@ -346,6 +361,8 @@ describe('shopping list', () => {
     // Egg boxes depend on the country (10 in Germany, 12 in the UK): fix it, not the time zone.
     await call('PUT', '/api/shopping/family/settings', ben.cookie, { country: 'DE' });
     await call('POST', '/api/shopping/family/items', ben.cookie, { text: '6 eggs' });
+    // Something still to buy, so ticking the eggs doesn't finish (archive) the list.
+    await call('POST', '/api/shopping/family/items', ben.cookie, { text: 'bread' });
     await call('PATCH', '/api/shopping/family/items/eggs', ben.cookie, { status: 'bought' });
     await call('POST', '/api/shopping/mine/items', rosa.cookie, { text: '4 eggs' });
     await call('POST', '/api/shopping/mine/items', rosa.cookie, { text: 'candles' });
@@ -363,6 +380,7 @@ describe('shopping list', () => {
         .statusCode,
     ).toBe(204);
     expect((await list(ben.cookie, 'family')).items.map((i) => i.key).sort()).toEqual([
+      'bread',
       'candles',
       'eggs',
     ]);
@@ -469,5 +487,178 @@ describe('shopping list', () => {
     expect(requests[1]?.messages.at(-1)?.content).toContain("the user's own shopping list");
     expect((await list(rosa.cookie)).items.map((i) => i.key)).toEqual(['wool socks']);
     expect((await list(rosa.cookie, 'family')).items).toEqual([]);
+  });
+  it('archives a list once everything is ticked off, with Undo', async () => {
+    const rosa = await signUp('rosa');
+    await call('PUT', '/api/shopping/mine/settings', rosa.cookie, { country: 'DE' });
+    for (const text of ['2 l Milch', 'Bananen', 'Salz']) {
+      await call('POST', '/api/shopping/mine/items', rosa.cookie, { text });
+    }
+    // Salt starts "at home": it doesn't need ticking.
+    expect(await tick(rosa.cookie, 'mine', 'milk')).toBeNull();
+    const id = await tick(rosa.cookie, 'mine', 'banana');
+    expect(id).not.toBeNull();
+    expect((await list(rosa.cookie)).items).toEqual([]);
+
+    const [past, ...more] = await archive(rosa.cookie);
+    expect(more).toEqual([]);
+    expect(past).toMatchObject({ id, archivedAt: NOW, deleteAt: NOW + 30 * DAY, finishedBy: null });
+    expect(past?.list.items.map((i) => [i.key, i.status])).toEqual([
+      ['banana', 'bought'],
+      ['milk', 'bought'],
+      ['salt', 'home'],
+    ]);
+    const raw = built.db.prepare('SELECT data, user_id FROM shopping_archive').get() as {
+      data: Buffer;
+      user_id: string;
+    };
+    expect(raw.user_id).toBe(rosa.userId);
+    expect(raw.data.toString('latin1')).not.toContain('Milch');
+
+    // Undo: the list is back, the last tick undone; the past list is gone.
+    expect(
+      (
+        await call('POST', `/api/shopping/mine/archive/${id ?? ''}/restore`, rosa.cookie, {
+          as: 'undo',
+        })
+      ).statusCode,
+    ).toBe(204);
+    expect((await list(rosa.cookie)).items.map((i) => [i.key, i.status])).toEqual([
+      ['banana', 'open'],
+      ['milk', 'bought'],
+      ['salt', 'home'],
+    ]);
+    expect(await archive(rosa.cookie)).toEqual([]);
+  });
+
+  it('archives when the last item to buy is removed, not when nothing was bought', async () => {
+    const rosa = await signUp('rosa');
+    await call('POST', '/api/shopping/mine/items', rosa.cookie, { text: 'Salz' });
+    await call('POST', '/api/shopping/mine/items', rosa.cookie, { text: 'milk' });
+    await call('POST', '/api/shopping/mine/items', rosa.cookie, { text: 'candles' });
+    await call('PATCH', '/api/shopping/mine/items/milk', rosa.cookie, { status: 'home' });
+    // Only "at home" and "to buy" left: removing candles leaves nothing bought.
+    const removed = await call('DELETE', '/api/shopping/mine/items/candles', rosa.cookie);
+    expect(ShoppingChangeResponse.parse(removed.json()).archived).toBeNull();
+    expect((await list(rosa.cookie)).items).toHaveLength(2);
+
+    await call('POST', '/api/shopping/mine/items', rosa.cookie, { text: 'bread' });
+    await call('POST', '/api/shopping/mine/items', rosa.cookie, { text: 'candles' });
+    expect(await tick(rosa.cookie, 'mine', 'bread')).toBeNull();
+    const done = await call('DELETE', '/api/shopping/mine/items/candles', rosa.cookie);
+    expect(ShoppingChangeResponse.parse(done.json()).archived).not.toBeNull();
+    expect((await list(rosa.cookie)).items).toEqual([]);
+    expect((await call('DELETE', '/api/shopping/mine/items/nope', rosa.cookie)).statusCode).toBe(
+      404,
+    );
+  });
+
+  it('shops for a past list again, adding to what is on the list', async () => {
+    const rosa = await signUp('rosa');
+    await call('PUT', '/api/shopping/mine/settings', rosa.cookie, { country: 'DE' });
+    await call('POST', '/api/shopping/mine/items', rosa.cookie, { text: '6 eggs' });
+    await call('PATCH', '/api/shopping/mine/items/eggs', rosa.cookie, { count: 10 });
+    const id = (await tick(rosa.cookie, 'mine', 'eggs')) ?? '';
+    await call('POST', '/api/shopping/mine/items', rosa.cookie, { text: 'bread' });
+
+    const again = () =>
+      call('POST', `/api/shopping/mine/archive/${id}/restore`, rosa.cookie, { as: 'again' });
+    expect((await again()).statusCode).toBe(204);
+    const items = (await list(rosa.cookie)).items;
+    expect(items.map((i) => [i.key, i.status]).sort()).toEqual([
+      ['bread', 'open'],
+      ['eggs', 'open'],
+    ]);
+    expect(items.find((i) => i.key === 'eggs')?.buy?.count).toBe(10);
+    // The past list stays, and can be used again.
+    expect(await archive(rosa.cookie)).toHaveLength(1);
+    expect((await again()).statusCode).toBe(204);
+    expect((await list(rosa.cookie)).items.find((i) => i.key === 'eggs')?.sources).toHaveLength(2);
+
+    expect((await call('DELETE', `/api/shopping/mine/archive/${id}`, rosa.cookie)).statusCode).toBe(
+      204,
+    );
+    expect(await archive(rosa.cookie)).toEqual([]);
+    expect((await again()).statusCode).toBe(404);
+  });
+
+  it('shares the family’s past lists and keeps own ones private', async () => {
+    const rosa = await signUp('rosa');
+    const kid = await signUp('kid', true);
+    await call('POST', '/api/shopping/family/items', rosa.cookie, { text: 'milk' });
+    await call('POST', '/api/shopping/mine/items', rosa.cookie, { text: 'candles' });
+    const familyId = (await tick(kid.cookie, 'family', 'milk')) ?? '';
+    const ownId = (await tick(rosa.cookie, 'mine', 'candles')) ?? '';
+
+    const seen = await archive(rosa.cookie, 'family');
+    expect(seen.map((a) => [a.id, a.finishedBy])).toEqual([
+      [familyId, { userId: kid.userId, name: 'kid' }],
+    ]);
+    expect(seen[0]?.list.items[0]).toMatchObject({
+      key: 'milk',
+      ticked: { userId: kid.userId, name: 'kid' },
+    });
+    const raw = built.db
+      .prepare('SELECT user_id FROM shopping_archive WHERE id = ?')
+      .get(familyId) as { user_id: string | null };
+    expect(raw.user_id).toBeNull();
+
+    // Rosa's own past list isn't the kid's to see, restore or delete.
+    expect(await archive(kid.cookie)).toEqual([]);
+    expect(
+      (
+        await call('POST', `/api/shopping/mine/archive/${ownId}/restore`, kid.cookie, {
+          as: 'undo',
+        })
+      ).statusCode,
+    ).toBe(404);
+    expect(
+      (await call('DELETE', `/api/shopping/mine/archive/${ownId}`, kid.cookie)).statusCode,
+    ).toBe(404);
+    expect(
+      (await call('DELETE', `/api/shopping/family/archive/${ownId}`, kid.cookie)).statusCode,
+    ).toBe(404);
+    expect(await archive(rosa.cookie)).toHaveLength(1);
+
+    // Anyone in the family can undo or delete the family's.
+    expect(
+      (
+        await call('POST', `/api/shopping/family/archive/${familyId}/restore`, rosa.cookie, {
+          as: 'undo',
+        })
+      ).statusCode,
+    ).toBe(204);
+    expect((await list(kid.cookie, 'family')).items.map((i) => i.status)).toEqual(['open']);
+    expect(
+      (await call('POST', '/api/shopping/family/archive/x.y/restore', rosa.cookie, { as: 'undo' }))
+        .statusCode,
+    ).toBe(400);
+    expect(
+      (
+        await call('POST', `/api/shopping/family/archive/${familyId}/restore`, rosa.cookie, {
+          as: 'later',
+        })
+      ).statusCode,
+    ).toBe(400);
+  });
+
+  it('deletes past lists after 30 days', async () => {
+    const rosa = await signUp('rosa');
+    await call('POST', '/api/shopping/mine/items', rosa.cookie, { text: 'milk' });
+    await tick(rosa.cookie, 'mine', 'milk');
+    clock = NOW + 10 * DAY;
+    await call('POST', '/api/shopping/family/items', rosa.cookie, { text: 'bread' });
+    await tick(rosa.cookie, 'family', 'bread');
+
+    clock = NOW + 30 * DAY;
+    expect(await archive(rosa.cookie)).toHaveLength(1);
+    clock = NOW + 30 * DAY + 1;
+    expect(await archive(rosa.cookie)).toEqual([]);
+    expect(await archive(rosa.cookie, 'family')).toHaveLength(1);
+
+    clock = NOW + 41 * DAY;
+    expect(built.db.prepare('SELECT COUNT(*) AS n FROM shopping_archive').get()).toEqual({ n: 1 });
+    expect(await archive(rosa.cookie, 'family')).toEqual([]);
+    expect(built.db.prepare('SELECT COUNT(*) AS n FROM shopping_archive').get()).toEqual({ n: 0 });
   });
 });

@@ -126,7 +126,7 @@ describe('model downloads', () => {
     expect(events.at(-1)).toEqual({ type: 'done', modelId: 'x-gemma4-e2b' });
     const admin = AdminModelsResponse.parse((await call('GET', '/api/admin/models')).json());
     expect(admin.models.find((m) => m.id === 'x-gemma4-e2b')).toMatchObject({
-      label: { en: 'gemma4 E2B' },
+      label: { en: 'Gemma 4 E2B' },
       enabled: true,
       custom: true,
     });

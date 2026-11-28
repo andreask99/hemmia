@@ -1,6 +1,7 @@
 /**
  * Model registry: config/models.json merged with live capabilities from the engine.
  */
+import { isGeneratedModelLabel, prettyModelName } from '@hemmia/relay-protocol';
 import { fullText } from '../config/schema.ts';
 import {
   type AdminModelsResponse,
@@ -94,7 +95,14 @@ function extraAsConfig(m: ModelOverrides['extraModels'][number]): ChatEntry {
     customVision: m.vision,
     customTools: m.tools,
     id: m.id,
-    label: { en: m.label, de: m.label, fr: m.label, it: m.label },
+    label: (() => {
+      // Older downloads were labelled "gemma4 26B"; labels an admin typed stay as they are.
+      const l =
+        !custom && isGeneratedModelLabel(m.label, m.engineModel)
+          ? prettyModelName(m.engineModel)
+          : m.label;
+      return { en: l, de: l, fr: l, it: l };
+    })(),
     details: custom
       ? { en: m.engineModel, de: m.engineModel, fr: m.engineModel, it: m.engineModel }
       : (() => {
@@ -292,6 +300,7 @@ export function createModelRegistry(options: RegistryOptions): ModelRegistry {
             : (await capabilities(m)) !== null,
           custom: extraIds.has(m.id),
           cloud: false,
+          engineModel: m.ollamaModel,
         })),
       );
       const cloud = models.cloudModels.map((m) => ({
@@ -303,6 +312,7 @@ export function createModelRegistry(options: RegistryOptions): ModelRegistry {
         installed: true,
         custom: false,
         cloud: true,
+        engineModel: null,
       }));
       const image = models.imageModels.map((m) => ({
         id: m.id,
@@ -313,6 +323,7 @@ export function createModelRegistry(options: RegistryOptions): ModelRegistry {
         installed: true,
         custom: false,
         cloud: false,
+        engineModel: null,
       }));
       const offered = new Set(
         allChat()

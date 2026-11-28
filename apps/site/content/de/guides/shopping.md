@@ -26,6 +26,10 @@ Unter der Antwort zeigt Hemmia, wie viele Sachen dazugekommen sind und welche Pr
 
 Die Rezepte auf der Liste stehen oben. Ändere die Portionen mit **−** und **+**, und die Mengen ziehen mit; **×** nimmt ein Rezept samt Zutaten herunter.
 
+## Wenn alles abgehakt ist
+
+Ist nichts mehr zu kaufen, wird die Liste archiviert und beginnt leer. **Rückgängig** holt sie zurück, falls der letzte Haken ein Versehen war. Erledigte Listen bleiben 30 Tage unter **Frühere Listen**: Öffne eine, um zu sehen, was draufstand, oder tippe auf **Nochmal einkaufen**, um ihre Sachen wieder auf die Liste zu setzen. Nach 30 Tagen werden sie gelöscht.
+
 ## Familienliste und eigene Liste
 
 Oben auf der Liste wechselst du zwischen **Familie** und **Meine**; die Zahl daneben sagt, was noch zu kaufen ist.

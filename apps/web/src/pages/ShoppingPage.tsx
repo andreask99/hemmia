@@ -12,6 +12,7 @@ import {
 import { ApiError } from '../api/client.ts';
 import { useMe } from '../auth/hooks.ts';
 import { PageHeader } from '../components/layout.tsx';
+import { ShoppingPastLists } from '../components/ShoppingPastLists.tsx';
 import { type MessageKey, useI18n } from '../i18n/index.tsx';
 import { formatBuy, formatNeed } from '../shopping/format.ts';
 import { dismissShare, lastList, rememberList, shareDismissed } from '../shopping/lastList.ts';
@@ -21,6 +22,7 @@ import {
   useMoveShopping,
   useRemoveRecipe,
   useRemoveShoppingItem,
+  useRestoreShopping,
   useSetCountry,
   useSetServings,
   useShopping,
@@ -62,8 +64,9 @@ const COUNTRY_KEYS: Record<Country, MessageKey> = {
 const JUST_ADDED_MS = 15_000;
 
 /**
- * Keys of items that appeared on the list since it was last shown and weren't added by the
- * user (someone else in the family added them); cleared after a while.
+ * Keys of items to buy that appeared on the list since it was last shown and weren't added by
+ * the user (someone else in the family added them); cleared after a while. Items that come back
+ * already bought (an Undo of a finished list) aren't new.
  */
 function useJustAdded(data: ShoppingListResponse | undefined, me: string | undefined) {
   const seen = useRef<{ list: ShoppingListName; keys: Set<string> } | null>(null);
@@ -75,7 +78,10 @@ function useJustAdded(data: ShoppingListResponse | undefined, me: string | undef
     seen.current = { list: data.list, keys };
     if (!before || before.list !== data.list || data.list !== 'family') return;
     const added = data.items
-      .filter((i) => !before.keys.has(i.key) && !i.addedBy.some((p) => p.userId === me))
+      .filter(
+        (i) =>
+          i.status === 'open' && !before.keys.has(i.key) && !i.addedBy.some((p) => p.userId === me),
+      )
       .map((i) => i.key);
     if (added.length === 0) return;
     setFresh((f) => new Set([...f, ...added]));
@@ -89,7 +95,10 @@ function useJustAdded(data: ShoppingListResponse | undefined, me: string | undef
   return fresh;
 }
 
-/** The shopping lists, family and own: recipes, items by aisle, at home, bought (P12). */
+/**
+ * The shopping lists, family and own: recipes, items by aisle, at home, bought (P12). Ticking
+ * off the last item archives the list (P12.8): a card offers Undo, past lists are below.
+ */
 export function ShoppingPage() {
   const { t } = useI18n();
   const [list, setList] = useState<ShoppingListName>(lastList);
@@ -106,11 +115,20 @@ export function ShoppingPage() {
   const [open, setOpen] = useState<string | null>(null);
   const [confirmClear, setConfirmClear] = useState(false);
   const [shareHidden, setShareHidden] = useState(shareDismissed);
+  /** The past list the user's last tick made, for its Undo. */
+  const [finished, setFinished] = useState<{ list: ShoppingListName; id: string } | null>(null);
+  const restore = useRestoreShopping(list);
+  const onFinished = (id: string) => {
+    setFinished({ list, id });
+    setOpen(null);
+    setConfirmClear(false);
+  };
 
   const choose = (next: ShoppingListName) => {
     setList(next);
     setOpen(null);
     setConfirmClear(false);
+    setFinished(null);
     add.reset();
     rememberList(next);
   };
@@ -188,6 +206,7 @@ export function ShoppingPage() {
       onToggleOpen={() => {
         setOpen((o) => (o === item.key ? null : item.key));
       }}
+      onFinished={onFinished}
     />
   );
 
@@ -301,7 +320,46 @@ export function ShoppingPage() {
             </p>
           )}
 
-          {data.items.length === 0 && (
+          {finished?.list === list && (
+            <div
+              role="status"
+              className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-2xl border border-forest bg-card p-3.5 text-sm"
+            >
+              <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-forest text-on-forest">
+                <CheckIcon size={16} />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block font-semibold">{t('shopping.finishedTitle')}</span>
+                <span className="block text-muted">{t('shopping.finishedText')}</span>
+              </span>
+              <button
+                type="button"
+                disabled={restore.isPending}
+                onClick={() => {
+                  restore.mutate(
+                    { id: finished.id, as: 'undo' },
+                    {
+                      onSuccess: () => {
+                        setFinished(null);
+                      },
+                    },
+                  );
+                }}
+                className={secondaryButton}
+              >
+                {t('shopping.undo')}
+              </button>
+              {restore.error && (
+                <p role="alert" className="w-full text-danger">
+                  {restore.error instanceof ApiError && restore.error.code === 'too_many'
+                    ? t('shopping.full')
+                    : t('error.generic')}
+                </p>
+              )}
+            </div>
+          )}
+
+          {data.items.length === 0 && finished?.list !== list && (
             <div className="rounded-2xl border border-dashed border-line p-5 text-sm text-muted">
               <p className="font-semibold text-ink">
                 {t(list === 'family' ? 'shopping.emptyFamilyTitle' : 'shopping.emptyTitle')}
@@ -415,6 +473,14 @@ export function ShoppingPage() {
             </div>
           )}
 
+          <ShoppingPastLists
+            list={list}
+            me={me}
+            onShopAgain={() => {
+              setFinished(null);
+            }}
+          />
+
           {list === 'mine' && <p className="text-xs text-muted">{t('shopping.onlyYou')}</p>}
         </div>
       </div>
@@ -502,6 +568,7 @@ function ItemRow({
   country,
   open,
   onToggleOpen,
+  onFinished,
 }: {
   item: ShoppingItem;
   list: ShoppingListName;
@@ -510,10 +577,12 @@ function ItemRow({
   country: Country;
   open: boolean;
   onToggleOpen: () => void;
+  /** The change finished the list: it was archived as this past list. */
+  onFinished: (id: string) => void;
 }) {
   const { t, language } = useI18n();
-  const update = useUpdateShoppingItem(list);
-  const remove = useRemoveShoppingItem(list);
+  const update = useUpdateShoppingItem(list, onFinished);
+  const remove = useRemoveShoppingItem(list, onFinished);
   const move = useMoveShopping(list);
   const done = item.status === 'bought';
   const you = t('shopping.you');

@@ -3,7 +3,6 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { I18nProvider } from '../i18n/index.tsx';
 import { json, stubFetch } from '../test-utils.tsx';
-import { InstalledModels } from './InstalledModels.tsx';
 import { ModelUpdates } from './ModelUpdates.tsx';
 
 const UPDATE = {
@@ -107,38 +106,5 @@ describe('ModelUpdates', () => {
       expect(calls.length).toBeGreaterThan(0);
     });
     expect(screen.queryByText('New model versions')).toBeNull();
-  });
-});
-
-describe('InstalledModels', () => {
-  it('asks before deleting and explains a refusal', async () => {
-    const calls = stubFetch((url) => {
-      if (url === '/api/admin/models/installed') {
-        return json({
-          diskFreeGiB: 52.4,
-          models: [
-            { model: 'gemma4:26b', sizeGiB: 17.4, offeredId: 'smart' },
-            { model: 'qwen3-coder-dev:latest', sizeGiB: 17.3, offeredId: null },
-          ],
-        });
-      }
-      if (url === '/api/admin/models/remove') {
-        return json({ error: { code: 'last_model' } }, 409);
-      }
-      return undefined;
-    });
-    renderIt(<InstalledModels />);
-    expect(await screen.findByText('52 GB free on this computer')).toBeDefined();
-    expect(screen.getByText(/17.4 GB · offered/)).toBeDefined();
-    expect(screen.getByText(/17.3 GB · not used by Hemmia/)).toBeDefined();
-    fireEvent.click(screen.getAllByRole('button', { name: 'Delete' })[0] as HTMLElement);
-    expect(screen.getByText('Delete gemma4:26b from this computer?')).toBeDefined();
-    expect(calls.some((c) => c.url === '/api/admin/models/remove')).toBe(false);
-    fireEvent.click(screen.getAllByRole('button', { name: 'Delete' })[0] as HTMLElement);
-    expect((await screen.findByRole('alert')).textContent).toBe(
-      'This is the family’s last model. Add another one first.',
-    );
-    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
-    expect(screen.queryByText('Delete gemma4:26b from this computer?')).toBeNull();
   });
 });

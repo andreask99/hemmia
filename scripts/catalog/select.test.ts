@@ -134,7 +134,7 @@ describe('tags and memory', () => {
     expect(memoryClass(22.1)).toBe(32);
     expect(memoryClass(4.4)).toBe(8);
     expect(memoryClass(600)).toBeNull();
-    expect(displayName('gemma4:e4b')).toBe('gemma4 E4B');
+    expect(displayName('gemma4:e4b')).toBe('Gemma 4 E4B');
   });
 });
 

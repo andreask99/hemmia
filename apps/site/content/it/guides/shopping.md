@@ -26,6 +26,10 @@ Apri **Lista della spesa** nel menu. Gli articoli sono ordinati per reparto. Spu
 
 Le ricette della lista sono in alto. Cambia le porzioni con **−** e **+** e le quantità si adeguano; **×** toglie una ricetta con i suoi ingredienti.
 
+## Quando è tutto spuntato
+
+Quando non resta nulla da comprare, la lista viene archiviata e riparte vuota. **Annulla** la riporta indietro se l’ultima spunta era un errore. Le liste completate restano 30 giorni in **Liste precedenti**: aprine una per vedere cosa c’era, oppure tocca **Ricomprare le stesse cose** per rimettere i suoi articoli sulla lista. Dopo 30 giorni vengono eliminate.
+
 ## La lista di famiglia e la tua
 
 In cima alla lista passi da **Famiglia** a **Mia**; il numero accanto dice cosa resta da comprare.

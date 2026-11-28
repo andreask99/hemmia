@@ -7,6 +7,7 @@
  */
 import type {
   Agent,
+  ShoppingArchiveEntry,
   ShoppingItem,
   ShoppingListResponse,
   ShoppingListName,
@@ -44,6 +45,8 @@ import {
   AddShoppingItemRequest,
   ClearShoppingRequest,
   MoveShoppingRequest,
+  RestoreShoppingRequest,
+  SHOPPING_ARCHIVE_DAYS,
   ShoppingSettings,
   UpdateShoppingItemRequest,
   UpdateShoppingRecipeRequest,
@@ -111,6 +114,8 @@ interface State {
   plans: Plan[];
   daily: DailySettings;
   shopping: Record<ShoppingListName, ShoppingListResponse>;
+  /** Past lists, newest first. */
+  pastShopping: Record<ShoppingListName, ShoppingArchiveEntry[]>;
   notes: ProfileNote[];
   profileUpdatedAt: number | null;
   paused: boolean;
@@ -191,6 +196,7 @@ function seed(lang: Language, now: number): State {
     ...planner,
     daily: { ...DAILY },
     shopping: { family: seedShopping(lang), mine: seedOwnShopping(lang) },
+    pastShopping: { family: [seedPastShopping(lang, now)], mine: [] },
     notes: seedProfile(lang).map((text, i) => ({
       id: `demo-note-${String(i)}`,
       text,
@@ -242,6 +248,28 @@ function seedOwnShopping(lang: Language): ShoppingListResponse {
         ticked: null,
       },
     ],
+  };
+}
+
+/** A past family list: last week's shop, finished by ben. */
+function seedPastShopping(lang: Language, now: number): ShoppingArchiveEntry {
+  const at = now - 3 * DAY;
+  const ben = DEMO_PEOPLE.ben as ShoppingPerson;
+  const list = seedShopping(lang);
+  return {
+    id: 'demo-past-1',
+    archivedAt: at,
+    deleteAt: at + SHOPPING_ARCHIVE_DAYS * DAY,
+    finishedBy: ben,
+    list: {
+      ...list,
+      recipes: [],
+      items: list.items.map((i) => ({
+        ...i,
+        sources: [],
+        ...(i.status === 'home' ? {} : { status: 'bought' as const, ticked: { ...ben, at } }),
+      })),
+    },
   };
 }
 
@@ -442,6 +470,8 @@ const WORDS = new Set([
   'state',
   'subscription',
   'system',
+  'installed',
+  'updates',
   'tasks',
   'users',
   'web-search',
@@ -505,6 +535,7 @@ export function createDemoServer(lang: Language, options: DemoServerOptions): De
         installed: true,
         custom: false,
         cloud: false,
+        engineModel: m.engineModel,
       })),
       {
         id: 'image',
@@ -515,6 +546,7 @@ export function createDemoServer(lang: Language, options: DemoServerOptions): De
         installed: true,
         custom: false,
         cloud: false,
+        engineModel: null,
       },
     ],
     installedNotOffered: [],
@@ -701,6 +733,9 @@ export function createDemoServer(lang: Language, options: DemoServerOptions): De
   // -------------------------------------------------------------------------
 
   /** The shopping lists: /shopping/:list/…, /shopping/batches/:id. */
+  /** The item whose tick finished a past list (opened again by Undo). */
+  const lastKey = new Map<string, string>();
+
   function shoppingRoute(method: string, seg: string[], body: unknown): Response {
     if (seg[0] === 'batches') {
       if (method === 'DELETE') return empty();
@@ -713,6 +748,25 @@ export function createDemoServer(lang: Language, options: DemoServerOptions): De
     const list = state.shopping[name];
     const other = state.shopping[name === 'family' ? 'mine' : 'family'];
     const [, what, key, action] = seg;
+    const past = state.pastShopping[name];
+    /** Archives the list when nothing is left to buy and something was bought (P12.8). */
+    const finish = (last: string | null): string | null => {
+      if (!list.items.some((i) => i.status === 'bought')) return null;
+      if (list.items.some((i) => i.status === 'open')) return null;
+      const at = Date.now();
+      const id = newId('past');
+      past.unshift({
+        id,
+        archivedAt: at,
+        deleteAt: at + SHOPPING_ARCHIVE_DAYS * DAY,
+        finishedBy: name === 'family' ? (DEMO_PEOPLE.anna as ShoppingPerson) : null,
+        list: structuredClone(list),
+      });
+      if (last !== null) lastKey.set(id, last);
+      list.items = [];
+      list.recipes = [];
+      return id;
+    };
     const route = `${method} ${what ?? ''}${key ? '/:id' : ''}${action ? `/${action}` : ''}`;
     switch (route) {
       case 'GET ':
@@ -762,10 +816,45 @@ export function createDemoServer(lang: Language, options: DemoServerOptions): De
           item.buy = { ...item.buy, count: r.count ?? 1 };
           item.adjusted = r.count !== null;
         }
-        return empty();
+        return json({
+          archived: r.status !== undefined || r.alwaysHome !== undefined ? finish(key ?? '') : null,
+        });
       }
       case 'DELETE items/:id':
+        if (!list.items.some((i) => i.key === key)) return notFound();
         list.items = list.items.filter((i) => i.key !== key);
+        return json({ archived: finish(null) });
+      case 'GET archive':
+        return json({ archives: past });
+      case 'POST archive/:id/restore': {
+        const r = parse(RestoreShoppingRequest, body);
+        const entry = past.find((a) => a.id === key);
+        if (!entry) return notFound();
+        if (!r) return badRequest();
+        for (const i of entry.list.items) {
+          if (list.items.some((o) => o.key === i.key)) continue;
+          list.items.push(
+            r.as === 'undo'
+              ? i.key === lastKey.get(entry.id)
+                ? { ...i, status: 'open', ticked: null }
+                : i
+              : {
+                  ...i,
+                  status: i.alwaysHome ? 'home' : 'open',
+                  ticked: null,
+                  addedBy: name === 'family' ? [DEMO_PEOPLE.anna as ShoppingPerson] : [],
+                },
+          );
+        }
+        if (r.as === 'undo') {
+          list.recipes.push(...entry.list.recipes);
+          state.pastShopping[name] = past.filter((a) => a !== entry);
+        }
+        return empty();
+      }
+      case 'DELETE archive/:id':
+        if (!past.some((a) => a.id === key)) return notFound();
+        state.pastShopping[name] = past.filter((a) => a.id !== key);
         return empty();
       case 'POST items/:id/move':
       case 'POST move': {

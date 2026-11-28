@@ -335,6 +335,7 @@ user's data key; see SECURITY.md. Tables are SQLite `STRICT`; migrations live in
 | `shopping_settings` | user_id, data (enc: country, pantry choices), updated_at |
 | `household_shopping` | id (`family`), data (enc with the family key: the family list, with who added and ticked), updated_at |
 | `household_shopping_settings` | id (`family`), data (enc with the family key: country, pantry), updated_at |
+| `shopping_archive` | id, user_id (owner; NULL = family), data (enc with the owner's data key or the family key: the finished list, its country, who finished it), archived_at (deleted after 30 days) |
 | `audit_log` | id, user_id, event (`login`, `login_failed`, `invite_used`, `password_changed`, …), ip_hash, created_at (never content) |
 
 Deleting a chat deletes its messages and attachment blobs (hard delete, not a flag, for

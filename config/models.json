@@ -3,10 +3,10 @@
     {
       "id": "gemma4-26b",
       "label": {
-        "en": "gemma4 26B",
-        "de": "gemma4 26B",
-        "fr": "gemma4 26B",
-        "it": "gemma4 26B"
+        "en": "Gemma 4 26B",
+        "de": "Gemma 4 26B",
+        "fr": "Gemma 4 26B",
+        "it": "Gemma 4 26B"
       },
       "description": {
         "en": "Best all-rounder: fast, sees photos",
@@ -29,10 +29,10 @@
     {
       "id": "gemma4-12b",
       "label": {
-        "en": "gemma4 12B",
-        "de": "gemma4 12B",
-        "fr": "gemma4 12B",
-        "it": "gemma4 12B"
+        "en": "Gemma 4 12B",
+        "de": "Gemma 4 12B",
+        "fr": "Gemma 4 12B",
+        "it": "Gemma 4 12B"
       },
       "description": {
         "en": "Smaller and lighter, leaves room for pictures",
@@ -55,10 +55,10 @@
     {
       "id": "qwen3-coder-30b",
       "label": {
-        "en": "Qwen3-Coder 30B",
-        "de": "Qwen3-Coder 30B",
-        "fr": "Qwen3-Coder 30B",
-        "it": "Qwen3-Coder 30B"
+        "en": "Qwen 3 Coder 30B",
+        "de": "Qwen 3 Coder 30B",
+        "fr": "Qwen 3 Coder 30B",
+        "it": "Qwen 3 Coder 30B"
       },
       "description": {
         "en": "Fastest, specialised in programming",
@@ -80,10 +80,10 @@
     {
       "id": "qwen38-27b",
       "label": {
-        "en": "Qwen3.8 27B",
-        "de": "Qwen3.8 27B",
-        "fr": "Qwen3.8 27B",
-        "it": "Qwen3.8 27B"
+        "en": "Qwen 3.8 27B",
+        "de": "Qwen 3.8 27B",
+        "fr": "Qwen 3.8 27B",
+        "it": "Qwen 3.8 27B"
       },
       "description": {
         "en": "Strongest thinker, but slow: for hard questions",

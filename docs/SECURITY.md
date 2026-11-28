@@ -510,6 +510,15 @@ restarted with backoff. A SearXNG that already answers is used as it is.
 - **Chat batches:** the Undo and "move to the other list" of a reply only touch the caller's
   own lines on the family list; a batch id is only known to the person whose message holds
   it, and is a random UUID.
+- **Past lists (P12.8, owner request 2026-11-28):** when a tick or removal leaves nothing to
+  buy and something bought, the whole stored list moves to `shopping_archive` in one
+  transaction, encrypted with the same key as the list it came from (the owner's data key,
+  `user_id` = owner; or the family key, `user_id` NULL; AAD owner or `household`, table, row
+  id). Every query is scoped by owner (`user_id IS ?`), so a person's past lists stay theirs
+  and the family's are shared like the family list. Only `archived_at` is plaintext; rows
+  older than 30 days are deleted hourly and before every listing, at most 50 per list are
+  kept, and an account's own rows go with it (ON DELETE CASCADE). A family past list the
+  family key can't open is skipped (warning without content).
 - **Moves** between the lists are one database transaction (no item on both or neither).
   Anyone can move or remove any family item, and clear the family list (owner).
 - **Model tools:** `add_to_shopping_list` takes `list` (default `family`); a planted
